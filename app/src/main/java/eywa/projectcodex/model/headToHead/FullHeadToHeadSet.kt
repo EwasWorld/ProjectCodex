@@ -7,9 +7,31 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherT
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
+import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.Either
 
 enum class HeadToHeadNoResult { INCOMPLETE, UNKNOWN }
+
+sealed class RowArrows {
+    abstract val total: Int
+    abstract val arrowCount: Int
+
+    data class Arrows(val arrows: List<Arrow>) : RowArrows() {
+        override val total: Int
+            get() = arrows.sumOf { it.score }
+        override val arrowCount: Int
+            get() = arrows.size
+    }
+
+    data class Total(override val total: Int, override val arrowCount: Int) : RowArrows()
+
+    operator fun plus(other: RowArrows): RowArrows =
+            if (this is Arrows && other is Arrows) Arrows(arrows + other.arrows)
+            else Total(total + other.total, arrowCount + other.arrowCount)
+
+    val averageArrowScore
+        get() = if (arrowCount == 0) null else (total.toFloat() / arrowCount)
+}
 
 data class FullHeadToHeadSet(
         val setNumber: Int,
@@ -37,8 +59,32 @@ data class FullHeadToHeadSet(
         get() = team.left
     val result = result()
 
-    val arrowsShot: Int
-        get() = if (result == HeadToHeadResult.INCOMPLETE) 0 else endSize
+    fun arrowsShot(type: HeadToHeadArcherType) =
+            if (result == HeadToHeadResult.INCOMPLETE) 0
+            else type.expectedArrowCount(endSize = endSize, teamSize = teamSize)
+
+    fun getArrows(type: HeadToHeadArcherType): RowArrows? {
+        fun HeadToHeadGridRowData.asRowArrows(): RowArrows? =
+                when {
+                    !isComplete -> null
+                    this is HeadToHeadGridRowData.Arrows -> RowArrows.Arrows(arrows)
+                    else -> RowArrows.Total(totalScore, type.expectedArrowCount(endSize, teamSize))
+                }
+
+        val row = data.find { it.type == type }?.asRowArrows()
+        if (row != null) return row
+
+        if (type == HeadToHeadArcherType.SELF && teamSize == 1) {
+            return data.find { it.type == HeadToHeadArcherType.TEAM }?.asRowArrows()
+        }
+        if (type != HeadToHeadArcherType.TEAM) return null
+
+        val self = data.find { it.type == HeadToHeadArcherType.SELF }?.asRowArrows() ?: return null
+        if (teamSize == 1) return self
+
+        val teamMates = data.find { it.type == HeadToHeadArcherType.TEAM_MATE }?.asRowArrows() ?: return null
+        return self + teamMates
+    }
 
     val isComplete
         get() = result.isComplete || data.all { it.isComplete }

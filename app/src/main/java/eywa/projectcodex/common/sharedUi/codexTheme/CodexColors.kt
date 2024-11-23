@@ -47,6 +47,7 @@ data class CodexThemeColors(
         val onAppBackground: Color = Color.White,
         val warningOnAppBackground: Color = CodexColors.WARNING_TEXT,
         val errorOnAppBackground: Color = CodexColors.ERROR_TEXT,
+        val successOnAppBackground: Color = CodexColors.SUCCESS_TEXT,
 
         val listItemOnAppBackground: Color = CodexColors.COLOR_LIGHT_ACCENT,
         val listAccentRowItemOnAppBackground: Color = Color(0xFFC4FFF6),
@@ -174,6 +175,7 @@ object CodexColors {
     val INPUT_END_TEXT = Color.White
     val WARNING_TEXT = Color(0xFFFFF176)
     val ERROR_TEXT = Color(0xFFF44336)
+    val SUCCESS_TEXT = Color(0xFF4CAF50)
 
     val TARGET_FACE_GREEN = Color(0xFF26FF00)
     val TARGET_FACE_WHITE = Color.White

@@ -41,7 +41,7 @@ sealed class CodexGridColumn {
 @Composable
 fun CodexGrid(
         columns: Int,
-        alignment: Alignment,
+        alignment: Alignment = Alignment.Center,
         modifier: Modifier = Modifier,
         verticalSpacing: Dp = 0.dp,
         horizontalSpacing: Dp = 0.dp,
@@ -61,7 +61,7 @@ fun CodexGrid(
 @Composable
 fun CodexGrid(
         columns: List<CodexGridColumn>,
-        alignment: Alignment,
+        alignment: Alignment = Alignment.Center,
         modifier: Modifier = Modifier,
         verticalSpacing: Dp = 0.dp,
         horizontalSpacing: Dp = 0.dp,

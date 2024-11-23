@@ -40,12 +40,12 @@ enum class HeadToHeadBottomNavBarItem(
             selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_assignment_filled),
             label = ResOrActual.StringResource(R.string.score_pad__title),
     ),
-//    STATS(
-//            navRoute = CodexNavRoute.SHOOT_DETAILS_STATS,
-//            notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_outline),
-//            selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_filled),
-//            label = ResOrActual.StringResource(R.string.archer_round_stats__nav_bar_title),
-//    ),
+    STATS(
+            navRoute = CodexNavRoute.HEAD_TO_HEAD_STATS,
+            notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_outline),
+            selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_chart_filled),
+            label = ResOrActual.StringResource(R.string.archer_round_stats__nav_bar_title),
+    ),
 //    SETTINGS(
 //            navRoute = CodexNavRoute.SHOOT_DETAILS_SETTINGS,
 //            notSelectedIcon = CodexIconInfo.VectorIcon(Icons.Outlined.Settings),

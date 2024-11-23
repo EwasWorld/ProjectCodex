@@ -52,27 +52,56 @@ internal fun HandicapAndClassificationSection(
         helpListener: (HelpShowcaseIntent) -> Unit,
         listener: (StatsIntent) -> Unit,
 ) {
-
     val (classification, isOfficialClassification) = state.classification.let { it ?: (null to false) }
-    val showClassificationSection = state.archerInfo != null && state.bow != null
+    HandicapAndClassificationSection(
+            classification = classification,
+            isOfficialClassification = isOfficialClassification,
+            archerInfo = state.archerInfo,
+            bow = state.bow,
+            handicap = state.fullShootInfo.handicap,
+            helpListener = helpListener,
+            modifier = modifier,
+            handicapTablesClicked = { listener(StatsIntent.ExpandHandicapsClicked) },
+            classificationTablesClicked = { listener(StatsIntent.ExpandClassificationsClicked) },
+            archerCategoryClicked = { listener(StatsIntent.EditArcherInfoClicked) },
+    )
+}
+
+@Composable
+internal fun HandicapAndClassificationSection(
+        classification: Classification?,
+        isOfficialClassification: Boolean,
+        archerInfo: DatabaseArcher?,
+        bow: DatabaseBow?,
+        handicap: Int?,
+        modifier: Modifier = Modifier,
+        prefix: String? = null,
+        helpListener: (HelpShowcaseIntent) -> Unit,
+        handicapTablesClicked: () -> Unit,
+        classificationTablesClicked: () -> Unit,
+        archerCategoryClicked: () -> Unit,
+) {
+    val showClassificationSection = archerInfo != null && bow != null
 
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
         Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = modifier
         ) {
-            HandicapSection(state.fullShootInfo.handicap, helpListener, listener)
+            HandicapSection(handicap, prefix, helpListener, handicapTablesClicked)
 
             if (showClassificationSection) {
                 Delimiter(modifier = Modifier.padding(horizontal = 20.dp))
 
                 ClassificationSection(
-                        archerInfo = state.archerInfo!!,
-                        bow = state.bow!!,
+                        archerInfo = archerInfo!!,
+                        bow = bow!!,
                         classification = classification,
                         isOfficial = isOfficialClassification,
+                        prefix = prefix,
                         helpListener = helpListener,
-                        listener = listener,
+                        classificationTablesClicked = classificationTablesClicked,
+                        archerCategoryClicked = archerCategoryClicked,
                 )
             }
         }
@@ -82,12 +111,22 @@ internal fun HandicapAndClassificationSection(
 @Composable
 private fun HandicapSection(
         handicap: Int?,
+        prefix: String? = null,
         helpListener: (HelpShowcaseIntent) -> Unit,
-        listener: (StatsIntent) -> Unit,
+        handicapTablesClicked: () -> Unit,
 ) {
     Column(
             horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        if (prefix != null) {
+            Text(
+                    text = prefix,
+                    style = CodexTypography.SMALL,
+                    color = CodexTheme.colors.onAppBackground,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.clearAndSetSemantics { }
+            )
+        }
         Text(
                 text = stringResource(R.string.archer_round_stats__round_handicap_two_lines),
                 style = CodexTypography.SMALL,
@@ -122,7 +161,7 @@ private fun HandicapSection(
                                     }
                             onClick(
                                     it.getString(R.string.archer_round_stats__handicap_tables_link_cont_desc),
-                            ) { listener(StatsIntent.ExpandHandicapsClicked); true }
+                            ) { handicapTablesClicked(); true }
                         }
         )
         Text(
@@ -138,7 +177,7 @@ private fun HandicapSection(
                                         helpBody = stringResource(R.string.help_archer_round_stats__expand_handicaps_body),
                                 ).asHelpState(helpListener),
                         )
-                        .clickable { listener(StatsIntent.ExpandHandicapsClicked) }
+                        .clickable { handicapTablesClicked() }
         )
     }
 }
@@ -149,8 +188,10 @@ private fun ClassificationSection(
         bow: DatabaseBow,
         classification: Classification?,
         isOfficial: Boolean,
+        prefix: String? = null,
         helpListener: (HelpShowcaseIntent) -> Unit,
-        listener: (StatsIntent) -> Unit,
+        classificationTablesClicked: () -> Unit,
+        archerCategoryClicked: () -> Unit,
 ) {
     val title = stringResource(
             when {
@@ -169,6 +210,15 @@ private fun ClassificationSection(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.semantics { isTraversalGroup = true }
     ) {
+        if (prefix != null) {
+            Text(
+                    text = prefix,
+                    style = CodexTypography.SMALL,
+                    color = CodexTheme.colors.onAppBackground,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.clearAndSetSemantics { }
+            )
+        }
         Text(
                 text = title,
                 textAlign = TextAlign.Center,
@@ -189,7 +239,7 @@ private fun ClassificationSection(
                                         helpBody = stringResource(R.string.help_archer_round_stats__archer_info_body),
                                 ).asHelpState(helpListener),
                         )
-                        .clickable { listener(StatsIntent.EditArcherInfoClicked) }
+                        .clickable { archerCategoryClicked() }
                         .testTag(StatsTestTag.CLASSIFICATION_CATEGORY)
                         .semanticsWithContext {
                             contentDescription = it.getString(
@@ -223,7 +273,7 @@ private fun ClassificationSection(
                                     )
                             onClick(
                                     it.getString(R.string.archer_round_stats__classification_tables_link_cont_desc),
-                            ) { listener(StatsIntent.ExpandClassificationsClicked); true }
+                            ) { classificationTablesClicked(); true }
                         }
         )
         Text(
@@ -239,7 +289,7 @@ private fun ClassificationSection(
                                         helpBody = stringResource(R.string.help_archer_round_stats__expand_classification_body),
                                 ).asHelpState(helpListener),
                         )
-                        .clickable { listener(StatsIntent.ExpandClassificationsClicked) }
+                        .clickable { classificationTablesClicked() }
         )
     }
 }

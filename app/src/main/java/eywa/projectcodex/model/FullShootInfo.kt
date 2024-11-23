@@ -4,6 +4,7 @@ import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -89,7 +90,13 @@ data class FullShootInfo(
         }
     }
 
-    val displayName by lazy { if (h2h != null) "Head to head" else (roundSubType?.name ?: round?.displayName) }
+    val displayName by lazy {
+        val round = roundSubType?.name ?: round?.displayName
+
+        if (h2h != null && round != null) "H2H: $round"
+        else if (h2h != null) "Head to head"
+        else round
+    }
 
     val distanceUnit by lazy { round?.getDistanceUnitRes() }
 
@@ -182,21 +189,50 @@ data class FullShootInfo(
     val isInnerTenArcher = bow == ClassificationBow.COMPOUND
 
     val handicapFloat by lazy {
-        if (
-            fullRoundInfo == null
-            || arrows.isNullOrEmpty()
-            || hasSurplusArrows
-        ) return@lazy null
+        if (fullRoundInfo == null) {
+            null
+        }
+        else if (!arrows.isNullOrEmpty() && !hasSurplusArrows) {
+            Handicap.getHandicapForRound(
+                    round = fullRoundInfo!!,
+                    subType = null,
+                    score = score,
+                    innerTenArcher = isInnerTenArcher,
+                    arrows = arrowsShot,
+                    use2023Handicaps = use2023HandicapSystem,
+                    faces = faces,
+            )
+        }
+        else if (h2h != null && h2h.arrowsShot > 0 && fullRoundInfo != null) {
+            val rowArrows = h2h.getArrows(HeadToHeadArcherType.SELF) ?: return@lazy null
+            val roundInfo = fullRoundInfo?.maxDistanceOnlyWithArrowCount(rowArrows.arrowCount)
+            Handicap.getHandicapForRound(
+                    round = roundInfo!!,
+                    subType = null,
+                    score = rowArrows.total,
+                    innerTenArcher = isInnerTenArcher,
+                    use2023Handicaps = use2023HandicapSystem,
+                    faces = faces?.take(1),
+            )
+        }
+        else {
+            null
+        }
+    }
+
+    val h2hHandicapToIsSelf by lazy {
+        if (fullRoundInfo != null || h2h == null || h2h.arrowsShot == 0) return@lazy null
+
+        val (rowArrows, isSelf) = h2h.arrowsToIsSelf ?: return@lazy null
 
         Handicap.getHandicapForRound(
-                round = fullRoundInfo!!,
+                round = fullRoundInfo?.maxDistanceOnlyWithArrowCount(rowArrows.arrowCount) ?: return@lazy null,
                 subType = null,
-                score = score,
+                score = rowArrows.total,
                 innerTenArcher = isInnerTenArcher,
-                arrows = arrowsShot,
                 use2023Handicaps = use2023HandicapSystem,
-                faces = faces,
-        )
+                faces = faces?.take(1),
+        ) to isSelf
     }
 
     val handicap by lazy { handicapFloat?.roundHandicap() }

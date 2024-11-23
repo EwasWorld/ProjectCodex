@@ -1,11 +1,13 @@
 package eywa.projectcodex.components.shootDetails.stats.ui
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
@@ -64,6 +66,15 @@ fun DateAndRoundSection(
                     titleStyle = CodexTypography.SMALL.copy(color = CodexTheme.colors.onAppBackground),
             )
             ProvideTextStyle(value = CodexTypography.SMALL.copy(color = CodexTheme.colors.onAppBackground)) {
+                fullShootInfo.h2h?.headToHead?.let {
+                    val team = if (it.teamSize > 1) "Teams of ${it.teamSize}" else "Individual"
+                    val style = if (it.isRecurveStyle) "Set points" else "Score"
+                    val rank = if (it.qualificationRank != null) ", Rank ${it.qualificationRank}" else ""
+                    Text(
+                            "$team, $style$rank",
+                            modifier = Modifier.padding(bottom = 2.dp)
+                    )
+                }
                 SelectFaceRow(
                         selectedFaces = fullShootInfo.faces,
                         helpListener = helpListener,
@@ -118,6 +129,27 @@ fun RoundAndFaces_DateAndRoundSection_Preview() {
                 fullShootInfo = ShootPreviewHelperDsl.create {
                     round = RoundPreviewHelper.wa1440RoundData
                     faces = listOf(RoundFace.FULL, RoundFace.FULL, RoundFace.HALF, RoundFace.HALF)
+                },
+                editClickedListener = {},
+                helpListener = {},
+        )
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY
+)
+@Composable
+fun H2h_DateAndRoundSection_Preview() {
+    CodexTheme {
+        DateAndRoundSection(
+                fullShootInfo = ShootPreviewHelperDsl.create {
+                    round = RoundPreviewHelper.wa1440RoundData
+                    faces = listOf(RoundFace.FULL, RoundFace.FULL, RoundFace.HALF, RoundFace.HALF)
+                    addH2h {
+                        headToHead = headToHead.copy(isRecurveStyle = true, teamSize = 1, qualificationRank = 5)
+                    }
                 },
                 editClickedListener = {},
                 helpListener = {},

@@ -212,4 +212,20 @@ interface ShootDao {
             fromDate: Calendar,
             toDate: Calendar,
     ): Flow<List<DatabaseArrowCountCalendarData>>
+
+    @Transaction
+    @Query(
+            """
+                SELECT shootId 
+                FROM (
+                    SELECT s.shootId, strftime("%d-%m", dateShot / 1000, 'unixepoch') as dateString
+                    FROM $TABLE_NAME as s
+                    LEFT JOIN ${DatabaseShootRound.TABLE_NAME} as r ON r.shootId = s.shootId
+                    WHERE :dateShot = dateString AND r.roundId = :roundId
+                    ORDER BY dateShot DESC
+                    LIMIT 1
+                )
+            """
+    )
+    fun getQualifyingRoundId(dateShot: String, roundId: Int): Flow<Int?>
 }

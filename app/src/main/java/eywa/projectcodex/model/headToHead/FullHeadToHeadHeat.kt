@@ -1,6 +1,7 @@
 package eywa.projectcodex.model.headToHead
 
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridState
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
@@ -25,7 +26,12 @@ data class FullHeadToHeadHeat(
         get() = sets.isNotEmpty()
 
     val arrowsShot: Int
-        get() = sets.sumOf { it.arrowsShot }
+        get() = getArrows(HeadToHeadArcherType.SELF)?.arrowCount ?: 0
+
+    fun getArrows(type: HeadToHeadArcherType) =
+            sets.fold<FullHeadToHeadSet, RowArrows?>(RowArrows.Arrows(listOf())) { acc, set ->
+                if (acc == null) null else set.getArrows(type)?.let { it + acc }
+            }
 
     val isComplete
         get() = result.isComplete || (sets.lastOrNull()?.let { it.isShootOff && it.isComplete } == true)

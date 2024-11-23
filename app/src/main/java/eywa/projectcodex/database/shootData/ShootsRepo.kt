@@ -15,7 +15,9 @@ import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.flow.Flow
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 class ShootsRepo(
         private val shootDao: ShootDao,
@@ -25,6 +27,12 @@ class ShootsRepo(
         private val headToHeadRepo: HeadToHeadRepo,
 ) {
     val mostRecentRoundShot = shootDao.getMostRecentRoundShot()
+
+    @Transaction
+    fun getQualifyingRoundId(dateShot: Calendar, roundId: Int): Flow<Int?> {
+        val date = SimpleDateFormat("dd-MM", Locale.UK).format(dateShot.time)
+        return shootDao.getQualifyingRoundId(date, roundId)
+    }
 
     @Transaction
     fun getMostRecentShootsForRound(count: Int, roundId: Int, subTypeId: Int = 1) =

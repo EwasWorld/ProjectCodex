@@ -50,4 +50,17 @@ data class FullRoundInfo(
 
             return true
         }
+
+    fun maxDistanceOnlyWithArrowCount(arrowCount: Int, subTypeId: Int? = null): FullRoundInfo {
+        val subType = subTypeId ?: roundSubTypes?.takeIf { it.size == 1 }?.first()?.subTypeId ?: 1
+
+        val roundArrowCounts = roundArrowCounts?.firstOrNull()?.copy(arrowCount = arrowCount)?.let { listOf(it) }
+        val distance = getDistances(subTypeId)?.maxByOrNull { it.distance }?.let { listOf(it) }
+
+        return copy(
+                roundArrowCounts = roundArrowCounts,
+                roundDistances = distance,
+                roundSubTypes = roundSubTypes?.filter { it.subTypeId == subType },
+        )
+    }
 }

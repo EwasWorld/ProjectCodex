@@ -3,6 +3,7 @@ package eywa.projectcodex.common.sharedUi.grid
 import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.ProvideTextStyle
@@ -10,6 +11,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -64,9 +66,10 @@ fun <RowData : CodexGridRowMetadata, ExtraData> CodexGridWithHeaders(
                     Text(
                             text = value,
                             fontWeight = weight,
-                            color = CodexTheme.colors.onListItemAppOnBackground,
+                            color = column.textColour(row) ?: CodexTheme.colors.onListItemAppOnBackground,
                             textAlign = TextAlign.Center,
                             modifier = cellModifier
+                                    .padding(column.padding())
                                     .background(background)
                                     .padding(horizontal = 8.dp, vertical = 3.dp)
                                     .semantics {
@@ -118,6 +121,7 @@ fun <RowData : Any, ExtraData> CodexGridWithHeaders(
                                 color = CodexTheme.colors.onListItemAppOnBackground,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
+                                        .padding(column.padding())
                                         .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
                                         .padding(horizontal = 8.dp, vertical = 3.dp)
                                         .wrapContentHeight(Alignment.CenterVertically)
@@ -144,6 +148,7 @@ fun <RowData : Any, ExtraData> CodexGridWithHeaders(
                                 color = CodexTheme.colors.onListItemAppOnBackground,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
+                                        .padding(column.padding())
                                         .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
                                         .padding(horizontal = 8.dp, vertical = 3.dp)
                                         .updateHelpDialogPosition(helpState)
@@ -203,6 +208,11 @@ interface CodexGridColumnMetadata<RowData, ExtraData> {
     fun isTotal(): Boolean = false
     fun isAccentColor(): Boolean = false
     fun isBoldText(): Boolean = false
+
+    @Composable
+    fun textColour(rowData: RowData): Color? = null
+
+    fun padding(): PaddingValues = PaddingValues()
 
     fun getHelpState(resources: Resources): HelpShowcaseItem? {
         if (helpTitle == null || helpBody == null) return null

@@ -77,4 +77,14 @@
     <string name="help_head_to_head_add_heat__delete_body">Permanently deletes the match</string>
     <string name="help_head_to_head_add_heat__save_title">Save</string>
     <string name="help_head_to_head_add_heat__save_body">Updates the match with the current data</string>
+
+    <string name="head_to_head_stats__title">Stats</string>
+    <string name="head_to_head_stats__heats_grid_match_title">Match</string>
+    <string name="head_to_head_stats__heats_grid_opponent_title">Opponent</string>
+    <string name="head_to_head_stats__heats_grid_rank_title">Rank</string>
+    <string name="head_to_head_stats__heats_grid_result_title">Result</string>
+    <string name="head_to_head_stats__heats_grid_empty">-</string>
+    <string name="head_to_head_stats__heats_grid_result">%1$d-%2$d %3$s</string>
+    <string name="head_to_head_stats__heats_grid_no_heats">No matches</string>
+    <string name="head_to_head_stats__heats_grid_no_data">Not enough data</string>
 </resources>
