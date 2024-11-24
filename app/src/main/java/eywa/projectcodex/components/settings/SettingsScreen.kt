@@ -130,8 +130,7 @@ fun SettingsScreen(
                 )
             }
 
-            // TODO Fix Import/Export
-//            DbFunctions(state, listener)
+            DbFunctions(state, listener)
         }
     }
 }

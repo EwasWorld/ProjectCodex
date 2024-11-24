@@ -4,7 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Environment
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.IOException
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 import kotlin.system.exitProcess
 
 /**
@@ -13,41 +18,40 @@ import kotlin.system.exitProcess
  * Instead of backing up a single file, 3 files can be backed up and restored (the wal file and the shm file)
  * see https://www.sqlite.org/wal.html
  *
- * Note my DB doesn't use WAL at the moment
+ * Note my DB doesn't use WAL at the moment - better to add them to the back up code anyway in case it's turned back on
  */
 object DbBackupHelpers {
-    private const val DATABASE_BACKUP_NAME = "database-bkp"
+    private const val DATABASE_BACKUP_NAME = "CodexArcheryAideDbBackup.zip"
     private const val SQLITE_WAL_FILE_SUFFIX = "-wal"
     private const val SQLITE_SHM_FILE_SUFFIX = "-shm"
 
-    private fun getFolder() = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            "CodexArcheryAideDbBackup",
-    )
+    private fun getFolder() = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
     fun backupDb(context: Context, checkpoint: () -> Unit): DbResult {
         val dbFile = context.getDatabasePath(ScoresRoomDatabaseImpl.DATABASE_NAME)
         val dbWalFile = File(dbFile.path + SQLITE_WAL_FILE_SUFFIX)
         val dbShmFile = File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
 
-        val backupFolder = getFolder()
-        if (backupFolder.exists()) backupFolder.delete()
-        backupFolder.mkdir()
+        val backupFile = File(getFolder(), DATABASE_BACKUP_NAME)
+        if (backupFile.exists()) backupFile.delete()
 
-        val bkpFile = File(backupFolder, DATABASE_BACKUP_NAME)
-        val bkpWalFile = File(backupFolder, DATABASE_BACKUP_NAME + SQLITE_WAL_FILE_SUFFIX)
-        val bkpShmFile = File(backupFolder, DATABASE_BACKUP_NAME + SQLITE_SHM_FILE_SUFFIX)
-
-        if (bkpFile.exists()) bkpFile.delete()
-        if (bkpWalFile.exists()) bkpWalFile.delete()
-        if (bkpShmFile.exists()) bkpShmFile.delete()
-
+        // Ensure all changes are committed
         checkpoint()
 
         try {
-            dbFile.copyTo(bkpFile, true)
-            if (dbWalFile.exists()) dbWalFile.copyTo(bkpWalFile, true)
-            if (dbShmFile.exists()) dbShmFile.copyTo(bkpShmFile, true)
+            backupFile.createNewFile()
+            ZipOutputStream(FileOutputStream(backupFile)).use { zipOut ->
+                listOf(dbFile, dbWalFile, dbShmFile).forEach { file ->
+                    if (file.exists()) {
+                        FileInputStream(file).use { fis ->
+                            val zipEntry = ZipEntry(file.name)
+                            zipOut.putNextEntry(zipEntry)
+                            fis.copyTo(zipOut)
+                            zipOut.closeEntry()
+                        }
+                    }
+                }
+            }
         }
         catch (e: IOException) {
             return DbResult.UnknownError(e)
@@ -56,22 +60,26 @@ object DbBackupHelpers {
     }
 
     fun restoreDb(context: Context, checkpoint: () -> Unit): DbResult {
-        val backupFolder = getFolder()
-        val bkpFile = File(backupFolder, DATABASE_BACKUP_NAME)
-
-        if (!bkpFile.exists()) return DbResult.NoBackupFound
+        val backupFile = File(getFolder(), DATABASE_BACKUP_NAME)
+        if (!backupFile.exists()) return DbResult.NoBackupFound
 
         val dbFile = context.getDatabasePath(ScoresRoomDatabaseImpl.DATABASE_NAME)
-        val dbWalFile = File(dbFile.path + SQLITE_WAL_FILE_SUFFIX)
-        val dbShmFile = File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
-
-        val bkpWalFile = File(backupFolder, DATABASE_BACKUP_NAME + SQLITE_WAL_FILE_SUFFIX)
-        val bkpShmFile = File(backupFolder, DATABASE_BACKUP_NAME + SQLITE_SHM_FILE_SUFFIX)
-
         try {
-            bkpFile.copyTo(dbFile, true)
-            if (bkpWalFile.exists()) bkpWalFile.copyTo(dbWalFile, true)
-            if (bkpShmFile.exists()) bkpShmFile.copyTo(dbShmFile, true)
+            ZipFile(backupFile).use { zipFile ->
+                zipFile.entries().asSequence().forEach { entry ->
+                    zipFile.getInputStream(entry).use { input ->
+                        val name = entry.name
+                        val outputFile = when {
+                            name.contains(SQLITE_WAL_FILE_SUFFIX) -> File(dbFile.path + SQLITE_WAL_FILE_SUFFIX)
+                            name.contains(SQLITE_SHM_FILE_SUFFIX) -> File(dbFile.path + SQLITE_SHM_FILE_SUFFIX)
+                            else -> dbFile
+                        }
+                        outputFile.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                }
+            }
 
             checkpoint()
         }

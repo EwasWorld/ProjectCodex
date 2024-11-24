@@ -15,7 +15,7 @@
     <string name="settings__restore_button">Import Db</string>
     <string name="settings__backup_button">Export Db</string>
     <string name="settings__clear_button">Clear Db</string>
-    <string name="settings__restore_file_not_found_error">Error: no database backup folder found in downloads folder</string>
+    <string name="settings__restore_file_not_found_error">Error: CodexArcheryAideDbBackup.zip file not found in downloads folder</string>
     <string name="settings__restore_error">Import error</string>
     <string name="settings__backup_error">Export error</string>
     <string name="settings__restore_success">Import successful</string>
@@ -25,7 +25,7 @@
     <string name="settings__import_dialog_message">Are you sure you want to import database data? Note: this will restart your app. WARNING: this will overwrite existing data and is irreversible.</string>
     <string name="settings__import_dialog_confirm">Import</string>
     <string name="settings__clear_dialog_title">Clear data</string>
-    <string name="settings__clear_dialog_message">Are you sure you want to clear all database data? WARNING: WARNING: this is irreversible.</string>
+    <string name="settings__clear_dialog_message">Are you sure you want to clear all database data? WARNING: this is irreversible.</string>
     <string name="settings__clear_dialog_confirm">Clear</string>
 
     <string name="help_settings__use_2023_system_title">Handicap system</string>
