@@ -273,6 +273,8 @@ dependencies {
     debugImplementation("com.auth0.android:auth0:2.+")
 
     lintChecks project(path: ':lintrules')
+
+    implementation "com.google.accompanist:accompanist-permissions:$accompanist_version"
 }
 
 allprojects {

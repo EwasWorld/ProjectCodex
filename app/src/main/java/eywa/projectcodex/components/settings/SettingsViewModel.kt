@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.settings
 
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,7 +49,17 @@ class SettingsViewModel @Inject constructor(
             ToggleUseBetaFeatures -> viewModelScope.launch { datastore.toggle(UseBetaFeatures) }
             is HelpShowcaseAction -> helpShowcaseUseCase.handle(action.action, CodexNavRoute.SETTINGS::class)
 
-            ClickExportDb -> _state.update { it.copy(backupDb = true, dbMessage = Message.BACKUP_IN_PROGRESS) }
+            ClickExportDb -> _state.update {
+                it.copy(
+                        backupDb = true,
+                        dbMessage = Message.BACKUP_IN_PROGRESS,
+                        permissionRequest = PermissionRequest(
+                                isReadPermission = false,
+                                isGranted = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU,
+                        ),
+                )
+            }
+
             is ExportDbHandled -> {
                 _state.update {
                     it.copy(
@@ -57,6 +68,7 @@ class SettingsViewModel @Inject constructor(
                                 DbBackupHelpers.DbResult.Success -> Message.BACKUP_SUCCESS
                                 else -> Message.BACKUP_ERROR
                             },
+                            permissionRequest = it.permissionRequest?.takeIf { r -> r.isReadPermission },
                     )
                 }
             }
@@ -69,6 +81,10 @@ class SettingsViewModel @Inject constructor(
                             restoreDb = true,
                             dbMessage = Message.RESTORE_IN_PROGRESS,
                             importDbConfirmDialogIsOpen = false,
+                            permissionRequest = PermissionRequest(
+                                    isReadPermission = true,
+                                    isGranted = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU,
+                            ),
                     )
                 }
             }
@@ -82,6 +98,7 @@ class SettingsViewModel @Inject constructor(
                                 DbBackupHelpers.DbResult.NoBackupFound -> Message.RESTORE_FILE_NOT_FOUND_ERROR
                                 else -> Message.RESTORE_ERROR
                             },
+                            permissionRequest = it.permissionRequest?.takeIf { r -> !r.isReadPermission },
                     )
                 }
             }
@@ -98,6 +115,42 @@ class SettingsViewModel @Inject constructor(
                                 clearingDb = false,
                                 dbMessage = Message.CLEAR_SUCCESS,
                                 clearDbConfirmDialogIsOpen = false,
+                        )
+                    }
+                }
+            }
+
+            PermissionRationaleRequested ->
+                _state.update { it.copy(permissionRequest = it.permissionRequest?.copy(showRationale = true)) }
+
+            is PermissionRequestComplete -> {
+                _state.update {
+                    if (action.granted) {
+                        it.copy(permissionRequest = it.permissionRequest?.copy(isGranted = true))
+                    }
+                    else {
+                        it.copy(
+                                restoreDb = false,
+                                backupDb = false,
+                                permissionRequest = null,
+                                dbMessage = Message.PERMISSION_DENIED,
+                        )
+                    }
+                }
+            }
+
+            is PermissionRationaleComplete -> {
+                _state.update {
+                    if (action.launch) {
+                        val request = it.permissionRequest?.copy(showRationale = false, rationaleShown = true)
+                        it.copy(permissionRequest = request)
+                    }
+                    else {
+                        it.copy(
+                                restoreDb = false,
+                                backupDb = false,
+                                permissionRequest = null,
+                                dbMessage = Message.PERMISSION_DENIED,
                         )
                     }
                 }

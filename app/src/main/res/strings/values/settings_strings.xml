@@ -21,6 +21,10 @@
     <string name="settings__restore_success">Import successful</string>
     <string name="settings__backup_success">Export to downloads folder successful</string>
     <string name="settings__clear_success">Clear successful</string>
+    <string name="settings__db_permission_required_title">Permission required</string>
+    <string name="settings__db_permission_required_read_message">Permission denied</string>
+    <string name="settings__db_permission_required_write_message">Permission denied</string>
+    <string name="settings__db_permission_denied">Permission denied</string>
     <string name="settings__import_dialog_title">Import data</string>
     <string name="settings__import_dialog_message">Are you sure you want to import database data? Note: this will restart your app. WARNING: this will overwrite existing data and is irreversible.</string>
     <string name="settings__import_dialog_confirm">Import</string>

@@ -1,5 +1,8 @@
 package eywa.projectcodex.components.settings
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -24,11 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
@@ -53,17 +59,62 @@ fun SettingsScreen(
         viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
-    SettingsScreen(state) { viewModel.handle(it) }
+    val showR = state.permissionRequest?.let { if (!it.showRationale) null else it.isReadPermission }
+    SettingsScreen(state, showR) { viewModel.handle(it) }
 
     val context = LocalContext.current
-    LaunchedEffect(state.backupDb, state.restoreDb) {
-        if (state.backupDb) {
-            val result = DbBackupHelpers.backupDb(context) { viewModel.database.checkpoint() }
-            viewModel.handle(SettingsIntent.ExportDbHandled(result))
+    LaunchedEffect(state.backupDb, state.restoreDb, state.permissionRequest) {
+        state.permissionRequest?.let {
+            if (it.isGranted) {
+                if (it.isReadPermission) {
+                    val result = DbBackupHelpers.restoreDb(context) { viewModel.database.checkpoint() }
+                    viewModel.handle(SettingsIntent.ImportDbHandled(result))
+                }
+                else {
+                    val result = DbBackupHelpers.backupDb(context) { viewModel.database.checkpoint() }
+                    viewModel.handle(SettingsIntent.ExportDbHandled(result))
+                }
+            }
         }
-        if (state.restoreDb) {
-            val result = DbBackupHelpers.restoreDb(context) { viewModel.database.checkpoint() }
-            viewModel.handle(SettingsIntent.ImportDbHandled(result))
+    }
+
+    state.permissionRequest?.let { request ->
+        if (!request.isGranted) {
+            RequestPermission(
+                    isReadPermission = request.isReadPermission,
+                    rationaleShown = request.rationaleShown,
+                    requestCompleted = { viewModel.handle(SettingsIntent.PermissionRequestComplete(it)) },
+                    showRationale = { viewModel.handle(SettingsIntent.PermissionRationaleRequested) },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun RequestPermission(
+        isReadPermission: Boolean,
+        rationaleShown: Boolean,
+        requestCompleted: (granted: Boolean) -> Unit,
+        showRationale: () -> Unit,
+) {
+    val permission =
+            if (isReadPermission) Manifest.permission.READ_EXTERNAL_STORAGE
+            else Manifest.permission.WRITE_EXTERNAL_STORAGE
+
+    val permissionState = rememberPermissionState(permission = permission)
+
+    val requestPermissionLauncher =
+            rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                requestCompleted(isGranted)
+            }
+
+    LaunchedEffect(permissionState, rationaleShown) {
+        if (!permissionState.status.isGranted && permissionState.status.shouldShowRationale && !rationaleShown) {
+            showRationale()
+        }
+        else {
+            requestPermissionLauncher.launch(permission)
         }
     }
 }
@@ -71,9 +122,32 @@ fun SettingsScreen(
 @Composable
 fun SettingsScreen(
         state: SettingsState,
+        showPermissionRationaleFor: Boolean? = null,
         listener: (SettingsIntent) -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(SettingsIntent.HelpShowcaseAction(it)) }
+
+    SimpleDialog(
+            isShown = showPermissionRationaleFor != null,
+            onDismissListener = { listener(SettingsIntent.PermissionRationaleComplete(false)) },
+    ) {
+        val isRead = state.permissionRequest?.isReadPermission == true
+        SimpleDialogContent(
+                title = stringResource(R.string.settings__db_permission_required_title),
+                message = stringResource(
+                        if (isRead) R.string.settings__db_permission_required_read_message
+                        else R.string.settings__db_permission_required_write_message,
+                ),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.general_ok),
+                        onClick = { listener(SettingsIntent.PermissionRationaleComplete(true)) },
+                ),
+                negativeButton = ButtonState(
+                        text = stringResource(R.string.general_cancel),
+                        onClick = { listener(SettingsIntent.PermissionRationaleComplete(false)) },
+                ),
+        )
+    }
 
     ProvideTextStyle(value = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
         SettingsDialogs(state, listener)
@@ -85,7 +159,7 @@ fun SettingsScreen(
                         .fillMaxSize()
                         .background(CodexTheme.colors.appBackground)
                         .verticalScroll(rememberScrollState())
-                        .padding(25.dp)
+                        .padding(vertical = CodexTheme.dimens.screenPadding)
                         .testTag(SettingsTestTag.SCREEN)
         ) {
             DataRow(
@@ -101,12 +175,15 @@ fun SettingsScreen(
                     onClick = { listener(SettingsIntent.ToggleUse2023System) },
                     accessibilityRole = Role.Switch,
                     titleStyle = CodexTypography.NORMAL.copy(CodexTheme.colors.onAppBackground),
-                    modifier = Modifier.padding(bottom = 2.dp)
+                    modifier = Modifier
+                            .padding(bottom = 2.dp)
+                            .padding(horizontal = CodexTheme.dimens.screenPadding)
             )
 
             Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(horizontal = CodexTheme.dimens.screenPadding)
             ) {
                 DataRow(
                         title = stringResource(R.string.settings__use_beta_features),
@@ -192,11 +269,9 @@ private fun DbFunctions(
     Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                    .border(
-                            width = 1.dp,
-                            color = CodexTheme.colors.onAppBackground,
-                            shape = RoundedCornerShape(CodexTheme.dimens.cornerRounding),
-                    )
+                    .padding(top = 10.dp)
+                    .horizontalScroll(rememberScrollState())
+                    .padding(horizontal = CodexTheme.dimens.screenPadding)
                     .modifierIf(
                             state.dbOperationInProgress,
                             Modifier.background(
@@ -208,24 +283,17 @@ private fun DbFunctions(
         Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 15.dp)
+                modifier = Modifier
+                        .border(
+                                width = 1.dp,
+                                color = CodexTheme.colors.onAppBackground,
+                                shape = RoundedCornerShape(CodexTheme.dimens.cornerRounding),
+                        )
+                        .padding(horizontal = 20.dp, vertical = 15.dp)
         ) {
-            Text(
-                    text = "Beta Feature",
-                    style = CodexTypography.LARGE.copy(color = CodexTheme.colors.onAppBackground),
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.Start)
-            )
-            Text(
-                    text = "Warning: import/export is currently slightly unreliable",
-                    style = CodexTypography.SMALL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
-                    modifier = Modifier.align(Alignment.Start)
-            )
-
             Row(
                     horizontalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterHorizontally),
                     modifier = Modifier
-                            .horizontalScroll(rememberScrollState())
                             .updateHelpDialogPosition(
                                     HelpShowcaseItem(
                                             helpTitle = stringResource(R.string.help_settings__backup_restore_title),
@@ -234,14 +302,14 @@ private fun DbFunctions(
                             )
             ) {
                 CodexButton(
-                        text = stringResource(R.string.settings__restore_button),
-                        enabled = !state.dbOperationInProgress,
-                        onClick = { listener(SettingsIntent.ClickImportDb) },
-                )
-                CodexButton(
                         text = stringResource(R.string.settings__backup_button),
                         enabled = !state.dbOperationInProgress,
                         onClick = { listener(SettingsIntent.ClickExportDb) },
+                )
+                CodexButton(
+                        text = stringResource(R.string.settings__restore_button),
+                        enabled = !state.dbOperationInProgress,
+                        onClick = { listener(SettingsIntent.ClickImportDb) },
                 )
             }
 
