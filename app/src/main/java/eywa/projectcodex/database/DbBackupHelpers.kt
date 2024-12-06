@@ -3,6 +3,7 @@ package eywa.projectcodex.database
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
+import eywa.projectcodex.common.logging.debugLog
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -59,9 +60,15 @@ object DbBackupHelpers {
         return DbResult.Success
     }
 
-    fun restoreDb(context: Context, checkpoint: () -> Unit): DbResult {
-        val backupFile = File(getFolder(), DATABASE_BACKUP_NAME)
-        if (!backupFile.exists()) return DbResult.NoBackupFound
+    fun restoreDb(
+            context: Context,
+            backupFile: File = File(getFolder(), DATABASE_BACKUP_NAME),
+            checkpoint: () -> Unit,
+    ): DbResult {
+        if (!backupFile.exists()) {
+            debugLog(backupFile.path)
+            return DbResult.NoBackupFound
+        }
 
         val dbFile = context.getDatabasePath(ScoresRoomDatabaseImpl.DATABASE_NAME)
         try {
@@ -96,6 +103,7 @@ object DbBackupHelpers {
     sealed class DbResult {
         data object Success : DbResult()
         data object NoBackupFound : DbResult()
-        data class UnknownError(val error: Throwable) : DbResult()
+        data object ErrorOpeningBackup : DbResult()
+        data class UnknownError(val error: Throwable?) : DbResult()
     }
 }

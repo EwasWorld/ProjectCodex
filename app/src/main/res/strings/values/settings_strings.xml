@@ -16,6 +16,7 @@
     <string name="settings__backup_button">Export Db</string>
     <string name="settings__clear_button">Clear Db</string>
     <string name="settings__restore_file_not_found_error">Error: CodexArcheryAideDbBackup.zip file not found in downloads folder</string>
+    <string name="settings__restore_file_error">Error: could not open backup file</string>
     <string name="settings__restore_error">Import error</string>
     <string name="settings__backup_error">Export error</string>
     <string name="settings__restore_success">Import successful</string>

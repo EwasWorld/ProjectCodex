@@ -95,6 +95,7 @@ class SettingsViewModel @Inject constructor(
                             restoreDb = false,
                             dbMessage = when (action.outcome) {
                                 DbBackupHelpers.DbResult.Success -> Message.RESTORE_SUCCESS
+                                DbBackupHelpers.DbResult.ErrorOpeningBackup -> Message.RESTORE_FILE_ERROR
                                 DbBackupHelpers.DbResult.NoBackupFound -> Message.RESTORE_FILE_NOT_FOUND_ERROR
                                 else -> Message.RESTORE_ERROR
                             },

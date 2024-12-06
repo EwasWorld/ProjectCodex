@@ -1,6 +1,7 @@
 package eywa.projectcodex.components.settings
 
 import android.Manifest
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -9,9 +10,11 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -52,6 +55,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.common.utils.FileUtils
 import eywa.projectcodex.database.DbBackupHelpers
 
 @Composable
@@ -60,19 +64,39 @@ fun SettingsScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val showR = state.permissionRequest?.let { if (!it.showRationale) null else it.isReadPermission }
-    SettingsScreen(state, showR) { viewModel.handle(it) }
 
     val context = LocalContext.current
+
+    val filePickerIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+        addCategory(Intent.CATEGORY_OPENABLE)
+        type = "application/zip"
+    }
+
+    // Open file picker
+    var result: DbBackupHelpers.DbResult = DbBackupHelpers.DbResult.UnknownError(null)
+    val launcher = FileUtils.rememberLauncherForFileActivityResult(
+            onSuccess = { result = DbBackupHelpers.restoreDb(context, it) { viewModel.database.checkpoint() } },
+            onFail = { result = DbBackupHelpers.DbResult.ErrorOpeningBackup },
+            onComplete = { viewModel.handle(SettingsIntent.ImportDbHandled(result)) },
+    )
+
+    SettingsScreen(
+            state = state,
+            showPermissionRationaleFor = showR,
+            listener = { viewModel.handle(it) },
+            onImportClicked = { launcher.launch(filePickerIntent) },
+    )
+
     LaunchedEffect(state.backupDb, state.restoreDb, state.permissionRequest) {
         state.permissionRequest?.let {
             if (it.isGranted) {
                 if (it.isReadPermission) {
-                    val result = DbBackupHelpers.restoreDb(context) { viewModel.database.checkpoint() }
-                    viewModel.handle(SettingsIntent.ImportDbHandled(result))
+                    val r = DbBackupHelpers.restoreDb(context) { viewModel.database.checkpoint() }
+                    viewModel.handle(SettingsIntent.ImportDbHandled(r))
                 }
                 else {
-                    val result = DbBackupHelpers.backupDb(context) { viewModel.database.checkpoint() }
-                    viewModel.handle(SettingsIntent.ExportDbHandled(result))
+                    val r = DbBackupHelpers.backupDb(context) { viewModel.database.checkpoint() }
+                    viewModel.handle(SettingsIntent.ExportDbHandled(r))
                 }
             }
         }
@@ -124,6 +148,7 @@ fun SettingsScreen(
         state: SettingsState,
         showPermissionRationaleFor: Boolean? = null,
         listener: (SettingsIntent) -> Unit,
+        onImportClicked: () -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(SettingsIntent.HelpShowcaseAction(it)) }
 
@@ -207,7 +232,7 @@ fun SettingsScreen(
                 )
             }
 
-            DbFunctions(state, listener)
+            DbFunctions(state, listener, onImportClicked)
         }
     }
 }
@@ -263,6 +288,7 @@ private fun SettingsDialogs(
 private fun DbFunctions(
         state: SettingsState,
         listener: (SettingsIntent) -> Unit,
+        onImportClicked: () -> Unit,
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(SettingsIntent.HelpShowcaseAction(it)) }
 
@@ -309,7 +335,7 @@ private fun DbFunctions(
                 CodexButton(
                         text = stringResource(R.string.settings__restore_button),
                         enabled = !state.dbOperationInProgress,
-                        onClick = { listener(SettingsIntent.ClickImportDb) },
+                        onClick = { onImportClicked() },
                 )
             }
 
@@ -329,6 +355,7 @@ private fun DbFunctions(
                 Text(
                         text = state.dbMessage.text.get(),
                         textAlign = TextAlign.Center,
+                        modifier = Modifier.width(IntrinsicSize.Min)
                 )
             }
         }
@@ -355,7 +382,7 @@ enum class SettingsTestTag : CodexTestTag {
 @Composable
 fun SettingsScreen_Preview() {
     CodexTheme {
-        SettingsScreen(SettingsState(dbMessage = Message.CLEAR_SUCCESS)) {}
+        SettingsScreen(SettingsState(dbMessage = Message.CLEAR_SUCCESS), listener = {}) {}
     }
 }
 
@@ -366,6 +393,6 @@ fun SettingsScreen_Preview() {
 @Composable
 fun Loading_SettingsScreen_Preview() {
     CodexTheme {
-        SettingsScreen(SettingsState(restoreDb = true)) {}
+        SettingsScreen(SettingsState(restoreDb = true), listener = {}) {}
     }
 }
