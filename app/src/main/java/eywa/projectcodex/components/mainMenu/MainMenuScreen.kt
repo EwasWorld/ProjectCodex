@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -78,6 +80,8 @@ private fun MainMenuScreen(
                     .fillMaxSize()
                     .background(CodexTheme.colors.appBackground)
                     .testTag(MainMenuTestTag.SCREEN)
+                    .verticalScroll(rememberScrollState())
+                    .padding(CodexTheme.dimens.screenPadding)
     ) {
         val (iconButtons, defaultButtons) = options.partition { it.buttonTitle == null }
 
