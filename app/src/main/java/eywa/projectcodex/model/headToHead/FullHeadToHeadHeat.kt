@@ -17,7 +17,7 @@ data class FullHeadToHeadHeat(
         val isStandardFormat: Boolean,
 ) {
     init {
-        check(heat.heat in 0..HeadToHeadUseCase.MAX_HEAT)
+        check(heat.heat == null || heat.heat in 0..HeadToHeadUseCase.MAX_HEAT)
     }
 
     val runningTotals = runningTotals()

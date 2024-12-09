@@ -47,7 +47,6 @@ data class HeadToHeadAddHeatExtras(
          * 0 is final, 1 is semi, etc.
          */
         val heat: Int? = null,
-        val showHeatRequiredError: Boolean = false,
         val showSelectHeatDialog: Boolean = false,
         val opponent: String = "",
         val opponentQualiRank: NumberFieldState<Int> = NumberFieldState(

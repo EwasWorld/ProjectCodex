@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
@@ -22,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,8 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.error
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -297,29 +293,17 @@ private fun MatchDetails(
                     title = stringResource(R.string.head_to_head_add_heat__heat, state.matchNumber),
             ) {
                 val requiredErrorString = stringResource(R.string.err__required_field)
-                val matchError = if (state.extras.showHeatRequiredError) requiredErrorString else null
                 Text(
                         text = state.extras.heat?.let { HeadToHeadUseCase.shortRoundName(it).get() }
                                 ?: stringResource(R.string.head_to_head_add_heat__heat_null),
                         style = LocalTextStyle.current
                                 .asClickableStyle()
-                                .copy(
-                                        color = if (matchError != null) CodexTheme.colors.errorOnAppBackground
-                                        else CodexTheme.colors.linkText,
-                                ),
+                                .copy(color = CodexTheme.colors.linkText),
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                                 .clickable { listener(HeatClicked) }
                                 .align(Alignment.CenterVertically)
-                                .semantics { if (matchError != null) error(matchError) }
                 )
-                if (state.extras.showHeatRequiredError) {
-                    Icon(
-                            imageVector = Icons.Default.WarningAmber,
-                            contentDescription = null,
-                            tint = CodexTheme.colors.errorOnAppBackground,
-                    )
-                }
             }
             CodexChip(
                     text = stringResource(R.string.head_to_head_ref__bye),
@@ -541,7 +525,7 @@ fun Bye_HeadToHeadAddHeatScreen_Preview() {
     CodexTheme {
         HeadToHeadAddHeatScreen(
                 state = HeadToHeadAddHeatState(
-                        extras = HeadToHeadAddHeatExtras(isBye = true, showHeatRequiredError = true),
+                        extras = HeadToHeadAddHeatExtras(isBye = true),
                 ),
         ) {}
     }

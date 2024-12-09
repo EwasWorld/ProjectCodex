@@ -215,7 +215,7 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
 
             is SelectHeatDialogItemClicked ->
                 updateState {
-                    it.copy(heat = action.heat, showSelectHeatDialog = false, showHeatRequiredError = false)
+                    it.copy(heat = action.heat, showSelectHeatDialog = false)
                 }
 
             ToggleIsBye -> updateState { it.copy(isBye = !it.isBye) }
@@ -223,11 +223,6 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
             CloseSelectHeatDialog -> updateState { it.copy(showSelectHeatDialog = false) }
 
             SubmitClicked -> state.value.getData()?.let { state ->
-                if (state.extras.heat == null) {
-                    updateState { it.copy(showHeatRequiredError = true) }
-                    return
-                }
-
                 val newHeat = state.asHeadToHeadHeat(shootId)
                 viewModelScope.launch {
                     if (state.editing != null) h2hRepo.update(newHeat)
