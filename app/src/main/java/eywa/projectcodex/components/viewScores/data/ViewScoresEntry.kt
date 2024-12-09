@@ -70,13 +70,13 @@ data class ViewScoresEntry(
                         ViewScoresDropdownMenuItem.DELETE,
                 )
 
-                else -> listOf(
+                else -> listOfNotNull(
                         ViewScoresDropdownMenuItem.SCORE_PAD,
                         ViewScoresDropdownMenuItem.CONTINUE,
                         ViewScoresDropdownMenuItem.EMAIL_SCORE,
                         ViewScoresDropdownMenuItem.EDIT_INFO,
                         ViewScoresDropdownMenuItem.DELETE,
-                        ViewScoresDropdownMenuItem.CONVERT,
+                        ViewScoresDropdownMenuItem.CONVERT.takeIf { info.h2h == null },
                 )
             }.filter { it.shouldShow?.invoke(this) ?: true }
 

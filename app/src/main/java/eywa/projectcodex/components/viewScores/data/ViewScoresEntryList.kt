@@ -2,6 +2,7 @@ package eywa.projectcodex.components.viewScores.data
 
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.components.viewScores.screenUi.getDisplayName
 import eywa.projectcodex.model.GoldsType
 import eywa.projectcodex.model.PbType
@@ -146,4 +147,16 @@ data class ViewScoresEntryList(
                         ResOrActual.StringResource(R.string.view_score__hits_semantics, listOf(hits)),
                 )
             }
+
+    val h2hWinsLossesOther
+        get() = entries
+                .flatMap { it.info.h2h!!.heats }
+                .map { it.result }
+                .let { resultsList ->
+                    val grouped = resultsList.groupBy { it }.mapValues { it.value.size }
+                    val wins = (grouped[HeadToHeadResult.WIN] ?: 0)
+                    val losses = (grouped[HeadToHeadResult.LOSS] ?: 0)
+
+                    listOf(wins, losses, (resultsList.size - wins - losses))
+                }
 }

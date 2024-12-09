@@ -93,6 +93,8 @@ object ViewScoresEntryPreviewProvider {
         )
     }
 
+    fun FullShootInfo.toEntry() = ViewScoresEntry(info = this, isSelected = false, customLogger = CustomLogger())
+
     private fun generateArrows(shootId: Int, hsg: List<Int>) =
             generateArrows(shootId, hsg[0], hsg[1], hsg[2])
 

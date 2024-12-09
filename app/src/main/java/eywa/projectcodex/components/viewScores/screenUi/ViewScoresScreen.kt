@@ -260,7 +260,14 @@ fun ViewScoresScreen(
                             listener = listener,
                             helpListener = { listener(HelpShowcaseAction(it)) },
                     ) {
-                        if (entry.isCount) {
+                        if (entry.info.h2h != null) {
+                            ViewScoresHeadToHeadRow(
+                                    entries = ViewScoresEntryList(entry),
+                                    entryIndex = entryIndex,
+                                    helpListener = { listener(HelpShowcaseAction(it)) },
+                            )
+                        }
+                        else if (entry.isCount) {
                             ViewScoresCountRow(
                                     entries = ViewScoresEntryList(entry),
                                     entryIndex = entryIndex,

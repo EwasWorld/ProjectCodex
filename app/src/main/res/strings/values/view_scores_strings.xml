@@ -30,6 +30,26 @@
     <!-- Golds type then number of golds e.g. Golds 11 -->
     <string name="view_score__golds_semantics">%s %d</string>
 
+    <string name="view_score__h2h_semantics">%1$s, %2$s, %3$s</string> <!-- 1 win, 2 losses, 3 other matches -->
+    <string name="view_score__h2h_wins_losses">%1$dW-%2$dL</string> <!-- 1W-3L -->
+    <plurals name="view_score__h2h_wins">
+        <item quantity="one">%d win</item>
+        <item quantity="other">%d wins</item>
+    </plurals>
+    <plurals name="view_score__h2h_losses">
+        <item quantity="one">%d loss</item>
+        <item quantity="other">%d losses</item>
+    </plurals>
+    <plurals name="view_score__h2h_matches">
+        <item quantity="one">%d match</item>
+        <item quantity="other">%d matches</item>
+    </plurals>
+    <plurals name="view_score__h2h_other_matches">
+        <item quantity="one">%d other match</item>
+        <item quantity="other">%d other matches</item>
+    </plurals>
+    <string name="view_score__wins_losses_other">%d wins, %d losses, %d other</string>
+
     <string name="view_score__multiple_ellipses">&amp; %d more…</string>
     <string name="view_score__joiner">&amp; %s</string>
     <string name="view_score__double"><b>Double</b> %s</string>
@@ -109,6 +129,8 @@
     <string name="help_view_score__hsg_body">Shows the hits, score, and golds in that order. The label above indicates how golds are being counted: G for 9+, 10 for 10s and Xs, X for Xs only.</string>
     <string name="help_view_score__arrow_count_title">Arrow count</string>
     <string name="help_view_score__arrow_count_body">Shows the number of arrows shot</string>
+    <string name="help_view_score__head_to_head_title">Match count</string>
+    <string name="help_view_score__head_to_head_body">Shows the number of wins and losses or the total number of matches shot</string>
     <string name="help_view_score__round_title">Round shot</string>
     <string name="help_view_score__round_body">Shows the round that was shot. Will be crossed out if too few or too many arrows have been entered.</string>
     <string name="help_view_score__handicap_title">Handicap</string>

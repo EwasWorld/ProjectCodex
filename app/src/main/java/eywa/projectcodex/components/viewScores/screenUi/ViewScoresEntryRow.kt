@@ -368,6 +368,9 @@ enum class ViewScoresRowTestTag : CodexTestTag {
     OTHER_NAMES_COUNT,
     HSG,
     COUNT,
+    H2H_WINS_LOSSES,
+    H2H_OTHER_MATCHES,
+    H2H_MATCHES,
     HANDICAP,
     PB,
     ;
