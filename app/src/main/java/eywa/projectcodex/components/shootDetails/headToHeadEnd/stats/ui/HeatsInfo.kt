@@ -22,7 +22,7 @@ internal fun HeatsInfo(
         modifier: Modifier = Modifier,
         listener: (HeadToHeadStatsIntent) -> Unit,
 ) {
-    val heats = state.fullShootInfo?.h2h?.heats ?: return
+    val heats = state.fullShootInfo.h2h?.heats ?: return
     val helpListener = { it: HelpShowcaseIntent -> listener(HeadToHeadStatsIntent.HelpShowcaseAction(it)) }
 
     if (heats.isEmpty()) {
@@ -43,6 +43,7 @@ internal fun HeatsInfo(
                 columnMetadata = columns,
                 extraData = Unit,
                 helpListener = helpListener,
+                modifier = modifier
         )
     }
 }
@@ -55,7 +56,10 @@ enum class HeadToHeadStatsHeatsColumn : CodexGridColumnMetadata<HeadToHeadStatsH
             get() = ResOrActual.StringResource(R.string.head_to_head_stats__heats_grid_match_title)
 
         override val mapping: (HeadToHeadStatsHeatInfoDataRow) -> ResOrActual<String>
-            get() = { HeadToHeadUseCase.shortRoundName(it.heat.heat.heat) }
+            get() = {
+                it.heat.heat.heat?.let { heat -> HeadToHeadUseCase.shortRoundName(heat) }
+                        ?: ResOrActual.Actual(it.heat.heat.matchNumber.toString())
+            }
     },
     OPPONENT {
         override val primaryTitle: ResOrActual<String>

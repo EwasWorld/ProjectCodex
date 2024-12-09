@@ -41,6 +41,9 @@
     <string name="create_round__score_type_count">Count</string>
     <string name="create_round__score_type_head_to_head">Head to head</string>
     <string name="create_round__h2h_style">Style:</string>
+    <string name="create_round__h2h_format">Format:</string>
+    <string name="create_round__h2h_format_standard">Standard</string>
+    <string name="create_round__h2h_format_non_standard">Non-standard</string>
     <string name="create_round__h2h_style_recurve">Set points</string>
     <string name="create_round__h2h_style_compound">Total score</string>
     <string name="create_round__h2h_team_size">Team size:</string>
@@ -75,6 +78,8 @@
     <string name="help_create_round__score_type_body">Select \'Score\' to score arrows. Select \'Count\' to count how many arrows were shot. Select \'Head to head\' to score a head to head match</string>
     <string name="help_create_round__h2h_style_title">Style</string>
     <string name="help_create_round__h2h_style_body">A score match is based on total score after five ends, this is typically the compound match style. All other bow styles typically use set points where each points are given to the highest scorer of each end</string>
+    <string name="help_create_round__h2h_format_title">Format</string>
+    <string name="help_create_round__h2h_format_body">Standard format: For set matches, 2 set points are awarded for a win (1 for a tie), individuals shoot first to 6 set points (shoot off if at 5 points each), teams shoot first to 5 set points (shoot off if at 4 points each). For total score matches, individuals shoot 5 ends, teams shoot 4 ends, both have a shoot off in the event of a tie.</string>
     <string name="help_create_round__h2h_team_size_title">Team size</string>
     <string name="help_create_round__h2h_team_size_body">The size of each team in the head to head match. For one-on-one matches, this is always 1. For pairs, this is 2, etc.</string>
     <string name="help_create_round__h2h_quali_rank_title">Qualification rank</string>

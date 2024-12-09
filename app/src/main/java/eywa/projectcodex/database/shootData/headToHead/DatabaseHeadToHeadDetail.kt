@@ -21,7 +21,7 @@ data class DatabaseHeadToHeadDetail(
         @PrimaryKey(autoGenerate = true)
         val headToHeadArrowScoreId: Int,
         val shootId: Int,
-        val heat: Int,
+        val matchNumber: Int,
         val type: HeadToHeadArcherType,
         val isTotal: Boolean,
         val setNumber: Int,

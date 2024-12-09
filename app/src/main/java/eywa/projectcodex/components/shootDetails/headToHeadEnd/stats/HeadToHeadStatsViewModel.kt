@@ -31,8 +31,15 @@ class HeadToHeadStatsViewModel @Inject constructor(
         private val helpShowcaseUseCase: HelpShowcaseUseCase,
         private val classificationTablesUseCase: ClassificationTablesUseCase,
 ) : ViewModel() {
-    private val screen = CodexNavRoute.HEAD_TO_HEAD_ADD_END
+    private val screen = CodexNavRoute.HEAD_TO_HEAD_STATS
     private val extraState = MutableStateFlow(HeadToHeadStatsState.Extras())
+
+    val state = repo.getState(extraState, ::stateConverter)
+            .stateIn(
+                    viewModelScope,
+                    SharingStarted.WhileSubscribed(),
+                    ShootDetailsResponse.Loading as ShootDetailsResponse<HeadToHeadStatsState>,
+            )
 
     init {
         viewModelScope.launch {
@@ -50,13 +57,6 @@ class HeadToHeadStatsViewModel @Inject constructor(
                     .collectLatest { extraState.update { s -> s.copy(qualifyingRoundId = it) } }
         }
     }
-
-    val state = repo.getState(extraState, ::stateConverter)
-            .stateIn(
-                    viewModelScope,
-                    SharingStarted.WhileSubscribed(),
-                    ShootDetailsResponse.Loading as ShootDetailsResponse<HeadToHeadStatsState>,
-            )
 
     private fun stateConverter(
             main: ShootDetailsState,

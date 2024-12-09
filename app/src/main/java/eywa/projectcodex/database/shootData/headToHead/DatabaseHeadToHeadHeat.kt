@@ -8,7 +8,7 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
 
 @Entity(
         tableName = DatabaseHeadToHeadHeat.TABLE_NAME,
-        primaryKeys = ["shootId", "heat"],
+        primaryKeys = ["shootId", "matchNumber"],
         foreignKeys = [
             ForeignKey(
                     entity = DatabaseShoot::class,
@@ -20,7 +20,11 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
 )
 data class DatabaseHeadToHeadHeat(
         val shootId: Int,
-        val heat: Int,
+        /**
+         * First is match 1
+         */
+        val matchNumber: Int,
+        val heat: Int?,
         val opponent: String?,
         val opponentQualificationRank: Int?,
         val isShootOffWin: Boolean,

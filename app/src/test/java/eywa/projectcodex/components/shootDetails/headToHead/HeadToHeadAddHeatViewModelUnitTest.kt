@@ -149,8 +149,8 @@ class HeadToHeadAddHeatViewModelUnitTest {
                                 heat = 3,
                                 result = HeadToHeadResult.WIN,
                                 runningTotal = 6 to 0,
+                                matchNumber = 1,
                         ),
-                        existingHeats = listOf(3),
                 ),
                 currentState,
         )
@@ -187,8 +187,8 @@ class HeadToHeadAddHeatViewModelUnitTest {
                                 heat = 3,
                                 result = HeadToHeadResult.LOSS,
                                 runningTotal = 5 to 6,
+                                matchNumber = 1,
                         ),
-                        existingHeats = listOf(3),
                 ),
                 currentState,
         )

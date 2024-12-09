@@ -15,15 +15,15 @@ import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 data class HeadToHeadAddEndState(
         val roundInfo: HeadToHeadRoundInfo? = null,
         val extras: HeadToHeadAddEndExtras = HeadToHeadAddEndExtras(),
-        val teamRunningTotal: Int = 0,
-        val opponentRunningTotal: Int = 2,
+        val teamRunningTotal: Int? = null,
+        val opponentRunningTotal: Int? = null,
         val isRecurveStyle: Boolean = true,
         val heat: DatabaseHeadToHeadHeat = DatabaseHeadToHeadHeatPreviewHelper.data,
-        val dbSet: FullHeadToHeadSet? = null,
+        val editingSet: FullHeadToHeadSet? = null,
 ) {
     init {
-        if (dbSet != null) {
-            check(extras.set.setNumber == dbSet.setNumber)
+        if (editingSet != null) {
+            check(extras.set.setNumber == editingSet.setNumber)
         }
     }
 
@@ -35,7 +35,7 @@ data class HeadToHeadAddEndState(
             finalResult = null,
     )
 
-    fun toDbDetails(): List<DatabaseHeadToHeadDetail> = extras.set.asDatabaseDetails(heat.shootId, heat.heat)
+    fun toDbDetails(): List<DatabaseHeadToHeadDetail> = extras.set.asDatabaseDetails(heat.shootId, heat.matchNumber)
 }
 
 data class HeadToHeadRoundInfo(
@@ -57,7 +57,7 @@ data class HeadToHeadAddEndExtras(
                 teamSize = 1,
                 isShootOffWin = false,
                 setNumber = 1,
-                isRecurveStyle = false,
+                isRecurveStyle = true,
         ),
         val selected: HeadToHeadArcherType? = set.data.map { it.type }.minByOrNull { it.ordinal },
         val arrowInputsError: Set<ArrowInputsError> = setOf(),

@@ -124,7 +124,7 @@ fun HeadToHeadAddEndScreen(
                         navController,
                         mapOf(
                                 NavArgument.SHOOT_ID to data.heat.shootId.toString(),
-                                NavArgument.HEAT_ID to data.heat.heat.toString(),
+                                NavArgument.MATCH_NUMBER to data.heat.heat.toString(),
                                 NavArgument.IS_SIGHTERS to true.toString(),
                         ),
                 )
@@ -145,7 +145,7 @@ fun HeadToHeadAddEndScreen(
                         navController,
                         mapOf(
                                 NavArgument.SHOOT_ID to viewModel.shootId.toString(),
-                                NavArgument.HEAT_ID to (data.heat.heat - 1).toString(),
+                                NavArgument.MATCH_NUMBER to (data.heat.matchNumber + 1).toString(),
                         ),
                         popCurrentRoute = true,
                 )
@@ -208,7 +208,9 @@ fun HeadToHeadAddEndScreen(
             )
         }
         else {
-            HeatTransitiveInfo(state, listener)
+            if (state.editingSet == null) {
+                HeatTransitiveInfo(state, listener)
+            }
             SetInfo(state, listener)
             Buttons(state, listener)
         }
@@ -223,17 +225,26 @@ private fun HeatFixedInfo(
     val opponent = state.heat.opponentString(true)?.get()
 
     Column(
-            verticalArrangement = Arrangement.spacedBy(0.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
     ) {
-        DataRow(
-                title = stringResource(R.string.head_to_head_add_heat__heat),
-                text = HeadToHeadUseCase.shortRoundName(state.heat.heat).get(),
-                textStyle = CodexTypography.NORMAL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
-                titleStyle = CodexTypography.SMALL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
-                modifier = Modifier.padding(bottom = 5.dp)
-        )
+        if (state.heat.heat != null) {
+            DataRow(
+                    title = stringResource(R.string.head_to_head_add_heat__heat, state.heat.matchNumber),
+                    text = HeadToHeadUseCase.shortRoundName(state.heat.heat).get(),
+                    textStyle = CodexTypography.NORMAL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
+                    titleStyle = CodexTypography.SMALL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
+            )
+        }
+        else {
+            Text(
+                    text = stringResource(R.string.head_to_head_add_heat__match_header, state.heat.matchNumber),
+                    style = CodexTypography.SMALL_PLUS,
+                    color = CodexTheme.colors.onAppBackground,
+                    textAlign = TextAlign.Center,
+            )
+        }
 
         if (opponent != null) {
             Text(
@@ -289,12 +300,20 @@ private fun HeatTransitiveInfo(
         ) {
             DataRow(
                     title = stringResource(R.string.head_to_head_add_end__score),
-                    text = stringResource(
-                            R.string.head_to_head_add_end__score_text,
-                            state.teamRunningTotal,
-                            state.opponentRunningTotal,
+                    text = if (state.teamRunningTotal != null) {
+                        stringResource(
+                                R.string.head_to_head_add_end__score_text,
+                                state.teamRunningTotal,
+                                state.opponentRunningTotal!!,
+                        )
+                    }
+                    else {
+                        // TODO
+                        "Unknown"
+                    },
+                    textStyle = (if (state.teamRunningTotal != null) CodexTypography.LARGE else CodexTypography.NORMAL).copy(
+                            color = CodexTheme.colors.onAppBackground
                     ),
-                    textStyle = CodexTypography.LARGE.copy(color = CodexTheme.colors.onAppBackground),
                     titleStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
                     modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp)
             )
@@ -390,11 +409,23 @@ private fun ColumnScope.SetInfo(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-                text = setText,
-                style = CodexTypography.NORMAL_PLUS,
-                color = CodexTheme.colors.onAppBackground,
-        )
+        Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (state.editingSet != null) {
+                Text(
+                        text = stringResource(R.string.head_to_head_add_end__editing_set),
+                        style = CodexTypography.NORMAL_PLUS,
+                        color = CodexTheme.colors.onAppBackground,
+                )
+            }
+            Text(
+                    text = setText,
+                    style = CodexTypography.NORMAL_PLUS,
+                    color = CodexTheme.colors.onAppBackground,
+            )
+        }
         if (result == HeadToHeadResult.UNKNOWN) {
             Text(
                     text = stringResource(
@@ -491,6 +522,8 @@ fun HeadToHeadAddScreen_Preview() {
         HeadToHeadAddEndScreen(
                 state = HeadToHeadAddEndState(
                         heat = DatabaseHeadToHeadHeatPreviewHelper.data,
+                        teamRunningTotal = 0,
+                        opponentRunningTotal = 0,
                 ),
         ) {}
     }

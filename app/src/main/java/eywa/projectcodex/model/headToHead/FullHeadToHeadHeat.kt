@@ -14,6 +14,7 @@ data class FullHeadToHeadHeat(
         val sets: List<FullHeadToHeadSet>,
         val teamSize: Int,
         val isRecurveStyle: Boolean,
+        val isStandardFormat: Boolean,
 ) {
     init {
         check(heat.heat in 0..HeadToHeadUseCase.MAX_HEAT)
@@ -34,7 +35,8 @@ data class FullHeadToHeadHeat(
             }
 
     val isComplete
-        get() = result.isComplete || (sets.lastOrNull()?.let { it.isShootOff && it.isComplete } == true)
+        get() = isStandardFormat &&
+                (result.isComplete || (sets.lastOrNull()?.let { it.isShootOff && it.isComplete } == true))
 
     /**
      * @return for each set in [sets], provide cumulative team/opponent score.

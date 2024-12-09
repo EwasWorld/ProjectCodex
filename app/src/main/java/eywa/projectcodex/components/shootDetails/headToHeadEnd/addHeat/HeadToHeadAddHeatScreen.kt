@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -199,9 +198,20 @@ private fun PreviousHeat(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(vertical = 20.dp, horizontal = 25.dp)
         ) {
-            DataRow(
-                    title = stringResource(R.string.head_to_head_add_heat__heat),
-                    text = HeadToHeadUseCase.shortRoundName(state.previousHeat.heat).get(),
+            Text(
+                    text = if (state.previousHeat.heat != null) {
+                        stringResource(
+                                R.string.head_to_head_add_heat__match_header_with_heat,
+                                state.previousHeat.matchNumber,
+                                HeadToHeadUseCase.shortRoundName(state.previousHeat.heat).get(),
+                        )
+                    }
+                    else {
+                        stringResource(
+                                R.string.head_to_head_add_heat__match_header,
+                                state.previousHeat.matchNumber,
+                        )
+                    },
             )
             val setScore =
                     if (state.previousHeat.runningTotal != null) {
@@ -231,7 +241,7 @@ private fun EditingHeat(
         Text(
                 text = stringResource(
                         R.string.head_to_head_add_heat__editing,
-                        HeadToHeadUseCase.shortRoundName(state.editing.heat).get(),
+                        state.editing.matchNumber,
                 ),
         )
     }
@@ -251,7 +261,7 @@ private fun MatchDetails(
             onDismissListener = { listener(CloseSelectHeatDialog) },
     ) {
         SimpleDialogContent(
-                title = stringResource(R.string.head_to_head_add_heat__heat),
+                title = stringResource(R.string.head_to_head_add_heat__heat_match),
                 negativeButton = ButtonState(
                         text = stringResource(R.string.general_cancel),
                         onClick = { listener(CloseSelectHeatDialog) },
@@ -279,20 +289,15 @@ private fun MatchDetails(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
     ) {
-        val existingHeatError =
-                if (state.extras.heat !in state.existingHeats) null
-                else stringResource(R.string.head_to_head_add_heat__match_exists)
-
         Row(
                 horizontalArrangement = Arrangement.spacedBy(20.dp),
                 verticalAlignment = Alignment.CenterVertically,
         ) {
             DataRow(
-                    title = stringResource(R.string.head_to_head_add_heat__heat),
+                    title = stringResource(R.string.head_to_head_add_heat__heat, state.matchNumber),
             ) {
                 val requiredErrorString = stringResource(R.string.err__required_field)
-                val matchError = existingHeatError
-                        ?: if (state.extras.showHeatRequiredError) requiredErrorString else null
+                val matchError = if (state.extras.showHeatRequiredError) requiredErrorString else null
                 Text(
                         text = state.extras.heat?.let { HeadToHeadUseCase.shortRoundName(it).get() }
                                 ?: stringResource(R.string.head_to_head_add_heat__heat_null),
@@ -323,24 +328,6 @@ private fun MatchDetails(
                     onToggle = { listener(ToggleIsBye) },
                     colours = ChipColours.Defaults.onPrimary(),
             )
-        }
-        if (existingHeatError != null) {
-            Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
-                Text(
-                        text = existingHeatError,
-                        style = CodexTypography.SMALL_PLUS,
-                        color = CodexTheme.colors.errorOnAppBackground,
-                        fontStyle = FontStyle.Italic,
-                )
-                Icon(
-                        imageVector = Icons.Default.WarningAmber,
-                        contentDescription = null,
-                        tint = CodexTheme.colors.errorOnAppBackground,
-                )
-            }
         }
         DataRow(
                 title = stringResource(R.string.head_to_head_add_heat__opponent),
@@ -401,7 +388,7 @@ private fun EditButtons(
                 title = stringResource(R.string.head_to_head_add_heat__delete_dialog_title),
                 message = stringResource(
                         R.string.head_to_head_add_heat__delete_dialog_body,
-                        state.editing.heat
+                        state.editing.matchNumber.toString()
                 ),
                 positiveButton = ButtonState(
                         text = stringResource(R.string.general_delete),
@@ -492,6 +479,7 @@ fun Heat_HeadToHeadAddScreen_Preview() {
         HeadToHeadAddHeatScreen(
                 state = HeadToHeadAddHeatState(
                         previousHeat = HeadToHeadAddHeatState.PreviousHeat(
+                                matchNumber = 1,
                                 heat = 0,
                                 result = HeadToHeadResult.WIN,
                                 runningTotal = 6 to 0,
@@ -515,6 +503,7 @@ fun Editing_HeadToHeadAddHeatScreen_Preview() {
                 state = HeadToHeadAddHeatState(
                         editing = DatabaseHeadToHeadHeat(
                                 shootId = 0,
+                                matchNumber = 1,
                                 heat = 0,
                                 opponent = null,
                                 opponentQualificationRank = null,
@@ -542,22 +531,6 @@ fun Bye_HeadToHeadAddHeatScreen_Preview() {
         HeadToHeadAddHeatScreen(
                 state = HeadToHeadAddHeatState(
                         extras = HeadToHeadAddHeatExtras(isBye = true, showHeatRequiredError = true),
-                ),
-        ) {}
-    }
-}
-
-@Preview(
-        showBackground = true,
-        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
-)
-@Composable
-fun ExistingHeat_HeadToHeadAddHeatScreen_Preview() {
-    CodexTheme {
-        HeadToHeadAddHeatScreen(
-                state = HeadToHeadAddHeatState(
-                        extras = HeadToHeadAddHeatExtras(heat = 1),
-                        existingHeats = listOf(1),
                 ),
         ) {}
     }

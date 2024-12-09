@@ -48,6 +48,8 @@ class HeadToHeadAddEndViewModel @Inject constructor(
 
     private val h2hRepo = db.h2hRepo()
     val shootId = savedStateHandle.get<Int>(NavArgument.SHOOT_ID)!!
+    private val editingMatchNumber = savedStateHandle.get<Int>(NavArgument.MATCH_NUMBER)
+    private val editingSetNumber = savedStateHandle.get<Int>(NavArgument.SET_NUMBER)
 
     private fun stateConverter(
             main: ShootDetailsState,
@@ -66,59 +68,114 @@ class HeadToHeadAddEndViewModel @Inject constructor(
         )
 
         val teamSize = fullH2hInfo.headToHead.teamSize
-        val heat = fullH2hInfo.heats.minByOrNull { it.heat.heat }
-        if (heat == null) {
-            extraState.update { (it ?: HeadToHeadAddEndExtras()).copy(openAddHeatScreen = true) }
-            return HeadToHeadAddEndState(extras = extras ?: HeadToHeadAddEndExtras())
+        val editingHeat = fullH2hInfo.heats.find { it.heat.matchNumber == editingMatchNumber }
+        val editingSet = editingHeat?.sets?.find { it.setNumber == editingSetNumber }
+
+        // Editing
+        if (editingSet != null) {
+
+            if (extras == null || extras.set.setNumber != editingSetNumber) {
+                extraState.update { HeadToHeadAddEndExtras().resetEditInfo(editingSet) }
+            }
+
+            return HeadToHeadAddEndState(
+                    roundInfo = roundInfo,
+                    extras = extras ?: HeadToHeadAddEndExtras(),
+                    heat = editingHeat.heat,
+                    isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
+                    teamRunningTotal = null,
+                    opponentRunningTotal = null,
+                    editingSet = editingSet,
+            )
         }
 
-        if (heat.isComplete && !heat.heat.isBye) {
+        val isStandardFormat = fullH2hInfo.headToHead.isStandardFormat
+        val blankSet = FullHeadToHeadSet(
+                setNumber = 0,
+                data = listOf(),
+                teamSize = fullH2hInfo.headToHead.teamSize,
+                isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
+                isShootOffWin = false,
+        )
+
+        // Create new set with fixed set number
+        if (editingSetNumber != null) {
+            check(editingHeat != null)
+
+            if (extras == null || extras.set.setNumber != editingSetNumber) {
+                val isShootOff = isStandardFormat && HeadToHeadUseCase.shootOffSet(teamSize) == editingSetNumber
+                val endSize = HeadToHeadUseCase.endSize(teamSize, isShootOff)
+                extraState.update {
+                    HeadToHeadAddEndExtras(
+                            set = blankSet.copy(
+                                    setNumber = editingSetNumber,
+                                    data = generateDefaultDataRows(endSize = endSize, teamSize = teamSize),
+                            ),
+                            selected = null,
+                    )
+                }
+            }
+
+            val scores = editingHeat
+                    .takeIf { heat ->
+                        editingSetNumber == 1 || heat.sets.maxOfOrNull { it.setNumber } == editingSetNumber - 1
+                    }
+                    ?.runningTotals?.lastOrNull()?.left
+            return HeadToHeadAddEndState(
+                    roundInfo = roundInfo,
+                    extras = extras ?: HeadToHeadAddEndExtras(),
+                    heat = editingHeat.heat,
+                    isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
+                    // Default to zeros on the first set only
+                    teamRunningTotal = scores?.first ?: 0.takeIf { editingSetNumber == 1 },
+                    // Default to zeros on the first set only
+                    opponentRunningTotal = scores?.second ?: 0.takeIf { editingSetNumber == 1 },
+                    editingSet = null,
+            )
+        }
+
+        val heat = editingHeat ?: fullH2hInfo.heats.maxByOrNull { it.heat.matchNumber }
+
+        // Invalid heat
+        if (heat == null || (heat.isComplete && !heat.heat.isBye)) {
             extraState.update { (it ?: HeadToHeadAddEndExtras()).copy(openAddHeatScreen = true) }
             return HeadToHeadAddEndState(extras = extras ?: HeadToHeadAddEndExtras())
         }
 
         val lastSet = heat.sets.maxByOrNull { it.setNumber }
+
         // Creating new set
         if (lastSet == null || lastSet.isComplete) {
             val setNumber = (lastSet?.setNumber?.plus(1)) ?: 1
-            val isShootOff = HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
+            val isShootOff = isStandardFormat && HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
             val endSize = HeadToHeadUseCase.endSize(teamSize, isShootOff)
 
-            fun getRow(type: HeadToHeadArcherType, isTotal: Boolean): HeadToHeadGridRowData {
-                val expectedArrowCount = type.expectedArrowCount(endSize = endSize, teamSize = teamSize)
-                return if (isTotal) EditableTotal(type = type, expectedArrowCount = expectedArrowCount)
-                else Arrows(type = type, expectedArrowCount = expectedArrowCount)
-            }
-
-            val defaultData =
-                    if (teamSize == 1) listOf(getRow(SELF, false), getRow(OPPONENT, true))
-                    else listOf(getRow(SELF, false), getRow(TEAM, true), getRow(OPPONENT, true))
-
-            val set = FullHeadToHeadSet(
+            val set = blankSet.copy(
                     setNumber = setNumber,
-                    data = defaultData,
-                    teamSize = fullH2hInfo.headToHead.teamSize,
-                    isShootOffWin = false,
-                    isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
+                    data = generateDefaultDataRows(endSize = endSize, teamSize = teamSize),
             )
 
-            if (extras == null || extras.set.setNumber <= (lastSet?.setNumber ?: 0)) {
+            if (extras == null || extras.set.setNumber != set.setNumber) {
                 extraState.update { HeadToHeadAddEndExtras(set = set, selected = SELF) }
             }
+
+            val scores = heat.runningTotals.lastOrNull()?.left
+            return HeadToHeadAddEndState(
+                    roundInfo = roundInfo,
+                    extras = extras ?: HeadToHeadAddEndExtras(),
+                    heat = heat.heat,
+                    isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
+                    // Default to zeros on the first set only
+                    teamRunningTotal = scores?.first ?: 0.takeIf { setNumber == 1 },
+                    // Default to zeros on the first set only
+                    opponentRunningTotal = scores?.second ?: 0.takeIf { setNumber == 1 },
+            )
         }
+
         // Editing old set
-        else if (extras == null || extras.set.setNumber != lastSet.setNumber) {
+        if (extras == null || extras.set.setNumber != lastSet.setNumber) {
             extraState.update {
-                HeadToHeadAddEndExtras(
-                        set = lastSet,
-                        selected = (
-                                lastSet
-                                        .data
-                                        .sortedBy { it.type.ordinal }
-                                        .firstOrNull { !it.isComplete }
-                                        ?: lastSet.data.firstOrNull()
-                                )?.type,
-                )
+                HeadToHeadAddEndExtras(set = lastSet, selected = lastSet.getDefaultSelected())
             }
         }
 
@@ -128,11 +185,38 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 extras = extras ?: HeadToHeadAddEndExtras(),
                 heat = heat.heat,
                 isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
-                teamRunningTotal = scores?.first ?: 0,
-                opponentRunningTotal = scores?.second ?: 0,
-                dbSet = lastSet?.takeIf { it.setNumber == extras?.set?.setNumber },
+                // Default to zeros on the first set only
+                teamRunningTotal = scores?.first ?: 0.takeIf { extras?.set?.setNumber == 1 },
+                // Default to zeros on the first set only
+                opponentRunningTotal = scores?.second ?: 0.takeIf { extras?.set?.setNumber == 1 },
         )
     }
+
+    private fun generateDefaultDataRows(endSize: Int, teamSize: Int): List<HeadToHeadGridRowData> {
+        fun getRow(type: HeadToHeadArcherType, isTotal: Boolean): HeadToHeadGridRowData {
+            val expectedArrowCount = type.expectedArrowCount(endSize = endSize, teamSize = teamSize)
+            return if (isTotal) EditableTotal(type = type, expectedArrowCount = expectedArrowCount)
+            else Arrows(type = type, expectedArrowCount = expectedArrowCount)
+        }
+
+        return if (teamSize == 1) listOf(getRow(SELF, false), getRow(OPPONENT, true))
+        else listOf(getRow(SELF, false), getRow(TEAM, true), getRow(OPPONENT, true))
+    }
+
+    private fun FullHeadToHeadSet.getDefaultSelected(): HeadToHeadArcherType? {
+        val selectedRow = data
+                .sortedBy { it.type.ordinal }
+                .firstOrNull { !it.isComplete }
+                ?: data.firstOrNull()
+        return selectedRow?.type
+    }
+
+    private fun HeadToHeadAddEndExtras.resetEditInfo(editingSet: FullHeadToHeadSet) = copy(
+            set = editingSet,
+            selected = editingSet.getDefaultSelected(),
+            arrowInputsError = setOf(),
+            incompleteError = false,
+    )
 
     fun handle(action: HeadToHeadAddEndIntent) {
         fun updateState(block: (HeadToHeadAddEndExtras) -> HeadToHeadAddEndExtras) =
@@ -192,7 +276,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 }
 
                 viewModelScope.launch {
-                    if (state.dbSet == null) h2hRepo.insert(*state.toDbDetails().toTypedArray())
+                    if (state.editingSet == null) h2hRepo.insert(*state.toDbDetails().toTypedArray())
                     else h2hRepo.update(*state.toDbDetails().toTypedArray())
                 }
             }

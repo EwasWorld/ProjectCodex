@@ -78,6 +78,7 @@ class NewScoreViewModel @Inject constructor(
 
             TypeChanged -> _state.update { it.copy(type = it.type.next()) }
             H2hStyleChanged -> _state.update { it.copy(h2hStyleIsRecurve = !it.h2hStyleIsRecurve) }
+            H2hFormatChanged -> _state.update { it.copy(h2hFormatIsStandard = !it.h2hFormatIsStandard) }
             is H2hQualiRankChanged ->
                 _state.update { it.copy(h2hQualificationRank = it.h2hQualificationRank.onTextChanged(action.value)) }
 
@@ -168,19 +169,20 @@ class NewScoreViewModel @Inject constructor(
                 selectFaceDialogState = faceAction.handle(selectFaceDialogState).copy(selectedFaces = faces),
         )
 
-        if (roundBeingEdited.h2h != null) {
-            newState = newState.copy(
+        newState = if (roundBeingEdited.h2h != null) {
+            newState.copy(
                     h2hStyleIsRecurve = roundBeingEdited.h2h.headToHead.isRecurveStyle,
-                    h2hTeamSize = h2hTeamSize.onTextChanged(roundBeingEdited.h2h.headToHead.teamSize.toString()),
+                    h2hTeamSize = h2hTeamSize
+                            .copy(text = roundBeingEdited.h2h.headToHead.teamSize.toString()),
                     h2hQualificationRank = h2hQualificationRank
-                            .onTextChanged(roundBeingEdited.h2h.headToHead.qualificationRank?.toString() ?: ""),
+                            .copy(text = roundBeingEdited.h2h.headToHead.qualificationRank?.toString() ?: "")
             )
         }
         else {
-            newState = newState.copy(
+            newState.copy(
                     h2hStyleIsRecurve = true,
-                    h2hTeamSize = h2hTeamSize.onTextChanged("1"),
-                    h2hQualificationRank = h2hQualificationRank.onTextChanged(""),
+                    h2hTeamSize = h2hTeamSize.copy(text = "1"),
+                    h2hQualificationRank = h2hQualificationRank.copy(text = ""),
             )
         }
 

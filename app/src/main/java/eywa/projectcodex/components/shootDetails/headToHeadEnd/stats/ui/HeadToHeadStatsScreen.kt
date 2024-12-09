@@ -2,10 +2,12 @@ package eywa.projectcodex.components.shootDetails.headToHeadEnd.stats.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -132,7 +134,13 @@ fun HeadToHeadStatsScreen(
                     editClickedListener = { listener(EditMainInfoClicked) },
                     helpListener = helpListener,
             )
-            HeatsInfo(state, Modifier, listener)
+            HeatsInfo(
+                    state = state,
+                    listener = listener,
+                    modifier = Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .padding(horizontal = CodexTheme.dimens.screenPadding)
+            )
 
             if (state.extras.qualifyingRoundId != null) {
                 Text(
@@ -142,9 +150,21 @@ fun HeadToHeadStatsScreen(
                 )
             }
 
-            HandicapClassification(state, Modifier, listener)
+            HandicapClassification(
+                    state = state,
+                    listener = listener,
+                    modifier = Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .padding(horizontal = CodexTheme.dimens.screenPadding)
+            )
 
-            NumbersBreakdown(state, Modifier, listener)
+            NumbersBreakdown(
+                    state = state,
+                    listener = listener,
+                    modifier = Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .padding(horizontal = CodexTheme.dimens.screenPadding)
+            )
         }
     }
 }

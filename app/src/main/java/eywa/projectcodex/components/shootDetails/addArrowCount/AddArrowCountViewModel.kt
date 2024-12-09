@@ -26,7 +26,7 @@ class AddArrowCountViewModel @Inject constructor(
         savedStateHandle: SavedStateHandle,
         private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
-    private val heatId = savedStateHandle.get<Int>(NavArgument.HEAT_ID)
+    private val heatId = savedStateHandle.get<Int>(NavArgument.MATCH_NUMBER)
     private val screen = CodexNavRoute.SHOOT_DETAILS_ADD_COUNT
     private val extraState = MutableStateFlow(AddArrowCountExtras(heatId = heatId))
     private val isEditingSighters = savedStateHandle.get<Boolean>(NavArgument.IS_SIGHTERS) ?: false

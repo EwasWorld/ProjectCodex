@@ -55,7 +55,7 @@ class FullHeadToHeadUnitTest {
                 heats = original.heats.map { it.heat },
                 details = original.heats.flatMap { heat ->
                     heat.sets.flatMap {
-                        it.asDatabaseDetails(shootId = original.headToHead.shootId, heat = heat.heat.heat)
+                        it.asDatabaseDetails(shootId = original.headToHead.shootId, matchNumber = heat.heat.matchNumber)
                     }
                 },
                 isEditable = false,

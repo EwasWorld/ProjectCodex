@@ -87,7 +87,7 @@ fun HeadToHeadScorePadScreen(
                     navController,
                     mapOf(
                             NavArgument.SHOOT_ID to viewModel.shootId.toString(),
-                            NavArgument.HEAT_ID to data.extras.openSightersForHeat.toString(),
+                            NavArgument.MATCH_NUMBER to data.extras.openSightersForHeat.toString(),
                             NavArgument.IS_SIGHTERS to true.toString(),
                     ),
             )
@@ -99,7 +99,7 @@ fun HeadToHeadScorePadScreen(
                     navController,
                     mapOf(
                             NavArgument.SHOOT_ID to viewModel.shootId.toString(),
-                            NavArgument.HEAT_ID to data.extras.openEditHeatInfo.toString(),
+                            NavArgument.MATCH_NUMBER to data.extras.openEditHeatInfo.toString(),
                     ),
                     popCurrentRoute = true,
             )
@@ -156,7 +156,7 @@ fun HeadToHeadScorePadScreen(
                                         imageVector = Icons.Default.Edit,
                                         contentDescription = stringResource(R.string.head_to_head_score_pad__edit_heat),
                                 ),
-                                onClick = { listener(HeadToHeadScorePadIntent.EditHeatInfo(entry.heat.heat)) },
+                                onClick = { listener(HeadToHeadScorePadIntent.EditHeatInfo(entry.heat.matchNumber)) },
                                 modifier = Modifier.align(Alignment.BottomEnd)
                         )
 
@@ -167,10 +167,23 @@ fun HeadToHeadScorePadScreen(
                                         .padding(horizontal = 15.dp, vertical = 10.dp)
                                         .fillMaxWidth()
                         ) {
-                            DataRow(
-                                    title = stringResource(R.string.head_to_head_add_heat__heat),
-                                    text = HeadToHeadUseCase.roundName(entry.heat.heat).get(),
-                            )
+                            if (entry.heat.heat != null) {
+                                DataRow(
+                                        title = stringResource(
+                                                R.string.head_to_head_add_heat__heat,
+                                                entry.heat.matchNumber,
+                                        ),
+                                        text = HeadToHeadUseCase.roundName(entry.heat.heat).get(),
+                                )
+                            }
+                            else {
+                                Text(
+                                        text = stringResource(
+                                                R.string.head_to_head_add_heat__match_header,
+                                                entry.heat.matchNumber,
+                                        )
+                                )
+                            }
 
                             entry.heat.opponentString()?.get()?.let { opponent ->
                                 if (!entry.heat.opponent.isNullOrBlank()) {
@@ -182,7 +195,9 @@ fun HeadToHeadScorePadScreen(
                             DataRow(
                                     title = stringResource(R.string.add_count__sighters),
                                     text = entry.heat.sightersCount.toString(),
-                                    onClick = { listener(HeadToHeadScorePadIntent.EditSighters(entry.heat.heat)) },
+                                    onClick = {
+                                        listener(HeadToHeadScorePadIntent.EditSighters(entry.heat.matchNumber))
+                                    },
                                     modifier = Modifier.padding(top = 8.dp)
                             )
                         }
@@ -240,6 +255,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                         entries = listOf(
                                 FullHeadToHeadHeat(
                                         heat = DatabaseHeadToHeadHeat(
+                                                matchNumber = 1,
                                                 heat = 1,
                                                 opponent = "Jessica Summers",
                                                 opponentQualificationRank = 1,
@@ -249,11 +265,13 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 isShootOffWin = false,
                                         ),
                                         isRecurveStyle = true,
+                                        isStandardFormat = true,
                                         teamSize = 1,
                                         sets = listOf(),
                                 ),
                                 FullHeadToHeadHeat(
                                         heat = DatabaseHeadToHeadHeat(
+                                                matchNumber = 1,
                                                 heat = 1,
                                                 opponent = "Jessica Summ",
                                                 opponentQualificationRank = 1,
@@ -263,6 +281,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 isShootOffWin = false,
                                         ),
                                         isRecurveStyle = true,
+                                        isStandardFormat = true,
                                         teamSize = 1,
                                         sets = listOf(
                                                 FullHeadToHeadSet(
@@ -283,6 +302,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                 ),
                                 FullHeadToHeadHeat(
                                         heat = DatabaseHeadToHeadHeat(
+                                                matchNumber = 1,
                                                 heat = 1,
                                                 opponent = null,
                                                 opponentQualificationRank = null,
@@ -292,6 +312,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 isShootOffWin = false,
                                         ),
                                         isRecurveStyle = true,
+                                        isStandardFormat = true,
                                         teamSize = 1,
                                         sets = listOf(
                                                 FullHeadToHeadSet(

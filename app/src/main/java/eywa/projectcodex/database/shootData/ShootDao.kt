@@ -200,7 +200,7 @@ interface ShootDao {
                             END as count
                         FROM ${DatabaseHeadToHeadDetail.TABLE_NAME} as d
                         LEFT JOIN ${DatabaseHeadToHead.TABLE_NAME} as i ON i.shootId = i.shootId
-                        GROUP BY d.shootId, d.heat
+                        GROUP BY d.shootId, d.matchNumber
                     ) as x
                 ) as h2hDetails ON shoot.shootId = h2hDetails.shootId
                 WHERE shoot.dateShot >= :fromDate AND shoot.dateShot <= :toDate

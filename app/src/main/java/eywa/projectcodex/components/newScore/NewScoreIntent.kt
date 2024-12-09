@@ -9,6 +9,7 @@ sealed class NewScoreIntent {
     data class DateChanged(val info: UpdateCalendarInfo) : NewScoreIntent()
     data object TypeChanged : NewScoreIntent()
     data object H2hStyleChanged : NewScoreIntent()
+    data object H2hFormatChanged : NewScoreIntent()
     data class H2hTeamSizeChanged(val value: String?) : NewScoreIntent()
     data class H2hQualiRankChanged(val value: String?) : NewScoreIntent()
 

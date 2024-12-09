@@ -144,7 +144,7 @@ class FullHeadToHeadSetUnitTest {
                     DatabaseHeadToHeadDetail(
                             headToHeadArrowScoreId = 0,
                             shootId = 1,
-                            heat = 0,
+                            matchNumber = 0,
                             type = SELF,
                             isTotal = false,
                             setNumber = 1,
@@ -162,7 +162,7 @@ class FullHeadToHeadSetUnitTest {
                     DatabaseHeadToHeadDetail(
                             headToHeadArrowScoreId = it + 1,
                             shootId = 1,
-                            heat = 0,
+                            matchNumber = 0,
                             type = TEAM,
                             isTotal = false,
                             setNumber = 1,
@@ -180,7 +180,7 @@ class FullHeadToHeadSetUnitTest {
                         DatabaseHeadToHeadDetail(
                                 headToHeadArrowScoreId = 0,
                                 shootId = 1,
-                                heat = 0,
+                                matchNumber = 0,
                                 type = TEAM_MATE,
                                 isTotal = true,
                                 setNumber = 1,
@@ -198,7 +198,7 @@ class FullHeadToHeadSetUnitTest {
                         DatabaseHeadToHeadDetail(
                                 headToHeadArrowScoreId = 1,
                                 shootId = 1,
-                                heat = 0,
+                                matchNumber = 0,
                                 type = TEAM,
                                 isTotal = true,
                                 setNumber = 1,
@@ -215,7 +215,7 @@ class FullHeadToHeadSetUnitTest {
                         DatabaseHeadToHeadDetail(
                                 headToHeadArrowScoreId = 0,
                                 shootId = 1,
-                                heat = 0,
+                                matchNumber = 0,
                                 type = TEAM_MATE,
                                 isTotal = true,
                                 setNumber = 1,
@@ -232,7 +232,7 @@ class FullHeadToHeadSetUnitTest {
                         DatabaseHeadToHeadDetail(
                                 headToHeadArrowScoreId = 1,
                                 shootId = 1,
-                                heat = 0,
+                                matchNumber = 0,
                                 type = TEAM,
                                 isTotal = true,
                                 setNumber = 1,
@@ -259,7 +259,7 @@ class FullHeadToHeadSetUnitTest {
                         DatabaseHeadToHeadDetail(
                                 headToHeadArrowScoreId = 0,
                                 shootId = 3,
-                                heat = 4,
+                                matchNumber = 4,
                                 type = TEAM,
                                 isTotal = true,
                                 setNumber = 2,

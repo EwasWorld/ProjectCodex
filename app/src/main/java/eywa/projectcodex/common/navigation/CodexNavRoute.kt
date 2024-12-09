@@ -310,7 +310,7 @@ enum class CodexNavRoute : ScreenNavRoute {
             get() = mapOf(
                     NavArgument.SHOOT_ID to true,
                     NavArgument.IS_SIGHTERS to false,
-                    NavArgument.HEAT_ID to false,
+                    NavArgument.MATCH_NUMBER to false,
             )
 
         @Composable

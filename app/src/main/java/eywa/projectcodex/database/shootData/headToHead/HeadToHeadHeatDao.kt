@@ -18,6 +18,6 @@ interface HeadToHeadHeatDao {
     @Query("DELETE FROM $TABLE_NAME WHERE shootId = :shootId")
     suspend fun delete(shootId: Int)
 
-    @Query("DELETE FROM $TABLE_NAME WHERE shootId = :shootId AND heat = :heatId")
-    suspend fun delete(shootId: Int, heatId: Int)
+    @Query("DELETE FROM $TABLE_NAME WHERE shootId = :shootId AND matchNumber = :matchNumber")
+    suspend fun delete(shootId: Int, matchNumber: Int)
 }

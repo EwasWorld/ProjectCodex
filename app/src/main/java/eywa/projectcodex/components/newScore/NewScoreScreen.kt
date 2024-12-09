@@ -177,6 +177,19 @@ private fun HeadToHeadSection(
                     onClick = { listener(H2hStyleChanged) }.takeIf { !state.isEditing },
                     modifier = Modifier.testTag(NewScoreTestTag.H2H_STYLE_SWITCH)
             )
+            DataRow(
+                    title = stringResource(R.string.create_round__h2h_format),
+                    text = stringResource(
+                            if (state.h2hFormatIsStandard) R.string.create_round__h2h_format_standard
+                            else R.string.create_round__h2h_format_non_standard,
+                    ),
+                    helpState = HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_create_round__h2h_format_title),
+                            helpBody = stringResource(R.string.help_create_round__h2h_format_body),
+                    ).asHelpState { listener(HelpShowcaseAction(it)) },
+                    onClick = { listener(H2hFormatChanged) }.takeIf { !state.isEditing },
+                    modifier = Modifier.testTag(NewScoreTestTag.H2H_FORMAT_SWITCH)
+            )
             CodexLabelledNumberFieldWithErrorMessage(
                     title = stringResource(R.string.create_round__h2h_team_size),
                     currentValue = state.h2hTeamSize.text,
@@ -361,6 +374,7 @@ enum class NewScoreTestTag : CodexTestTag {
     SCREEN,
     TYPE_SWITCH,
     H2H_STYLE_SWITCH,
+    H2H_FORMAT_SWITCH,
     H2H_TEAM_SIZE_INPUT,
     H2H_TEAM_SIZE_ERROR,
     H2H_QUALI_RANK_INPUT,

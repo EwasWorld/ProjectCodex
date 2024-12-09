@@ -10,6 +10,7 @@
     <string name="head_to_head_add_end__score">Score:</string>
     <string name="head_to_head_add_end__score_text">%1$d-%2$d</string> <!-- 6-0 -->
     <string name="head_to_head_add_end__set">Set %1$d: %2$s</string> <!-- Set 1: Win -->
+    <string name="head_to_head_add_end__editing_set">Editing</string> <!-- Set 1: Win -->
     <string name="head_to_head_add_end__shoot_off">Shoot off: %s</string> <!-- Shoot off: Win -->
     <string name="head_to_head_add_end__shoot_off_win">Win</string>
     <string name="head_to_head_add_end__submit">Next end</string>
@@ -58,7 +59,10 @@
     <string name="head_to_head_score_pad__edit_heat">Edit heat info</string>
 
     <string name="head_to_head_add_heat__title">Create match</string>
-    <string name="head_to_head_add_heat__heat">Match:</string>
+    <string name="head_to_head_add_heat__match_header_with_heat">Match %d %s</string>
+    <string name="head_to_head_add_heat__match_header">Match %d</string>
+    <string name="head_to_head_add_heat__heat">Match %d:</string>
+    <string name="head_to_head_add_heat__heat_match">Match:</string>
     <string name="head_to_head_add_heat__heat_null">Not selected</string>
     <string name="head_to_head_add_heat__opponent">Opponent:</string>
     <string name="head_to_head_add_heat__opponent_placeholder">John Doe</string>
@@ -68,7 +72,7 @@
     <string name="head_to_head_add_heat__submit">Start match</string>
     <string name="head_to_head_add_heat__submit_edit">Update match info</string>
     <string name="head_to_head_add_heat__result">Result:</string>
-    <string name="head_to_head_add_heat__editing">Editing %s match</string>
+    <string name="head_to_head_add_heat__editing">Editing %d match</string>
     <string name="head_to_head_add_heat__match_exists">Match already exists</string>
     <string name="head_to_head_add_heat__delete_dialog_title">Delete match</string>
     <string name="head_to_head_add_heat__delete_dialog_body">Are you sure you want to delete %s match?</string>

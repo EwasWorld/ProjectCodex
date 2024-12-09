@@ -11,7 +11,13 @@ class FullHeadToHeadHeatUnitTest {
     @Test
     fun testRunningTotals_Recurve() {
         fun dsl(teamSize: Int) =
-                HeadToHeadHeatPreviewHelperDsl(shootId = 1, teamSize = teamSize, isRecurveStyle = true)
+                HeadToHeadHeatPreviewHelperDsl(
+                        shootId = 1,
+                        teamSize = teamSize,
+                        isRecurveStyle = true,
+                        matchNumber = 1,
+                        isStandardFormat = true,
+                )
 
         fun getData(teamSize: Int): List<Pair<HeadToHeadHeatPreviewHelperDsl, List<HeadToHeadRunningTotal>>> =
                 listOf(
@@ -64,7 +70,7 @@ class FullHeadToHeadHeatUnitTest {
                                 Either.Left(2 to 4),
                                 Either.Left(4 to 4),
                                 Either.Left<Pair<Int, Int>, HeadToHeadNoResult>(5 to 5).takeIf { teamSize == 1 },
-                                Either.Left<Pair<Int, Int>, HeadToHeadNoResult>(5 to 6).takeIf { teamSize == 1 },
+                                Either.Left<Pair<Int, Int>, HeadToHeadNoResult>(6 to 5).takeIf { teamSize == 1 },
                                 Either.Left<Pair<Int, Int>, HeadToHeadNoResult>(5 to 4).takeIf { teamSize != 1 },
                         ),
                 )
@@ -80,7 +86,13 @@ class FullHeadToHeadHeatUnitTest {
     @Test
     fun testRunningTotals_Compound() {
         fun dsl(teamSize: Int) =
-                HeadToHeadHeatPreviewHelperDsl(shootId = 1, teamSize = teamSize, isRecurveStyle = false)
+                HeadToHeadHeatPreviewHelperDsl(
+                        shootId = 1,
+                        teamSize = teamSize,
+                        isRecurveStyle = false,
+                        matchNumber = 1,
+                        isStandardFormat = true,
+                )
 
         fun getData(teamSize: Int): List<Pair<HeadToHeadHeatPreviewHelperDsl, List<HeadToHeadRunningTotal>>> =
                 listOf(
@@ -133,7 +145,7 @@ class FullHeadToHeadHeatUnitTest {
                                 Either.Left(70 to 80),
                                 Either.Left(100 to 100),
                                 Either.Left<Pair<Int, Int>, HeadToHeadNoResult>(130 to 130).takeIf { teamSize == 1 },
-                                Either.Left<Pair<Int, Int>, HeadToHeadNoResult>(131 to 140).takeIf { teamSize == 1 },
+                                Either.Left<Pair<Int, Int>, HeadToHeadNoResult>(140 to 131).takeIf { teamSize == 1 },
                                 Either.Left<Pair<Int, Int>, HeadToHeadNoResult>(110 to 101).takeIf { teamSize != 1 },
                         ),
                 )
@@ -149,7 +161,13 @@ class FullHeadToHeadHeatUnitTest {
     @Test
     fun testResult() {
         fun dsl(teamSize: Int, isRecurve: Boolean) =
-                HeadToHeadHeatPreviewHelperDsl(shootId = 1, teamSize = teamSize, isRecurveStyle = isRecurve)
+                HeadToHeadHeatPreviewHelperDsl(
+                        shootId = 1,
+                        teamSize = teamSize,
+                        isRecurveStyle = isRecurve,
+                        matchNumber = 1,
+                        isStandardFormat = true,
+                )
 
         fun getData(isRecurve: Boolean, dsl: () -> HeadToHeadHeatPreviewHelperDsl) =
                 listOf(

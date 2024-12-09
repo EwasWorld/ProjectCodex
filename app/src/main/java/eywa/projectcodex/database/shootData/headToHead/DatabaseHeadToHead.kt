@@ -21,6 +21,7 @@ data class DatabaseHeadToHead(
         val isRecurveStyle: Boolean,
         val teamSize: Int,
         val qualificationRank: Int?,
+        val isStandardFormat: Boolean,
 ) {
     companion object {
         const val TABLE_NAME = "head_to_head"

@@ -18,9 +18,9 @@ class HeadToHeadRepo(
     }
 
     @Transaction
-    suspend fun delete(shootId: Int, heatId: Int) {
-        headToHeadHeatDao.delete(shootId = shootId, heatId = heatId)
-        headToHeadDetailDao.delete(shootId = shootId, heatId = heatId)
+    suspend fun delete(shootId: Int, matchNumber: Int) {
+        headToHeadHeatDao.delete(shootId = shootId, matchNumber = matchNumber)
+        headToHeadDetailDao.delete(shootId = shootId, matchNumber = matchNumber)
     }
 
     suspend fun insert(headToHead: DatabaseHeadToHead) {
@@ -45,12 +45,5 @@ class HeadToHeadRepo(
 
     suspend fun update(heat: DatabaseHeadToHead) {
         headToHeadDao.update(heat)
-    }
-
-    @Transaction
-    suspend fun updateWithHeatIdChange(oldHeatId: Int, heat: DatabaseHeadToHeadHeat) {
-        headToHeadHeatDao.delete(shootId = heat.shootId, heatId = oldHeatId)
-        headToHeadHeatDao.insert(heat)
-        headToHeadDetailDao.updateHeat(shootId = heat.shootId, newHeatId = heat.heat, oldHeatId = oldHeatId)
     }
 }

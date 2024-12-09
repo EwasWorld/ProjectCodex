@@ -14,16 +14,23 @@ import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 @CodexPreviewHelperDsl
 class HeadToHeadPreviewHelperDsl(shootId: Int) {
-    var headToHead =
-            DatabaseHeadToHead(shootId = shootId, isRecurveStyle = true, teamSize = 1, qualificationRank = null)
+    var headToHead = DatabaseHeadToHead(
+            shootId = shootId,
+            isRecurveStyle = true,
+            isStandardFormat = true,
+            teamSize = 1,
+            qualificationRank = null,
+    )
     private var heats = listOf<FullHeadToHeadHeat>()
 
     fun addHeat(config: HeadToHeadHeatPreviewHelperDsl.() -> Unit) {
         heats = heats + HeadToHeadHeatPreviewHelperDsl(
+                matchNumber = heats.size + 1,
                 shootId = headToHead.shootId,
                 teamSize = headToHead.teamSize,
                 isRecurveStyle = headToHead.isRecurveStyle,
-                heat = heats.minOfOrNull { it.heat.heat }?.minus(1) ?: 3,
+                isStandardFormat = headToHead.isStandardFormat,
+                heat = heats.mapNotNull { it.heat.heat }.minOrNull()?.minus(1) ?: 3,
         ).apply(config).asFull()
 
         require(heats.distinctBy { it.heat.heat }.size == heats.size) { "Duplicate heat" }
@@ -35,11 +42,14 @@ class HeadToHeadPreviewHelperDsl(shootId: Int) {
 @CodexPreviewHelperDsl
 class HeadToHeadHeatPreviewHelperDsl(
         shootId: Int,
+        matchNumber: Int,
         val teamSize: Int,
         val isRecurveStyle: Boolean,
+        val isStandardFormat: Boolean,
         heat: Int = 3,
 ) {
     var heat = DatabaseHeadToHeadHeat(
+            matchNumber = matchNumber,
             shootId = shootId,
             heat = heat,
             opponent = null,
@@ -72,6 +82,7 @@ class HeadToHeadHeatPreviewHelperDsl(
                     sets = sets,
                     teamSize = teamSize,
                     isRecurveStyle = isRecurveStyle,
+                    isStandardFormat = isStandardFormat,
             )
 }
 

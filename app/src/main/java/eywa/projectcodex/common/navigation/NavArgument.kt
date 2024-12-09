@@ -36,7 +36,7 @@ enum class NavArgument(val type: NavType<*>, val defaultValue: Any? = null) {
     ROUND_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     ROUND_SUB_TYPE_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     IS_SIGHTERS(type = NavType.BoolType, defaultValue = false),
-    HEAT_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
+    MATCH_NUMBER(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     SET_NUMBER(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     ;
 

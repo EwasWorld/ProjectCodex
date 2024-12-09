@@ -12,14 +12,15 @@ data class HeadToHeadAddHeatState(
         val roundInfo: HeadToHeadRoundInfo? = null,
         val previousHeat: PreviousHeat? = null,
         val editing: DatabaseHeadToHeadHeat? = null,
-        val existingHeats: List<Int> = emptyList(),
 
         val extras: HeadToHeadAddHeatExtras = HeadToHeadAddHeatExtras(),
+        val matchNumber: Int = editing?.matchNumber ?: previousHeat?.matchNumber?.plus(1) ?: 1
 ) {
+
     fun asHeadToHeadHeat(shootId: Int) =
-            if (extras.heat == null) null
-            else DatabaseHeadToHeadHeat(
+            DatabaseHeadToHeadHeat(
                     shootId = shootId,
+                    matchNumber = matchNumber,
                     heat = extras.heat,
                     opponent = extras.opponent,
                     opponentQualificationRank = extras.opponentQualiRank.parsed,
@@ -29,7 +30,8 @@ data class HeadToHeadAddHeatState(
             )
 
     data class PreviousHeat(
-            val heat: Int,
+            val matchNumber: Int,
+            val heat: Int?,
             val result: HeadToHeadResult,
             val runningTotal: Pair<Int, Int>?,
     )

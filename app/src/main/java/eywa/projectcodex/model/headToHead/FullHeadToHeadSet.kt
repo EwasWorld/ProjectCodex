@@ -188,10 +188,10 @@ data class FullHeadToHeadSet(
         return Either.Left(opponent.totalScore)
     }
 
-    fun asDatabaseDetails(shootId: Int, heat: Int) =
+    fun asDatabaseDetails(shootId: Int, matchNumber: Int) =
             DatabaseHeadToHeadDetail(
                     shootId = shootId,
-                    heat = heat,
+                    matchNumber = matchNumber,
                     setNumber = setNumber,
 
                     // Dummy values

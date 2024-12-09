@@ -19,12 +19,12 @@ data class FullHeadToHead(
             isEditable: Boolean,
     ) : this(
             headToHead = headToHead,
-            heats = details.groupBy { it.heat }.let { grouped ->
+            heats = details.groupBy { it.matchNumber }.let { grouped ->
                 heats.map { heat ->
                     val shootOffSet = HeadToHeadUseCase.shootOffSet(headToHead.teamSize)
                     FullHeadToHeadHeat(
                             heat = heat,
-                            sets = (grouped[heat.heat] ?: emptyList())
+                            sets = (grouped[heat.matchNumber] ?: emptyList())
                                     .groupBy { it.setNumber }
                                     .map { (setNumber, details) ->
                                         FullHeadToHeadSet(
@@ -44,6 +44,7 @@ data class FullHeadToHead(
                                     },
                             teamSize = headToHead.teamSize,
                             isRecurveStyle = headToHead.isRecurveStyle,
+                            isStandardFormat = headToHead.isStandardFormat,
                     )
                 }
             },

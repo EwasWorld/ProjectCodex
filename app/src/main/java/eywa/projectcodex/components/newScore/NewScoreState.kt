@@ -36,6 +36,7 @@ data class NewScoreState(
         val dateShot: Calendar = getDefaultDate(),
         val type: NewScoreType = NewScoreType.SCORING,
         val h2hStyleIsRecurve: Boolean = true,
+        val h2hFormatIsStandard: Boolean = true,
         val h2hTeamSize: NumberFieldState<Int> = NumberFieldState(
                 text = "1",
                 validators = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.InRange(1..5)),
@@ -119,6 +120,7 @@ data class NewScoreState(
             else DatabaseHeadToHead(
                     shootId = roundBeingEdited?.shoot?.shootId ?: 0,
                     isRecurveStyle = h2hStyleIsRecurve,
+                    isStandardFormat = h2hFormatIsStandard,
                     teamSize = h2hTeamSize.parsed,
                     qualificationRank = h2hQualificationRank.parsed,
             )
