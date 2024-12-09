@@ -19,7 +19,7 @@ object HeadToHeadUseCase {
      * [rank] (null is a bye).
      *
      * e.g. if there are 50 archers, rank 1 will start with a bye then will face rank 32, 16, 8, 4, and 2 in that order,
-     * therefore the output will be [null, 32, 16, 8, 4, 2]
+     * therefore the output will be [2, 4, 8, 16, 32, null]
      */
     fun getOpponents(rank: Int, totalArchers: Int): List<Int?> {
         check(rank <= totalArchers) { "Rank must be less than or equal to total archers" }

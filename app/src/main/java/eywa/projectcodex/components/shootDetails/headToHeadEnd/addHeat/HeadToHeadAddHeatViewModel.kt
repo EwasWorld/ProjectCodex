@@ -18,6 +18,7 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHead
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat.HeadToHeadAddHeatIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
+import eywa.projectcodex.database.shootData.headToHead.Opponent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -81,7 +82,6 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
 
         // Create new heat with fixed match number
         if (editingMatchNumber != null) {
-
             if (extraState.value == null) {
                 val previous = fullH2hInfo.heats.find { it.heat.matchNumber == editingMatchNumber - 1 }
                 extraState.update { HeadToHeadAddHeatExtras(heat = previous?.heat?.heat?.minus(1)?.coerceAtLeast(0)) }
@@ -90,7 +90,8 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
             return HeadToHeadAddHeatState(
                     matchNumber = editingMatchNumber,
                     roundInfo = roundInfo,
-                    extras = extras ?: HeadToHeadAddHeatExtras(),
+                    extras = (extras ?: HeadToHeadAddHeatExtras())
+                            .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(editingMatchNumber)),
                     previousHeat = null,
                     editing = null,
             )
@@ -102,7 +103,9 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
         if (maxHeat == null) {
 
             if (extraState.value == null) {
-                extraState.update { HeadToHeadAddHeatExtras() }
+                extraState.update {
+                    HeadToHeadAddHeatExtras().setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(1))
+                }
             }
 
             return HeadToHeadAddHeatState(
@@ -124,7 +127,10 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
             )
 
             if (extraState.value == null || maxHeat.heat.heat == extraState.value?.heat) {
-                extraState.update { HeadToHeadAddHeatExtras(heat = maxHeat.heat.heat?.minus(1)?.coerceAtLeast(0)) }
+                extraState.update {
+                    HeadToHeadAddHeatExtras(heat = maxHeat.heat.heat?.minus(1)?.coerceAtLeast(0))
+                            .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(previousHeat.matchNumber + 1))
+                }
             }
 
             return HeadToHeadAddHeatState(
@@ -156,6 +162,26 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
             opponentQualiRank = opponentQualiRank.onTextChanged(editing.opponentQualificationRank?.toString() ?: ""),
             isBye = editing.isBye,
     )
+
+    private fun HeadToHeadAddHeatExtras.setOpponentQualiRank(opponentQualiRank: Opponent?) =
+            when (opponentQualiRank) {
+                null -> this
+                Opponent.Bye -> {
+                    copy(
+                            isBye = true,
+                            opponentQualiRank = this.opponentQualiRank.copy(text = ""),
+                            opponent = "",
+                    )
+                }
+
+                is Opponent.Rank -> {
+                    copy(
+                            isBye = false,
+                            opponentQualiRank = this.opponentQualiRank.copy(text = opponentQualiRank.rank.toString()),
+                            opponent = "",
+                    )
+                }
+            }
 
     fun handle(action: HeadToHeadAddHeatIntent) {
         fun updateState(block: (HeadToHeadAddHeatExtras) -> HeadToHeadAddHeatExtras) =

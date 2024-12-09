@@ -11,6 +11,7 @@ sealed class NewScoreIntent {
     data object H2hStyleChanged : NewScoreIntent()
     data object H2hFormatChanged : NewScoreIntent()
     data class H2hTeamSizeChanged(val value: String?) : NewScoreIntent()
+    data class H2hTotalArchersChanged(val value: String?) : NewScoreIntent()
     data class H2hQualiRankChanged(val value: String?) : NewScoreIntent()
 
     data class SelectRoundDialogAction(val action: SelectRoundDialogIntent) : NewScoreIntent()

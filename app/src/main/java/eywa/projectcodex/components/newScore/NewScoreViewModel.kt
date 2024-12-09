@@ -82,6 +82,9 @@ class NewScoreViewModel @Inject constructor(
             is H2hQualiRankChanged ->
                 _state.update { it.copy(h2hQualificationRank = it.h2hQualificationRank.onTextChanged(action.value)) }
 
+            is H2hTotalArchersChanged ->
+                _state.update { it.copy(h2hTotalArchers = it.h2hTotalArchers.onTextChanged(action.value)) }
+
             is H2hTeamSizeChanged ->
                 _state.update { it.copy(h2hTeamSize = it.h2hTeamSize.onTextChanged(action.value)) }
 

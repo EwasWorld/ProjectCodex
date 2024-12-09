@@ -216,6 +216,19 @@ private fun HeadToHeadSection(
                             helpBody = stringResource(R.string.help_create_round__h2h_quali_rank_body),
                     ).asHelpState { listener(HelpShowcaseAction(it)) },
             )
+            CodexLabelledNumberFieldWithErrorMessage(
+                    title = stringResource(R.string.create_round__h2h_total_archers),
+                    currentValue = state.h2hTotalArchers.text,
+                    fieldTestTag = NewScoreTestTag.H2H_TOTAL_ARCHERS_INPUT,
+                    errorMessageTestTag = NewScoreTestTag.H2H_TOTAL_ARCHERS_ERROR,
+                    errorMessage = state.h2hTotalArchers.error,
+                    placeholder = stringResource(R.string.create_round__h2h_team_size_placeholder),
+                    onValueChanged = { listener(H2hTotalArchersChanged(it)) },
+                    helpState = HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_create_round__h2h_total_archers_title),
+                            helpBody = stringResource(R.string.help_create_round__h2h_total_archers_body),
+                    ).asHelpState { listener(HelpShowcaseAction(it)) },
+            )
         }
     }
 }
@@ -377,6 +390,8 @@ enum class NewScoreTestTag : CodexTestTag {
     H2H_FORMAT_SWITCH,
     H2H_TEAM_SIZE_INPUT,
     H2H_TEAM_SIZE_ERROR,
+    H2H_TOTAL_ARCHERS_INPUT,
+    H2H_TOTAL_ARCHERS_ERROR,
     H2H_QUALI_RANK_INPUT,
     H2H_QUALI_RANK_ERROR,
     DATABASE_WARNING,

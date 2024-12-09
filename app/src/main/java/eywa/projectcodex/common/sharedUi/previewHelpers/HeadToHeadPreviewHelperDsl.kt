@@ -20,6 +20,7 @@ class HeadToHeadPreviewHelperDsl(shootId: Int) {
             isStandardFormat = true,
             teamSize = 1,
             qualificationRank = null,
+            totalArchers = null,
     )
     private var heats = listOf<FullHeadToHeadHeat>()
 

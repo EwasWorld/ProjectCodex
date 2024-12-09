@@ -48,6 +48,7 @@
     <string name="create_round__h2h_style_compound">Total score</string>
     <string name="create_round__h2h_team_size">Team size:</string>
     <string name="create_round__h2h_team_size_placeholder">1</string>
+    <string name="create_round__h2h_total_archers">Total archers:</string>
     <string name="create_round__h2h_qualification_rank">Qualification rank:</string>
 
     <string name="err_create_round__too_many_arrows">This score has too many arrows (%1$d) entered to change the type to %2$s (max %3$d)</string> <!-- e.g. ... too many arrows (144) ... the type to FITA (max 36) -->
@@ -84,4 +85,6 @@
     <string name="help_create_round__h2h_team_size_body">The size of each team in the head to head match. For one-on-one matches, this is always 1. For pairs, this is 2, etc.</string>
     <string name="help_create_round__h2h_quali_rank_title">Qualification rank</string>
     <string name="help_create_round__h2h_quali_rank_body">The rank achieved by the archer or team in the qualification round which usually precedes a head to head match</string>
+    <string name="help_create_round__h2h_total_archers_title">Total archers</string>
+    <string name="help_create_round__h2h_total_archers_body">The total number of archers participating in head to head matches. This will be used to suggest opponent ranks</string>
 </resources>

@@ -45,6 +45,10 @@ data class NewScoreState(
                 TypeValidator.IntValidator,
                 NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
         ),
+        val h2hTotalArchers: NumberFieldState<Int> = NumberFieldState(
+                TypeValidator.IntValidator,
+                NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
+        ),
 
         /*
          * Dialogs
@@ -123,6 +127,7 @@ data class NewScoreState(
                     isStandardFormat = h2hFormatIsStandard,
                     teamSize = h2hTeamSize.parsed,
                     qualificationRank = h2hQualificationRank.parsed,
+                    totalArchers = h2hTotalArchers.parsed,
             )
 
     companion object {
