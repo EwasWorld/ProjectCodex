@@ -349,6 +349,14 @@ private fun MatchDetails(
                 placeholder = stringResource(R.string.head_to_head_add_heat__quali_rank_placeholder),
                 onValueChanged = { listener(OpponentQualiRankUpdated(it)) },
         )
+        CodexLabelledNumberFieldWithErrorMessage(
+                title = stringResource(R.string.head_to_head_add_heat__max_rank),
+                currentValue = state.extras.maxPossibleRank.text,
+                fieldTestTag = HeadToHeadAddHeatTestTag.MAX_RANK_INPUT,
+                errorMessageTestTag = HeadToHeadAddHeatTestTag.MAX_RANK_ERROR,
+                placeholder = stringResource(R.string.head_to_head_add_heat__quali_rank_placeholder),
+                onValueChanged = { listener(MaxPossibleRankUpdated(it)) },
+        )
 
         if (state.editing == null)
             CodexButton(
@@ -459,6 +467,8 @@ enum class HeadToHeadAddHeatTestTag : CodexTestTag {
     SCREEN,
     OPPONENT_QUALI_RANK_INPUT,
     OPPONENT_QUALI_RANK_ERROR,
+    MAX_RANK_INPUT,
+    MAX_RANK_ERROR,
     IS_BYE_CHECKBOX,
     SELECTOR_DIALOG_ITEM,
     DELETE_BUTTON,
@@ -509,7 +519,8 @@ fun Editing_HeadToHeadAddHeatScreen_Preview() {
                                 opponentQualificationRank = null,
                                 isShootOffWin = false,
                                 sightersCount = 0,
-                                isBye = false
+                                isBye = false,
+                                maxPossibleRank = 1,
                         ),
                         extras = HeadToHeadAddHeatExtras(
                                 heat = 0,

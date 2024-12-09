@@ -7,6 +7,7 @@ sealed class HeadToHeadAddHeatIntent {
     data object OpenAddEndScreenHandled : HeadToHeadAddHeatIntent()
     data class OpponentUpdated(val opponent: String) : HeadToHeadAddHeatIntent()
     data class OpponentQualiRankUpdated(val rank: String?) : HeadToHeadAddHeatIntent()
+    data class MaxPossibleRankUpdated(val rank: String?) : HeadToHeadAddHeatIntent()
     data object ToggleIsBye : HeadToHeadAddHeatIntent()
     data object HeatClicked : HeadToHeadAddHeatIntent()
     data class SelectHeatDialogItemClicked(val heat: Int) : HeadToHeadAddHeatIntent()

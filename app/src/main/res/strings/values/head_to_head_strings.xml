@@ -68,6 +68,11 @@
     <string name="head_to_head_add_heat__opponent_placeholder">John Doe</string>
     <string name="head_to_head_add_heat__opponent_quali_rank">Opponent rank:</string>
     <string name="head_to_head_add_heat__quali_rank_placeholder">15</string>
+    <string name="head_to_head_add_heat__max_rank">Max rank:</string>
+    <string name="head_to_head_add_heat__max_rank_placeholder">1</string>
+    <string name="head_to_head_add_heat__max_rank_gold">Gold</string>
+    <string name="head_to_head_add_heat__max_rank_silver">Silver</string>
+    <string name="head_to_head_add_heat__max_rank_bronze">Bronze</string>
     <string name="head_to_head_add_heat__bye">Bye:</string>
     <string name="head_to_head_add_heat__submit">Start match</string>
     <string name="head_to_head_add_heat__submit_edit">Update match info</string>

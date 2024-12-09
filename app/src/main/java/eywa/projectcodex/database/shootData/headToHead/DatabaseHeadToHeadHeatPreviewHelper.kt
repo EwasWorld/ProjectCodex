@@ -10,5 +10,6 @@ object DatabaseHeadToHeadHeatPreviewHelper {
             isShootOffWin = false,
             sightersCount = 6,
             isBye = false,
+            maxPossibleRank = 1,
     )
 }

@@ -215,7 +215,7 @@ fun HeadToHeadStatsScreen_Preview() {
                         fullShootInfo = ShootPreviewHelperDsl.create {
                             round = RoundPreviewHelper.wa70RoundData
                             addH2h {
-                                headToHead = headToHead.copy(qualificationRank = 5)
+                                headToHead = headToHead.copy(qualificationRank = 5, totalArchers = 20)
                                 addHeat {
                                     heat = heat.copy(opponentQualificationRank = 10, opponent = "Tess", isBye = true)
                                 }
@@ -246,7 +246,7 @@ fun NoHeats_HeadToHeadStatsScreen_Preview() {
                 state = HeadToHeadStatsState(
                         fullShootInfo = ShootPreviewHelperDsl.create {
                             addH2h {
-                                headToHead = headToHead.copy(qualificationRank = 5)
+                                headToHead = headToHead.copy(totalArchers = 5, isStandardFormat = false)
                             }
                         },
                         classificationTablesUseCase = ClassificationTablesPreviewHelper.get(),

@@ -84,7 +84,10 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
         if (editingMatchNumber != null) {
             if (extraState.value == null) {
                 val previous = fullH2hInfo.heats.find { it.heat.matchNumber == editingMatchNumber - 1 }
-                extraState.update { HeadToHeadAddHeatExtras(heat = previous?.heat?.heat?.minus(1)?.coerceAtLeast(0)) }
+                extraState.update {
+                    HeadToHeadAddHeatExtras(heat = previous?.heat?.heat?.minus(1)?.coerceAtLeast(0))
+                            .setMaxRank(if (previous == null) 1 else previous.heat.maxPossibleRank)
+                }
             }
 
             return HeadToHeadAddHeatState(
@@ -130,6 +133,7 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
                 extraState.update {
                     HeadToHeadAddHeatExtras(heat = maxHeat.heat.heat?.minus(1)?.coerceAtLeast(0))
                             .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(previousHeat.matchNumber + 1))
+                            .setMaxRank(maxHeat.heat.maxPossibleRank)
                 }
             }
 
@@ -159,9 +163,12 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
     private fun HeadToHeadAddHeatExtras.resetEditInfo(editing: DatabaseHeadToHeadHeat) = copy(
             heat = editing.heat,
             opponent = editing.opponent ?: "",
-            opponentQualiRank = opponentQualiRank.onTextChanged(editing.opponentQualificationRank?.toString() ?: ""),
+            opponentQualiRank = opponentQualiRank.copy(text = editing.opponentQualificationRank?.toString() ?: ""),
             isBye = editing.isBye,
     )
+
+    private fun HeadToHeadAddHeatExtras.setMaxRank(maxRank: Int?) =
+            copy(maxPossibleRank = maxPossibleRank.copy(text = maxRank?.toString() ?: ""))
 
     private fun HeadToHeadAddHeatExtras.setOpponentQualiRank(opponentQualiRank: Opponent?) =
             when (opponentQualiRank) {
@@ -202,6 +209,9 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
 
             is OpponentQualiRankUpdated ->
                 updateState { it.copy(opponentQualiRank = it.opponentQualiRank.onTextChanged(action.rank)) }
+
+            is MaxPossibleRankUpdated ->
+                updateState { it.copy(maxPossibleRank = it.maxPossibleRank.onTextChanged(action.rank)) }
 
             is SelectHeatDialogItemClicked ->
                 updateState {

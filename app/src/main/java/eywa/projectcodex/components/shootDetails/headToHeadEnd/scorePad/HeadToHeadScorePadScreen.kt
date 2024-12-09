@@ -192,13 +192,25 @@ fun HeadToHeadScorePadScreen(
                                     )
                                 }
                             }
+                            entry.heat.maxPossibleRank?.let {
+                                check(it >= 1)
+                                val maxRank = when (it) {
+                                    1 -> return@let
+                                    2 -> stringResource(R.string.head_to_head_add_heat__max_rank_silver)
+                                    3 -> stringResource(R.string.head_to_head_add_heat__max_rank_bronze)
+                                    else -> it.toString()
+                                }
+                                DataRow(
+                                        title = stringResource(R.string.head_to_head_add_heat__max_rank),
+                                        text = maxRank,
+                                )
+                            }
                             DataRow(
                                     title = stringResource(R.string.add_count__sighters),
                                     text = entry.heat.sightersCount.toString(),
                                     onClick = {
                                         listener(HeadToHeadScorePadIntent.EditSighters(entry.heat.matchNumber))
                                     },
-                                    modifier = Modifier.padding(top = 8.dp)
                             )
                         }
                     }
@@ -263,6 +275,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 sightersCount = 0,
                                                 isBye = false,
                                                 isShootOffWin = false,
+                                                maxPossibleRank = 3,
                                         ),
                                         isRecurveStyle = true,
                                         isStandardFormat = true,
@@ -279,6 +292,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 sightersCount = 0,
                                                 isBye = false,
                                                 isShootOffWin = false,
+                                                maxPossibleRank = null,
                                         ),
                                         isRecurveStyle = true,
                                         isStandardFormat = true,
@@ -310,6 +324,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                 sightersCount = 0,
                                                 isBye = false,
                                                 isShootOffWin = false,
+                                                maxPossibleRank = null,
                                         ),
                                         isRecurveStyle = true,
                                         isStandardFormat = true,

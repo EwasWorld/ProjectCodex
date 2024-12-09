@@ -58,6 +58,7 @@ class HeadToHeadHeatPreviewHelperDsl(
             isShootOffWin = false,
             sightersCount = 0,
             isBye = false,
+            maxPossibleRank = 1,
     )
     private var sets = listOf<FullHeadToHeadSet>()
 

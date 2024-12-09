@@ -1,13 +1,13 @@
 package eywa.projectcodex.components.shootDetails.stats.ui
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
@@ -54,6 +54,9 @@ fun DateAndRoundSection(
                                     ).asHelpState(helpListener),
                             )
             )
+            fullShootInfo.h2h?.headToHead?.let {
+                Spacer(modifier = Modifier)
+            }
             DataRow(
                     title = stringResource(R.string.archer_round_stats__round),
                     text = fullShootInfo.displayName
@@ -70,10 +73,16 @@ fun DateAndRoundSection(
                     val team = if (it.teamSize > 1) "Teams of ${it.teamSize}" else "Individual"
                     val style = if (it.isRecurveStyle) "Set points" else "Score"
                     val rank = if (it.qualificationRank != null) ", Rank ${it.qualificationRank}" else ""
+                    val format = if (it.isStandardFormat) "" else "\nNon-standard format"
+                    val totalArchers =
+                            if (it.totalArchers == null) ""
+                            else if (it.qualificationRank == null) ", ${it.totalArchers} archers"
+                            else " of ${it.totalArchers}"
                     Text(
-                            "$team, $style$rank",
-                            modifier = Modifier.padding(bottom = 2.dp)
+                            text = "$team, $style$rank$totalArchers$format",
+                            textAlign = TextAlign.Center,
                     )
+                    Spacer(modifier = Modifier)
                 }
                 SelectFaceRow(
                         selectedFaces = fullShootInfo.faces,

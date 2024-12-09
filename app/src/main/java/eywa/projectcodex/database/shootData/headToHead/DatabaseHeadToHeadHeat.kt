@@ -25,6 +25,10 @@ data class DatabaseHeadToHeadHeat(
          */
         val matchNumber: Int,
         val heat: Int?,
+        /**
+         * The final rank if the archer wins this and all later matches
+         */
+        val maxPossibleRank: Int?,
         val opponent: String?,
         val opponentQualificationRank: Int?,
         val isShootOffWin: Boolean,

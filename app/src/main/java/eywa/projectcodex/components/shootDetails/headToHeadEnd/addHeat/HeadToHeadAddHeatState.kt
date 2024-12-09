@@ -2,6 +2,7 @@ package eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat
 
 import eywa.projectcodex.common.sharedUi.numberField.NumberFieldState
 import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
 import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
@@ -26,6 +27,7 @@ data class HeadToHeadAddHeatState(
                     opponentQualificationRank = extras.opponentQualiRank.parsed,
                     isShootOffWin = false,
                     sightersCount = 0,
+                    maxPossibleRank = extras.maxPossibleRank.parsed,
                     isBye = extras.isBye,
             )
 
@@ -51,6 +53,13 @@ data class HeadToHeadAddHeatExtras(
         val opponentQualiRank: NumberFieldState<Int> = NumberFieldState(
                 TypeValidator.IntValidator,
                 NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
+        ),
+        val maxPossibleRank: NumberFieldState<Int> = NumberFieldState(
+                text = "1",
+                validators = NumberValidatorGroup(
+                        TypeValidator.IntValidator,
+                        NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
+                ),
         ),
         val isBye: Boolean = false,
 )
