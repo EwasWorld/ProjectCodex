@@ -7,6 +7,7 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
+import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 enum class HeadToHeadGridColumn {
     SET_NUMBER {
@@ -26,7 +27,7 @@ enum class HeadToHeadGridColumn {
     ARROWS {
         override val primaryTitle: ResOrActual<String>
             get() = ResOrActual.StringResource(R.string.head_to_head_grid__column_arrows)
-        override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>
+        override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>?
             get() = { data, _ ->
                 if (data is HeadToHeadGridRowData.Arrows) {
                     val missing = data.expectedArrowCount - data.arrows.size
@@ -38,6 +39,9 @@ enum class HeadToHeadGridColumn {
                             )
                     ResOrActual.JoinToStringResource(text, R.string.end_to_string_arrow_deliminator)
                 }
+                else if (data.type == HeadToHeadArcherType.RESULT) {
+                    null
+                }
                 else {
                     ResOrActual.StringResource(R.string.score_pad__running_total_placeholder)
                 }
@@ -48,7 +52,18 @@ enum class HeadToHeadGridColumn {
         override val primaryTitle: ResOrActual<String>
             get() = ResOrActual.StringResource(R.string.head_to_head_grid__column_end_total)
         override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>
-            get() = { data, _ -> ResOrActual.Actual(data.totalScore.toString()) }
+            get() = { data, _ ->
+                if (data.type == HeadToHeadArcherType.RESULT) {
+                    FullHeadToHeadSet.getResult(data.totalScore).title
+                }
+                else {
+                    ResOrActual.Actual(data.totalScore.toString())
+                }
+            }
+
+        override fun cellHorizontalSpan(row: HeadToHeadGridRowData, extra: HeadToHeadSetData): Int {
+            return if (row.type == HeadToHeadArcherType.RESULT) extra.resultColumnSpan else 1
+        }
     },
 
     TEAM_TOTAL {
@@ -64,7 +79,7 @@ enum class HeadToHeadGridColumn {
             }
 
         override fun cellVerticalSpan(row: HeadToHeadGridRowData, extra: HeadToHeadSetData): Int {
-            return if (row.type == HeadToHeadArcherType.SELF) 2 else 1
+            return if (row.type == HeadToHeadArcherType.SELF) extra.teamTotalColumnSpan else 1
         }
     },
 
@@ -97,8 +112,16 @@ enum class HeadToHeadGridColumn {
                             opponent.getPoints()
                         }
 
-                        HeadToHeadArcherType.RESULT ->
-                            ResOrActual.Actual((data as HeadToHeadGridRowData.Total).total.toString())
+                        HeadToHeadArcherType.RESULT -> {
+                            check(data.isTotalRow)
+                            val points = when (data.totalScore) {
+                                0 -> 0
+                                1 -> if (extra.isShootOff) throw IllegalStateException() else 1
+                                2 -> if (extra.isShootOff) 1 else 2
+                                else -> throw IllegalStateException()
+                            }
+                            ResOrActual.Actual(points.toString())
+                        }
                     }
                 }
             }
@@ -121,6 +144,7 @@ enum class HeadToHeadGridColumn {
         get() = null
 
     open fun cellVerticalSpan(row: HeadToHeadGridRowData, extra: HeadToHeadSetData): Int = 1
+    open fun cellHorizontalSpan(row: HeadToHeadGridRowData, extra: HeadToHeadSetData): Int = 1
 
     fun getHelpState(resources: Resources): HelpShowcaseItem? {
         if (helpTitle == null || helpBody == null) return null

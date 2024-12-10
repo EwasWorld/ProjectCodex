@@ -128,11 +128,9 @@ data class FullHeadToHeadHeat(
         return if (scores.first > scores.second) HeadToHeadResult.WIN else HeadToHeadResult.LOSS
     }
 
-    fun toGridState() = HeadToHeadGridState(
+    fun toGridState() = HeadToHeadGridState.NonEditable(
             enteredArrows = sets,
-            selected = null,
-            isSingleEditableSet = false,
             runningTotals = runningTotals,
-            finalResult = result(),
+            finalResult = result,
     )
 }

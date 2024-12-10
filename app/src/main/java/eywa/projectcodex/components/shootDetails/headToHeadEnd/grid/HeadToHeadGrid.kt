@@ -69,17 +69,17 @@ fun HeadToHeadGrid(
     val resources = LocalContext.current.resources
 
     val focusRequesters = remember(
-            state.isSingleEditableSet,
+            state is HeadToHeadGridState.SingleEditable,
             state.enteredArrows.firstOrNull()?.data?.map { it.type },
     ) {
-        if (!state.isSingleEditableSet) null
+        if (state !is HeadToHeadGridState.SingleEditable) null
         else state.enteredArrows.firstOrNull()?.data
-                ?.filter { it.isTotalRow }
+                ?.filter { it.isTotalRow && it.type != HeadToHeadArcherType.RESULT }
                 ?.associate { it.type to FocusRequester() }
     }
 
     val columnMetadata = listOfNotNull(
-            HeadToHeadGridColumn.SET_NUMBER.takeIf { !state.isSingleEditableSet },
+            HeadToHeadGridColumn.SET_NUMBER.takeIf { state !is HeadToHeadGridState.SingleEditable },
             HeadToHeadGridColumn.TYPE,
             HeadToHeadGridColumn.ARROWS.takeIf {
                 state.enteredArrows.anyRow { it is HeadToHeadGridRowData.Arrows }
@@ -87,12 +87,13 @@ fun HeadToHeadGrid(
             HeadToHeadGridColumn.END_TOTAL,
             HeadToHeadGridColumn.TEAM_TOTAL.takeIf { state.showExtraTotalColumn },
             HeadToHeadGridColumn.POINTS.takeIf {
-                !state.isSingleEditableSet
+                state !is HeadToHeadGridState.SingleEditable
                         || state.enteredArrows.anyRow { it.type == HeadToHeadArcherType.RESULT }
             },
     )
 
-    val style = if (state.isSingleEditableSet) CodexTypography.NORMAL_PLUS else CodexTypography.NORMAL
+    val style =
+            if (state is HeadToHeadGridState.SingleEditable) CodexTypography.NORMAL_PLUS else CodexTypography.NORMAL
     ProvideTextStyle(style.copy(color = CodexTheme.colors.onListItemAppOnBackground)) {
         CodexGrid(
                 columns = columnMetadata.size,
@@ -109,7 +110,7 @@ fun HeadToHeadGrid(
                         Box {}
                     }
                     else {
-                        val clickable = it == HeadToHeadGridColumn.TYPE && state.isSingleEditableSet
+                        val clickable = it == HeadToHeadGridColumn.TYPE && state is HeadToHeadGridState.SingleEditable
                         Row(
                                 horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -143,10 +144,20 @@ fun HeadToHeadGrid(
                         teamEndTotal = set.teamEndScore ?: 0,
                         opponentEndTotal = set.opponentEndScore ?: 0,
                         hasSelfAndTeamRows = set.showExtraColumnTotal(),
+                        teamTotalColumnSpan = setOf(
+                                HeadToHeadArcherType.SELF,
+                                HeadToHeadArcherType.TEAM_MATE,
+                                HeadToHeadArcherType.TEAM
+                        ).intersect(set.data.map { it.type }.toSet()).size,
+                        resultColumnSpan = setOf(
+                                HeadToHeadGridColumn.ARROWS,
+                                HeadToHeadGridColumn.END_TOTAL,
+                                HeadToHeadGridColumn.TEAM_TOTAL,
+                        ).intersect(columnMetadata.toSet()).size,
                         result = set.result,
                 )
 
-                if (!state.isSingleEditableSet) {
+                if (state is HeadToHeadGridState.NonEditable) {
                     item(
                             fillBox = true,
                             // + 1 for total row
@@ -175,17 +186,26 @@ fun HeadToHeadGrid(
                     columnMetadata.forEach { column ->
                         val cellModifier = column.testTag?.let { Modifier.testTag(it) } ?: Modifier
                         val value = column.mapping(row, extraData)?.get(resources)
-                        val isSelectable = state.isSingleEditableSet && (
+                        val isSelectable = state is HeadToHeadGridState.SingleEditable && (
                                 (row.isTotalRow && column == HeadToHeadGridColumn.END_TOTAL)
                                         || (!row.isTotalRow && column == HeadToHeadGridColumn.ARROWS)
                                 )
-                        val isSelected = isSelectable && row.type == state.selected
+                        val isSelected = isSelectable
+                                && row.type == (state as HeadToHeadGridState.SingleEditable).selected
 
                         if (value == null) {
                             // No cell
                         }
-                        else if (column == HeadToHeadGridColumn.END_TOTAL && row is HeadToHeadGridRowData.EditableTotal) {
-                            item(fillBox = true) {
+                        else if (
+                            column == HeadToHeadGridColumn.END_TOTAL
+                            && row is HeadToHeadGridRowData.EditableTotal
+                            && row.type != HeadToHeadArcherType.RESULT
+                        ) {
+                            item(
+                                    fillBox = true,
+                                    verticalSpan = column.cellVerticalSpan(row, extraData),
+                                    horizontalSpan = column.cellHorizontalSpan(row, extraData),
+                            ) {
                                 CodexNumberField(
                                         contentDescription = row.type.text.get(),
                                         currentValue = row.text.text,
@@ -215,6 +235,7 @@ fun HeadToHeadGrid(
                             item(
                                     fillBox = true,
                                     verticalSpan = column.cellVerticalSpan(row, extraData),
+                                    horizontalSpan = column.cellHorizontalSpan(row, extraData),
                             ) {
                                 val background =
                                         if (isSelected) Color.White
@@ -255,7 +276,7 @@ fun HeadToHeadGrid(
                     }
                 }
 
-                if (!state.isSingleEditableSet) {
+                if (state is HeadToHeadGridState.NonEditable) {
                     item(
                             fillBox = true,
                             // Ignore set number column
@@ -293,7 +314,7 @@ fun HeadToHeadGrid(
                 }
             }
 
-            if (!state.isSingleEditableSet && state.finalResult != null) {
+            if (state is HeadToHeadGridState.NonEditable && state.finalResult != null) {
                 item(
                         fillBox = true,
                         horizontalSpan = columnMetadata.size,
@@ -316,9 +337,10 @@ fun HeadToHeadGrid(
     }
 
     val focusManager = LocalFocusManager.current
-    LaunchedEffect(state.selected) {
-        if (state.selected != null) {
-            val requester = focusRequesters?.get(state.selected)
+    val selectedRow = (state as? HeadToHeadGridState.SingleEditable)?.selected
+    LaunchedEffect(selectedRow) {
+        if (selectedRow != null) {
+            val requester = focusRequesters?.get(selectedRow)
 
             if (requester != null) requester.requestFocus()
             else focusManager.clearFocus()
@@ -344,8 +366,8 @@ enum class HeadToHeadGridTestTag : CodexTestTag {
 @Composable
 fun Input_HeadToHeadGrid_Preview() {
     CodexTheme {
-        HeadToHeadGrid(
-                state = HeadToHeadGridState(
+        HeadToHeadGridPreviewHelper(
+                state = HeadToHeadGridState.SingleEditable(
                         enteredArrows = listOf(
                                 FullHeadToHeadSet(
                                         data = HeadToHeadGridRowDataPreviewHelper.create(isEditable = true),
@@ -356,16 +378,7 @@ fun Input_HeadToHeadGrid_Preview() {
                                 )
                         ),
                         selected = null,
-                        isSingleEditableSet = true,
-                        runningTotals = null,
-                        finalResult = null,
                 ),
-                errorOnIncompleteRows = false,
-                rowClicked = { _, _ -> },
-                onTextValueChanged = { _, _ -> },
-                editTypesClicked = {},
-                helpListener = {},
-                modifier = Modifier.padding(vertical = 20.dp)
         )
     }
 }
@@ -378,8 +391,8 @@ fun Input_HeadToHeadGrid_Preview() {
 @Composable
 fun InputTeam_HeadToHeadGrid_Preview() {
     CodexTheme {
-        HeadToHeadGrid(
-                state = HeadToHeadGridState(
+        HeadToHeadGridPreviewHelper(
+                state = HeadToHeadGridState.SingleEditable(
                         enteredArrows = listOf(
                                 FullHeadToHeadSet(
                                         data = HeadToHeadGridRowDataPreviewHelper.create(
@@ -388,6 +401,7 @@ fun InputTeam_HeadToHeadGrid_Preview() {
                                                         HeadToHeadArcherType.SELF to false,
                                                         HeadToHeadArcherType.TEAM_MATE to false,
                                                         HeadToHeadArcherType.OPPONENT to true,
+                                                        HeadToHeadArcherType.RESULT to true,
                                                 ),
                                                 isEditable = true,
                                         ),
@@ -398,16 +412,7 @@ fun InputTeam_HeadToHeadGrid_Preview() {
                                 ),
                         ),
                         selected = null,
-                        isSingleEditableSet = true,
-                        runningTotals = null,
-                        finalResult = null,
                 ),
-                errorOnIncompleteRows = false,
-                rowClicked = { _, _ -> },
-                onTextValueChanged = { _, _ -> },
-                editTypesClicked = {},
-                helpListener = {},
-                modifier = Modifier.padding(vertical = 20.dp)
         )
     }
 }
@@ -420,8 +425,8 @@ fun InputTeam_HeadToHeadGrid_Preview() {
 @Composable
 fun ScorePad_HeadToHeadGrid_Preview() {
     CodexTheme {
-        HeadToHeadGrid(
-                state = HeadToHeadGridState(
+        HeadToHeadGridPreviewHelper(
+                state = HeadToHeadGridState.NonEditable(
                         enteredArrows = listOf(
                                 FullHeadToHeadSet(
                                         data = HeadToHeadGridRowDataPreviewHelper.create(),
@@ -445,17 +450,80 @@ fun ScorePad_HeadToHeadGrid_Preview() {
                                         isRecurveStyle = true,
                                 ),
                         ),
-                        selected = null,
-                        isSingleEditableSet = false,
                         runningTotals = listOf(2 to 0, 4 to 0, 5 to 0).map { Either.Left(it) },
                         finalResult = HeadToHeadResult.WIN,
                 ),
-                errorOnIncompleteRows = false,
-                rowClicked = { _, _ -> },
-                onTextValueChanged = { _, _ -> },
-                editTypesClicked = {},
-                helpListener = {},
-                modifier = Modifier.padding(vertical = 20.dp)
+        )
+    }
+}
+
+@Preview(
+        widthDp = 500,
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun AllTypesTotals_HeadToHeadGrid_Preview() {
+    CodexTheme {
+        HeadToHeadGridPreviewHelper(
+                state = HeadToHeadGridState.NonEditable(
+                        enteredArrows = listOf(
+                                FullHeadToHeadSet(
+                                        data = HeadToHeadGridRowDataPreviewHelper.create(
+                                                typesToIsTotal = mapOf(
+                                                        HeadToHeadArcherType.SELF to true,
+                                                        HeadToHeadArcherType.TEAM_MATE to true,
+                                                        HeadToHeadArcherType.TEAM to true,
+                                                        HeadToHeadArcherType.OPPONENT to true,
+                                                        HeadToHeadArcherType.RESULT to true,
+                                                ),
+                                                teamSize = 2,
+                                        ),
+                                        teamSize = 2,
+                                        isShootOffWin = false,
+                                        setNumber = 1,
+                                        isRecurveStyle = true,
+                                )
+                        ),
+                        runningTotals = null,
+                        finalResult = null,
+                ),
+                errorOnIncompleteRows = true,
+        )
+    }
+}
+
+@Preview(
+        widthDp = 500,
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun AllTypesArrows_HeadToHeadGrid_Preview() {
+    CodexTheme {
+        HeadToHeadGridPreviewHelper(
+                state = HeadToHeadGridState.NonEditable(
+                        enteredArrows = listOf(
+                                FullHeadToHeadSet(
+                                        data = HeadToHeadGridRowDataPreviewHelper.create(
+                                                typesToIsTotal = mapOf(
+                                                        HeadToHeadArcherType.SELF to false,
+                                                        HeadToHeadArcherType.TEAM_MATE to false,
+                                                        HeadToHeadArcherType.TEAM to false,
+                                                        HeadToHeadArcherType.OPPONENT to false,
+                                                ),
+                                                teamSize = 2,
+                                        ),
+                                        teamSize = 2,
+                                        isShootOffWin = false,
+                                        setNumber = 1,
+                                        isRecurveStyle = true,
+                                )
+                        ),
+                        runningTotals = null,
+                        finalResult = null,
+                ),
+                errorOnIncompleteRows = true,
         )
     }
 }
@@ -467,8 +535,8 @@ fun ScorePad_HeadToHeadGrid_Preview() {
 @Composable
 fun Error_HeadToHeadGrid_Preview() {
     CodexTheme {
-        HeadToHeadGrid(
-                state = HeadToHeadGridState(
+        HeadToHeadGridPreviewHelper(
+                state = HeadToHeadGridState.NonEditable(
                         enteredArrows = listOf(
                                 FullHeadToHeadSet(
                                         data = HeadToHeadGridRowDataPreviewHelper.createEmptyRows(isEditable = true),
@@ -478,17 +546,26 @@ fun Error_HeadToHeadGrid_Preview() {
                                         isRecurveStyle = true,
                                 )
                         ),
-                        selected = null,
-                        isSingleEditableSet = true,
                         runningTotals = null,
                         finalResult = null,
                 ),
                 errorOnIncompleteRows = true,
-                rowClicked = { _, _ -> },
-                onTextValueChanged = { _, _ -> },
-                editTypesClicked = {},
-                helpListener = {},
-                modifier = Modifier.padding(vertical = 20.dp)
         )
     }
+}
+
+@Composable
+fun HeadToHeadGridPreviewHelper(
+        state: HeadToHeadGridState,
+        errorOnIncompleteRows: Boolean = false,
+) {
+    HeadToHeadGrid(
+            state = state,
+            errorOnIncompleteRows = errorOnIncompleteRows,
+            rowClicked = { _, _ -> },
+            onTextValueChanged = { _, _ -> },
+            editTypesClicked = {},
+            helpListener = {},
+            modifier = Modifier.padding(vertical = 20.dp)
+    )
 }

@@ -338,6 +338,10 @@ private fun EditRowTypesDialog(
                         text = stringResource(R.string.general_cancel),
                         onClick = { listener(CloseEditTypesDialog) },
                 ),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.general_complete),
+                        onClick = { listener(CompleteEditTypesDialog) },
+                ),
         ) {
             dialogState ?: return@SimpleDialogContent
             Column(
@@ -347,7 +351,7 @@ private fun EditRowTypesDialog(
             ) {
                 val isTeam = state.extras.set.teamSize > 1
                 HeadToHeadArcherType.entries.forEach {
-                    if (it.showForSelectorDialog(isTeam)) {
+                    if (it.showForSelectorDialog(isTeam, state.isRecurveStyle)) {
                         val enabled = it.enabledOnSelectorDialog(isTeam, dialogState.keys.toList())
                         val text =
                                 if (!enabled) {
@@ -542,7 +546,7 @@ fun EditRowTypes_HeadToHeadAddScreen_Preview() {
                                         data = listOf(),
                                         teamSize = 2,
                                         isShootOffWin = false,
-                                        isRecurveStyle = false,
+                                        isRecurveStyle = true,
                                 ),
                                 selectRowTypesDialogState = mapOf(
                                         HeadToHeadArcherType.SELF to false,

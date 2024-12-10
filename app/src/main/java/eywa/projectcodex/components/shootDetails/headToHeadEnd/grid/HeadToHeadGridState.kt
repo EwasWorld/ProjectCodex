@@ -6,28 +6,33 @@ import eywa.projectcodex.model.Either
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 import eywa.projectcodex.model.headToHead.HeadToHeadNoResult
 
-data class HeadToHeadGridState(
-        val enteredArrows: List<FullHeadToHeadSet>,
+sealed class HeadToHeadGridState {
+    abstract val enteredArrows: List<FullHeadToHeadSet>
 
-        /**
-         * Show selectable indicators on arrows/totals
-         */
-        val isSingleEditableSet: Boolean,
+    /**
+     * Allows entry of arrows and totals.
+     * Can only represent one set.
+     * Shows selectable indicators on arrows/totals.
+     */
+    data class SingleEditable(
+            override val enteredArrows: List<FullHeadToHeadSet>,
 
-        /**
-         * Only used when [isSingleEditableSet] is true, marks the currently selected row
-         */
-        val selected: HeadToHeadArcherType? = null,
+            /**
+             * Currently selected row
+             */
+            val selected: HeadToHeadArcherType? = null,
+    ) : HeadToHeadGridState() {
+        init {
+            require(enteredArrows.isEmpty() || enteredArrows.size == 1)
+        }
+    }
 
-        /**
-         * Only used when [isSingleEditableSet] is false
-         */
-        val runningTotals: List<Either<Pair<Int, Int>, HeadToHeadNoResult>>?,
+    data class NonEditable(
+            override val enteredArrows: List<FullHeadToHeadSet>,
+            val runningTotals: List<Either<Pair<Int, Int>, HeadToHeadNoResult>>?,
+            val finalResult: HeadToHeadResult?,
+    ) : HeadToHeadGridState()
 
-        /**
-         * Only used when [isSingleEditableSet] is false
-         */
-        val finalResult: HeadToHeadResult?,
-) {
-    val showExtraTotalColumn = enteredArrows.any { it.showExtraColumnTotal() }
+    val showExtraTotalColumn
+        get() = enteredArrows.any { it.showExtraColumnTotal() }
 }

@@ -15,6 +15,7 @@ sealed class HeadToHeadAddEndIntent {
     data object EditTypesClicked : HeadToHeadAddEndIntent()
     data class EditTypesItemClicked(val item: HeadToHeadArcherType) : HeadToHeadAddEndIntent()
     data object CloseEditTypesDialog : HeadToHeadAddEndIntent()
+    data object CompleteEditTypesDialog : HeadToHeadAddEndIntent()
     data object EditTypesOkClicked : HeadToHeadAddEndIntent()
     data object SightersClicked : HeadToHeadAddEndIntent()
     data object SightersHandled : HeadToHeadAddEndIntent()

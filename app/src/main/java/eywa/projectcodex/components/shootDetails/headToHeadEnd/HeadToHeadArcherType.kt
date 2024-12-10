@@ -10,7 +10,7 @@ enum class HeadToHeadArcherType(
          * The archer's team (including the archer themselves)
          */
         val isTeam: Boolean,
-        val showForSelectorDialog: (isTeam: Boolean) -> Boolean = { true },
+        val showForSelectorDialog: (isTeam: Boolean, isSetPoints: Boolean) -> Boolean = { _, _ -> true },
         val enabledOnSelectorDialog: (isTeam: Boolean, currentTypes: List<HeadToHeadArcherType>) -> Boolean =
                 { _, _ -> true },
 ) {
@@ -30,7 +30,7 @@ enum class HeadToHeadArcherType(
     TEAM_MATE(
             text = ResOrActual.StringResource(R.string.head_to_head_add_end__archer_team_mate),
             isTeam = true,
-            showForSelectorDialog = { it },
+            showForSelectorDialog = { isTeam, _ -> isTeam },
     ) {
         override fun expectedArrowCount(endSize: Int, teamSize: Int): Int = endSize * (teamSize - 1)
     },
@@ -41,7 +41,7 @@ enum class HeadToHeadArcherType(
     TEAM(
             text = ResOrActual.StringResource(R.string.head_to_head_add_end__archer_team),
             isTeam = true,
-            showForSelectorDialog = { it },
+            showForSelectorDialog = { isTeam, _ -> isTeam },
             enabledOnSelectorDialog = { _, types -> !types.contains(SELF) || !types.contains(TEAM_MATE) },
     ) {
         override fun expectedArrowCount(endSize: Int, teamSize: Int): Int = endSize * teamSize
@@ -58,13 +58,12 @@ enum class HeadToHeadArcherType(
     },
 
     /**
-     * Set points for the archer's team (including the archer themselves)
-     * Note this always uses default points within the db, not shoot off points, which are adjusted for later
-     * TODO
+     * Result of the set for the archer. 2 for win, 1 for tie, 0 for loss
      */
     RESULT(
             text = ResOrActual.StringResource(R.string.head_to_head_add_end__archer_result),
             isTeam = false,
+            showForSelectorDialog = { _, isSetPoints -> isSetPoints },
             enabledOnSelectorDialog = { isTeamMatch, types ->
                 when {
                     !types.contains(OPPONENT) -> true

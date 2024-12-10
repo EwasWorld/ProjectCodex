@@ -27,12 +27,9 @@ data class HeadToHeadAddEndState(
         }
     }
 
-    fun toGridState() = HeadToHeadGridState(
+    fun toGridState() = HeadToHeadGridState.SingleEditable(
             enteredArrows = listOf(extras.set),
             selected = extras.selected,
-            isSingleEditableSet = true,
-            runningTotals = null,
-            finalResult = null,
     )
 
     fun toDbDetails(): List<DatabaseHeadToHeadDetail> = extras.set.asDatabaseDetails(heat.shootId, heat.matchNumber)

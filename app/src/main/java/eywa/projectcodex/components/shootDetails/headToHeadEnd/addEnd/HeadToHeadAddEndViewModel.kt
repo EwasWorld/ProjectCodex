@@ -192,12 +192,19 @@ class HeadToHeadAddEndViewModel @Inject constructor(
         )
     }
 
+    private fun getRow(
+            type: HeadToHeadArcherType,
+            isTotal: Boolean,
+            endSize: Int,
+            teamSize: Int
+    ): HeadToHeadGridRowData {
+        val expectedArrowCount = type.expectedArrowCount(endSize = endSize, teamSize = teamSize)
+        return if (isTotal) EditableTotal(type = type, expectedArrowCount = expectedArrowCount)
+        else Arrows(type = type, expectedArrowCount = expectedArrowCount)
+    }
+
     private fun generateDefaultDataRows(endSize: Int, teamSize: Int): List<HeadToHeadGridRowData> {
-        fun getRow(type: HeadToHeadArcherType, isTotal: Boolean): HeadToHeadGridRowData {
-            val expectedArrowCount = type.expectedArrowCount(endSize = endSize, teamSize = teamSize)
-            return if (isTotal) EditableTotal(type = type, expectedArrowCount = expectedArrowCount)
-            else Arrows(type = type, expectedArrowCount = expectedArrowCount)
-        }
+        fun getRow(type: HeadToHeadArcherType, isTotal: Boolean) = getRow(type, isTotal, endSize, teamSize)
 
         return if (teamSize == 1) listOf(getRow(SELF, false), getRow(OPPONENT, true))
         else listOf(getRow(SELF, false), getRow(TEAM, true), getRow(OPPONENT, true))
@@ -263,7 +270,16 @@ class HeadToHeadAddEndViewModel @Inject constructor(
 
             SightersClicked -> updateState { it.copy(openSighters = true) }
             SightersHandled -> updateState { it.copy(openSighters = false) }
-            is GridRowClicked -> updateState { it.copy(selected = action.row) }
+            is GridRowClicked -> {
+                if (action.row == RESULT) {
+                    val currentState = extraState.value ?: return
+                    val resultRow = currentState.set.data.find { it.type == RESULT } ?: return
+                    val newResult = (resultRow.totalScore + 1) % 3
+                    handle(GridTextValueChanged(RESULT, newResult.toString()))
+                }
+                updateState { it.copy(selected = action.row) }
+            }
+
             ToggleShootOffWin -> updateState { it.copy(set = it.set.copy(isShootOffWin = !it.set.isShootOffWin)) }
             SubmitClicked -> state.value.getData().let { state ->
                 if (state == null) {
@@ -300,10 +316,35 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 val item = dialogState[action.item]
 
                 // null -> false -> true -> null
-                when (item) {
-                    null -> it.copy(selectRowTypesDialogState = dialogState.plus(action.item to false))
-                    false -> it.copy(selectRowTypesDialogState = dialogState.plus(action.item to true))
-                    true -> it.copy(selectRowTypesDialogState = dialogState.minus(action.item))
+                val newState =
+                        when (item) {
+                            // RESULT skips false because can't have arrow values for it
+                            null -> dialogState.plus(action.item to (action.item == RESULT))
+                            false -> dialogState.plus(action.item to true)
+                            true -> dialogState.minus(action.item)
+                        }
+
+                it.copy(selectRowTypesDialogState = newState)
+            }
+
+            is CompleteEditTypesDialog -> {
+                updateState { s ->
+                    val requiredRows = s.selectRowTypesDialogState ?: return@updateState s
+                    val currentData = s.set.data
+
+                    val existingRows = currentData.filter { requiredRows[it.type] == it.isTotalRow }
+
+                    val currentTypes = existingRows.map { it.type }
+                    val newRows = requiredRows.keys
+                            .filterNot { it in currentTypes }
+                            .map { type ->
+                                getRow(type, requiredRows[type]!!, s.set.endSize, s.set.teamSize)
+                            }
+
+                    s.copy(
+                            set = s.set.copy(data = existingRows.plus(newRows)),
+                            selectRowTypesDialogState = null,
+                    )
                 }
             }
 

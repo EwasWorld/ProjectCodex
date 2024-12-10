@@ -127,15 +127,11 @@ data class FullHeadToHeadSet(
             if (!result.isComplete) return HeadToHeadResult.INCOMPLETE
             if (!result.isTotalRow) throw IllegalStateException("Result must be total row")
 
-            return when (result.totalScore) {
-                0 -> HeadToHeadResult.LOSS
-                1 ->
-                    if (isShootOff) throw IllegalStateException("Shoot-off result cannot be a tie")
-                    else HeadToHeadResult.TIE
-
-                2 -> HeadToHeadResult.WIN
-                else -> throw IllegalStateException("Points must be 0, 1, or 2")
+            val finalResult = getResult(result.totalScore)
+            if (finalResult == HeadToHeadResult.TIE && isShootOff) {
+                throw IllegalStateException("Shoot-off result cannot be a tie")
             }
+            return finalResult
         }
 
         if (team.right == HeadToHeadNoResult.UNKNOWN || opponent.right == HeadToHeadNoResult.UNKNOWN) {
@@ -254,4 +250,14 @@ data class FullHeadToHeadSet(
                     }
                 }
             }
+
+    companion object {
+        fun getResult(key: Int) =
+                when (key) {
+                    0 -> HeadToHeadResult.LOSS
+                    1 -> HeadToHeadResult.TIE
+                    2 -> HeadToHeadResult.WIN
+                    else -> throw IllegalStateException("Points must be 0, 1, or 2")
+                }
+    }
 }
