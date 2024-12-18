@@ -4,15 +4,15 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.SightMarkDetailRobot
-import eywa.projectcodex.instrumentedTests.robots.SightMarksRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.SightMarkIndicatorRobot
 
 class AddEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ArrowInputsRobot(composeTestRule, AddEndTestTag.SCREEN) {
+    val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this)
+
     fun waitForLoad() {
         performV2Single {
             useUnmergedTree()
@@ -65,30 +65,6 @@ class AddEndRobot(
     fun clickRoundCompleteOk(block: ShootDetailsStatsRobot.() -> Unit = {}) {
         clickElement(AddEndTestTag.ROUND_COMPLETE_BUTTON)
         createRobot(ShootDetailsStatsRobot::class, block)
-    }
-
-    fun checkSightMarkIndicator(distance: String, sightMark: String?) {
-        performV2Single {
-            +CodexNodeMatcher.HasTestTag(AddEndTestTag.SIGHT_MARK)
-            +CodexNodeInteraction.AssertContentDescriptionEquals((sightMark ?: "None") + " $distance:")
-        }
-    }
-
-    fun checkAllSightMarkOnly() {
-        checkElementIsDisplayed(AddEndTestTag.EXPAND_SIGHT_MARK)
-        checkElementDoesNotExist(AddEndTestTag.SIGHT_MARK)
-    }
-
-    fun clickAllSightMarks(block: SightMarksRobot.() -> Unit) {
-        clickElement(AddEndTestTag.EXPAND_SIGHT_MARK)
-        createRobot(SightMarksRobot::class, block)
-    }
-
-    fun clickEditSightMark(block: SightMarkDetailRobot.() -> Unit) {
-        performV2 {
-            clickDataRow(AddEndTestTag.SIGHT_MARK)
-        }
-        createRobot(SightMarkDetailRobot::class, block)
     }
 
     fun checkSightersCount(count: Int?) {

@@ -14,25 +14,30 @@ class HeadToHeadScorePadRobot(
         TODO()
     }
 
-    fun clickEmptyScreenAddHeatButton() {
+    fun clickEmptyScreenAddMatchButton() {
         checkEmpty()
         TODO()
     }
 
-    fun checkHeatIsBye(heat: Int) {
+    fun checkMatchIsBye(match: Int) {
         TODO()
     }
 
-    fun checkHeatDetails(heat: Int, sighters: Int, opponentName: String?, opponentRank: Int?) {
+    fun checkMatchDetails(match: Int, heat: Int, sighters: Int, opponentName: String?, opponentRank: Int?) {
         TODO()
     }
 
-    fun checkNoGrid(heat: Int) {
+    fun checkNoGrid(match: Int) {
         TODO()
     }
 
-    fun checkGrid(heat: Int, result: HeadToHeadResult, config: GridDsl.() -> Unit) {
+    fun checkGrid(match: Int, result: HeadToHeadResult, config: GridDsl.() -> Unit) {
         TODO()
+    }
+
+    fun openEditEnd(match: Int, endNumber: Int, block: HeadToHeadAddEndRobot.() -> Unit) {
+        TODO()
+        createRobot(HeadToHeadAddEndRobot::class, block)
     }
 }
 
@@ -58,6 +63,10 @@ class GridEndDsl {
             teamScore: Int?,
             points: Int?,
     ) {
+        TODO()
+    }
+
+    fun checkResultsRow(rowIndex: Int, result: String, points: Int?) {
         TODO()
     }
 

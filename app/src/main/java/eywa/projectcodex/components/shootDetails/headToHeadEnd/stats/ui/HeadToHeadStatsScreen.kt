@@ -196,7 +196,7 @@ private fun ColumnScope.HandicapClassification(
     }
 }
 
-enum class HeadToHeadStats : CodexTestTag {
+enum class HeadToHeadStatsTestTag : CodexTestTag {
     SCREEN,
     ;
 

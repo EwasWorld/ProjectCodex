@@ -138,7 +138,7 @@ class AddEndE2eTest {
             clickNewScore {
                 clickSubmitNewScore {
                     checkIndicatorTable(0, 0)
-                    checkAllSightMarkOnly()
+                    sightMarkIndicatorRobot.checkAllSightMarkOnly()
 
                     // End 1
                     clickScoreButton(3)
@@ -208,12 +208,12 @@ class AddEndE2eTest {
                     waitForRemainingArrows()
 
                     checkRemainingArrows("12 at 90m,", "12 at 70m, 12 at 50m")
-                    checkSightMarkIndicator("90m", null)
+                    sightMarkIndicatorRobot.checkSightMarkIndicator("90m", null)
                     checkIndicatorTable(0, 0)
-                    clickAllSightMarks {
+                    sightMarkIndicatorRobot.clickAllSightMarks {
                         pressBack()
                     }
-                    clickEditSightMark {
+                    sightMarkIndicatorRobot.clickEditSightMark {
                         checkDistance(90, true)
                         pressBack()
                     }
@@ -230,33 +230,33 @@ class AddEndE2eTest {
 
                     completeEnd("1")
                     checkRemainingArrows("6 at 90m,", "12 at 70m, 12 at 50m")
-                    checkSightMarkIndicator("90m", null)
+                    sightMarkIndicatorRobot.checkSightMarkIndicator("90m", null)
                     checkIndicatorTable(6, 6)
 
                     completeEnd("1")
                     checkRemainingArrows("12 at 70m,", "12 at 50m")
-                    checkSightMarkIndicator("70m", "1.1")
-                    clickEditSightMark {
+                    sightMarkIndicatorRobot.checkSightMarkIndicator("70m", "1.1")
+                    sightMarkIndicatorRobot.clickEditSightMark {
                         checkInfo(SightMark(SightMarksPreviewHelper.sightMarks[5]), false)
                         pressBack()
                     }
 
                     completeEnd("1")
                     checkRemainingArrows("6 at 70m,", "12 at 50m")
-                    checkSightMarkIndicator("70m", "1.1")
+                    sightMarkIndicatorRobot.checkSightMarkIndicator("70m", "1.1")
 
                     completeEnd("1")
                     checkRemainingArrows("12 at 50m", "")
-                    checkSightMarkIndicator("50m", "1.75")
+                    sightMarkIndicatorRobot.checkSightMarkIndicator("50m", "1.75")
 
                     completeEnd("1")
                     checkRemainingArrows("6 at 50m", "")
-                    checkSightMarkIndicator("50m", "1.75")
+                    sightMarkIndicatorRobot.checkSightMarkIndicator("50m", "1.75")
 
                     checkIndicatorTable(30, 30)
                     completeEnd("1")
 
-                    checkSightMarkIndicator("50m", "1.75")
+                    sightMarkIndicatorRobot.checkSightMarkIndicator("50m", "1.75")
                     clickSighters {
                         setInputAmount(8)
                         clickAdd()

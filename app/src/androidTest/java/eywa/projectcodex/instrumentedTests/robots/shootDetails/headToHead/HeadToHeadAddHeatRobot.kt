@@ -4,23 +4,26 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat.HeadToHeadAddHeatTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.SightMarkIndicatorRobot
 
 class HeadToHeadAddHeatRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, HeadToHeadAddHeatTestTag.SCREEN) {
+    val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this)
+
     fun checkPrevious(heat: Int, score: String, result: String) {
         TODO()
     }
 
-    fun selectMatch(heat: Int) {
+    fun selectHeat(heat: Int) {
         TODO("Click, dialog, and check")
     }
 
-    fun checkMatch(heat: Int) {
+    fun checkHeat(heat: Int) {
         TODO()
     }
 
-    fun checkMatchNotSelectedIsError() {
+    fun checkOpponentRank(rank: Int?) {
         TODO()
     }
 
@@ -29,6 +32,14 @@ class HeadToHeadAddHeatRobot(
     }
 
     fun setIsBye(newValue: Boolean) {
+        TODO()
+    }
+
+    fun checkIsBye(isBye: Boolean) {
+        TODO()
+    }
+
+    fun checkSightMark() {
         TODO()
     }
 

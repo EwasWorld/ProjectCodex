@@ -6,6 +6,7 @@ import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 import kotlin.reflect.KClass
 
 typealias PerformFnV2 = (TestActionDslV2.() -> Unit) -> Unit
+typealias CreateRobotFn <R> = (KClass<R>, R.() -> Unit) -> R
 
 interface Robot {
     @Deprecated(

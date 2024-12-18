@@ -15,6 +15,7 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
+import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -65,8 +66,8 @@ class AddCountE2eTest {
 
         composeTestRule.mainMenuRobot {
             clickNewScore {
-                checkType()
-                clickType(false)
+                checkType(NewScoreRobot.Type.SCORE)
+                clickType(NewScoreRobot.Type.COUNT)
                 clickSubmitNewScoreCount {
                     checkRound(null)
                     checkShotCount(0)
@@ -141,8 +142,8 @@ class AddCountE2eTest {
                 selectRoundsRobot.clickSelectedRound {
                     clickRound("WA 1440")
                 }
-                checkType()
-                clickType(false)
+                checkType(NewScoreRobot.Type.SCORE)
+                clickType(NewScoreRobot.Type.COUNT)
                 clickSubmitNewScoreCount {
                     checkRound("1-1")
                     checkRemainingArrows("48 at 90m,", "36 at 80m, 24 at 70m")
@@ -163,9 +164,11 @@ class AddCountE2eTest {
                     Espresso.closeSoftKeyboard()
                     clickAdd()
                     checkRemainingArrows("42 at 90m,", "36 at 80m, 24 at 70m")
-                    checkSightMarkIndicator("90m", null)
-                    clickAllSightMarks { pressBack() }
-                    clickEditSightMark { pressBack() }
+                    with(sightMarkIndicatorRobot) {
+                        checkSightMarkIndicator("90m", null)
+                        clickAllSightMarks { pressBack() }
+                        clickEditSightMark { pressBack() }
+                    }
                     checkSightersCount(0)
                     checkShotCount(6)
                     checkTotalCount(6)
@@ -189,11 +192,11 @@ class AddCountE2eTest {
 
         composeTestRule.mainMenuRobot {
             clickNewScore {
-                clickType(false)
+                clickType(NewScoreRobot.Type.COUNT)
                 clickSubmitNewScoreCount {
 
                     clickEditRoundData {
-                        clickType()
+                        clickType(NewScoreRobot.Type.SCORE)
 
                         // Changing type opens up the add end screen
                         clickSubmitEditScoreChangeToScore {

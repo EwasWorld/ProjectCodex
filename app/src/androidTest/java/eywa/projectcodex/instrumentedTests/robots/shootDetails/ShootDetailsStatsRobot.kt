@@ -19,7 +19,11 @@ import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
 class ShootDetailsStatsRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, StatsTestTag.SCREEN) {
-    val facesRobot = SelectFaceBaseRobot(::performV2)
+    private val facesRobot = SelectFaceBaseRobot(::performV2)
+
+    fun checkFaces(expectedFacesString: String) {
+        facesRobot.checkFaces(expectedFacesString)
+    }
 
     fun checkDate(text: String) {
         checkElementText(StatsTestTag.DATE_TEXT, text, true)

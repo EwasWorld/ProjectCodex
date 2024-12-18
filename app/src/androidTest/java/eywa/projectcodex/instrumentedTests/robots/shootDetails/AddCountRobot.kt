@@ -6,18 +6,18 @@ import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountTest
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
 import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchTextBox
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
-import eywa.projectcodex.instrumentedTests.robots.SightMarkDetailRobot
-import eywa.projectcodex.instrumentedTests.robots.SightMarksRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.SightMarkIndicatorRobot
 
 class AddCountRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, AddArrowCountTestTag.SCREEN) {
+    val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this)
+
     fun checkDate(date: String) {
         checkElementText(StatsTestTag.DATE_TEXT, date, true)
     }
@@ -102,24 +102,5 @@ class AddCountRobot(
 
     fun checkRoundComplete() {
         checkElementIsDisplayed(AddArrowCountTestTag.ROUND_COMPLETE)
-    }
-
-    fun checkSightMarkIndicator(distance: String, sightMark: String?) {
-        performV2Single {
-            +CodexNodeMatcher.HasTestTag(AddEndTestTag.SIGHT_MARK)
-            +CodexNodeInteraction.AssertContentDescriptionEquals((sightMark ?: "None") + " $distance:")
-        }
-    }
-
-    fun clickAllSightMarks(block: SightMarksRobot.() -> Unit) {
-        clickElement(AddEndTestTag.EXPAND_SIGHT_MARK)
-        createRobot(SightMarksRobot::class, block)
-    }
-
-    fun clickEditSightMark(block: SightMarkDetailRobot.() -> Unit) {
-        performV2 {
-            clickDataRow(AddEndTestTag.SIGHT_MARK)
-        }
-        createRobot(SightMarkDetailRobot::class, block)
     }
 }

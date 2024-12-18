@@ -32,6 +32,7 @@ import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
+import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import eywa.projectcodex.instrumentedTests.robots.referenceTables.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot.PastRecordsDialogItem
@@ -217,7 +218,7 @@ class ShootDetailsStatsE2eTest {
                         checkAllowance(null)
                         checkPastRecordsTextShown(false)
                         checkAdjustedScore(null)
-                        facesRobot.checkFaces("Half")
+                        checkFaces("Half")
                     }
                 }
             }
@@ -245,7 +246,7 @@ class ShootDetailsStatsE2eTest {
                         checkHandicap(36)
                         // divide by 2 because only one dozen was shot
                         checkPredictedScore(predictedScore)
-                        facesRobot.checkFaces("Full")
+                        checkFaces("Full")
                         checkPb(isPb = false)
                         checkAllowance(allowance)
                         checkPastRecordsTextShown(false)
@@ -294,7 +295,7 @@ class ShootDetailsStatsE2eTest {
                         checkRound(shoots[2].roundSubType!!.name!!)
                         checkRemainingArrows(arrowsPerArrowCount * 2)
                         checkHandicap(null)
-                        facesRobot.checkFaces("Full, Half")
+                        checkFaces("Full, Half")
                     }
                 }
             }
@@ -347,7 +348,7 @@ class ShootDetailsStatsE2eTest {
                 clickSubmitNewScore {
                     clickNavBarStats {
                         clickEditRoundData {
-                            clickType(false)
+                            clickType(NewScoreRobot.Type.COUNT)
 
                             // Changing type opens up the count screen
                             clickSubmitEditScoreChangeToCount {

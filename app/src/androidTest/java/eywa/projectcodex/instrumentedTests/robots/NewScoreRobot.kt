@@ -103,15 +103,23 @@ class NewScoreRobot(
         }
     }
 
-    fun checkIsSetPoints(isSetPoints: Boolean) {
+    fun checkIsH2hSetPoints(isSetPoints: Boolean) {
         TODO()
     }
 
-    fun clickSetPoints(isSetPoints: Boolean) {
+    fun clickH2hSetPoints(expectedIsSetPoints: Boolean) {
         TODO("Click and check")
     }
 
-    fun setHeadToHeadFields(teamSize: Int, qualiRank: Int) {
+    fun checkIsH2hStandardFormat(isStandardFormat: Boolean) {
+        TODO()
+    }
+
+    fun clickH2hStandardFormat(expectedIsStandardFormat: Boolean) {
+        TODO("Click and check")
+    }
+
+    fun setHeadToHeadFields(teamSize: Int, qualiRank: Int?, totalArchers: Int?) {
         TODO()
     }
 

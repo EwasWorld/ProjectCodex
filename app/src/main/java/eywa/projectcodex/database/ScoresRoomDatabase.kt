@@ -78,7 +78,7 @@ interface ScoresRoomDatabase {
         views = [
             ShootWithScore::class, PersonalBest::class,
         ],
-        version = 13,
+        version = 14,
         autoMigrations = [
             AutoMigration(from = 5, to = 6),
             AutoMigration(from = 6, to = 7),
