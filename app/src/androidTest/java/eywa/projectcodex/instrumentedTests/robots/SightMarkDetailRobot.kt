@@ -55,7 +55,7 @@ class SightMarkDetailRobot(
             hasSightMarkError: Boolean = false,
             hasDistanceError: Boolean = false,
     ) {
-        perform {
+        performV2 {
             checkInputtedText(SIGHT, sightMark.sightMark.toString())
         }
         SIGHT_ERROR_TEXT.let {
@@ -73,7 +73,7 @@ class SightMarkDetailRobot(
         }
         checkCheckboxState(ARCHIVED, sightMark.isArchived, useUnmergedTree = true)
 
-        perform {
+        performV2 {
             checkInputtedText(NOTE, sightMark.note ?: "")
         }
 
@@ -85,7 +85,7 @@ class SightMarkDetailRobot(
             isMetric: Boolean,
             hasDistanceError: Boolean = false,
     ) {
-        perform {
+        performV2 {
             checkInputtedText(DISTANCE, distance.toString())
         }
         DISTANCE_ERROR_TEXT.let {

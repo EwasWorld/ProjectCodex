@@ -37,14 +37,14 @@ class SightMarksRobot(
     fun checkSightMarkDisplayed(sightMark: SightMark, isLeft: Boolean = false) {
         val text = sightMark.asText(isLeft)
 
-        perform {
-            useUnmergedTree = true
+        performV2Single {
+            useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT)
             +CodexNodeMatcher.HasText(text)
             +CodexNodeInteraction.AssertIsDisplayed()
         }
-        perform {
-            useUnmergedTree = true
+        performV2Single {
+            useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(DIAGRAM_NOTE_ICON)
             +CodexNodeMatcher.HasAnySibling(
                     listOf(
@@ -75,17 +75,19 @@ class SightMarksRobot(
     }
 
     fun checkDiagramTickLabelRange(topTick: String, bottomTick: String) {
-        perform {
-            useUnmergedTree = true
-            allNodes(CodexNodeMatcher.HasTestTag(DIAGRAM_TICK_LABEL))
-            +CodexNodeGroupToOne.First
-            +CodexNodeInteraction.AssertTextEquals(topTick)
+        performV2Group {
+            useUnmergedTree()
+            +CodexNodeMatcher.HasTestTag(DIAGRAM_TICK_LABEL)
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.AssertTextEquals(topTick)
+            }
         }
-        perform {
-            useUnmergedTree = true
-            allNodes(CodexNodeMatcher.HasTestTag(DIAGRAM_TICK_LABEL))
-            +CodexNodeGroupToOne.Last
-            +CodexNodeInteraction.AssertTextEquals(bottomTick)
+        performV2Group {
+            useUnmergedTree()
+            +CodexNodeMatcher.HasTestTag(DIAGRAM_TICK_LABEL)
+            toSingle(CodexNodeGroupToOne.Last) {
+                +CodexNodeInteraction.AssertTextEquals(bottomTick)
+            }
         }
     }
 

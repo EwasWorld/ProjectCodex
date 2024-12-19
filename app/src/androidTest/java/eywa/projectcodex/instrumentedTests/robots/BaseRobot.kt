@@ -19,7 +19,6 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.setText
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.dsl.TestActionDsl
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslGroupNode
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslMarker
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslSingleNode
@@ -32,7 +31,6 @@ import kotlin.reflect.full.primaryConstructor
 @DslMarker
 annotation class RobotDslMarker
 
-@Suppress("DeprecatedCallableAddReplaceWith")
 @RobotDslMarker
 @TestActionDslMarker
 abstract class BaseRobot(
@@ -55,14 +53,6 @@ abstract class BaseRobot(
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
         return true
-    }
-
-    @Deprecated(
-            "There's a shiny new version",
-            replaceWith = ReplaceWith("performV2", " eywa.projectcodex.instrumentedTests.dsl.TestActionDslV2")
-    )
-    override fun perform(config: TestActionDsl.() -> Unit) {
-        TestActionDsl().apply(config).run(composeTestRule)
     }
 
     override fun performV2(config: TestActionDslV2.() -> Unit) {

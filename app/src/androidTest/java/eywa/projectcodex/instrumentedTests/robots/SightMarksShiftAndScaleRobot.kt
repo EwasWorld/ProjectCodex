@@ -4,13 +4,8 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.sightMarks.SightMarksTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction.AssertDoesNotExist
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction.AssertIsDisplayed
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction.PerformClick
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher.HasAnyAncestor
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher.HasAnySibling
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher.HasTestTag
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher.HasText
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction.*
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher.*
 import eywa.projectcodex.model.SightMark
 
 class SightMarksShiftAndScaleRobot(
@@ -19,15 +14,15 @@ class SightMarksShiftAndScaleRobot(
     fun checkSightMarkDisplayed(sightMark: SightMark, isLeft: Boolean = false) {
         val text = sightMark.asText(isLeft)
 
-        perform {
-            useUnmergedTree = true
+        performV2Single {
+            useUnmergedTree()
             +HasTestTag(SightMarksTestTag.SIGHT_MARK_TEXT)
             +HasText(text)
             +AssertIsDisplayed()
         }
 
-        perform {
-            useUnmergedTree = true
+        performV2Single {
+            useUnmergedTree()
             +HasTestTag(SightMarksTestTag.DIAGRAM_NOTE_ICON)
             +HasAnySibling(
                     listOf(
@@ -40,21 +35,21 @@ class SightMarksShiftAndScaleRobot(
     }
 
     fun clickComplete() {
-        perform {
+        performV2Single {
             +HasTestTag(SightMarksTestTag.SAS_COMPLETE_BUTTON)
             +PerformClick()
         }
     }
 
     fun clickFlip() {
-        perform {
+        performV2Single {
             +HasTestTag(SightMarksTestTag.SAS_FLIP_BUTTON)
             +PerformClick()
         }
     }
 
     fun clickScaleReset() {
-        perform {
+        performV2Single {
             +HasTestTag(SightMarksTestTag.SAS_RESET_BUTTON)
             +HasAnyAncestor(HasTestTag(SightMarksTestTag.SAS_SCALE_BUTTONS))
             +PerformClick()
@@ -62,7 +57,7 @@ class SightMarksShiftAndScaleRobot(
     }
 
     fun clickShiftReset() {
-        perform {
+        performV2Single {
             +HasTestTag(SightMarksTestTag.SAS_RESET_BUTTON)
             +HasAnyAncestor(HasTestTag(SightMarksTestTag.SAS_SHIFT_BUTTONS))
             +PerformClick()
@@ -84,7 +79,7 @@ class SightMarksShiftAndScaleRobot(
             isLarge -> SightMarksTestTag.SAS_LARGE_DECREASE_BUTTON
             else -> SightMarksTestTag.SAS_SMALL_DECREASE_BUTTON
         }
-        perform {
+        performV2Single {
             +HasTestTag(buttonTag)
             +HasAnyAncestor(HasTestTag(groupTestTag))
             +PerformClick()

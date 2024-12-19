@@ -6,6 +6,9 @@ import androidx.compose.ui.test.performScrollToIndex
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.core.mainActivity.MainActivity
 
+@DslMarker
+annotation class TestActionDslMarker
+
 /**
  * Represents a single action or check
  */
