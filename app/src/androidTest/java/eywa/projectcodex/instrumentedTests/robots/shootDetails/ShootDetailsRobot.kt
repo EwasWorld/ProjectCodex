@@ -9,35 +9,26 @@ import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadAddEndRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadAddHeatRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadScorePadRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadStatsRobot
 
 abstract class ShootDetailsRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
         screenTestTag: CodexTestTag,
 ) : BaseRobot(composeTestRule, screenTestTag) {
-    @Deprecated("Use clickNavBarItem instead", ReplaceWith(""))
-    fun clickNavBarAddEnd(block: AddEndRobot.() -> Unit = {}) = clickNavBarItem(block)
-
-    @Deprecated("Use clickNavBarItem instead", ReplaceWith(""))
-    fun clickNavBarScorePad(block: ScorePadRobot.() -> Unit = {}) = clickNavBarItem(block)
-
-    @Deprecated("Use clickNavBarItem instead", ReplaceWith(""))
-    fun clickNavBarStats(block: ShootDetailsStatsRobot.() -> Unit = {}) = clickNavBarItem(block)
-
-    @Deprecated("Use clickNavBarItem instead", ReplaceWith(""))
-    fun clickNavBarSettings(block: ShootDetailsSettingsRobot.() -> Unit = {}) = clickNavBarItem(block)
-
     inline fun <reified R : ShootDetailsRobot> clickNavBarItem(noinline block: R.() -> Unit = {}) {
         val screenItem = when (R::class) {
             ShootDetailsStatsRobot::class -> StandardBottomNavBarItem.STATS
             ShootDetailsSettingsRobot::class -> StandardBottomNavBarItem.SETTINGS
-            AddEndRobot::class -> StandardBottomNavBarItem.ADD_END
-            ScorePadRobot::class -> StandardBottomNavBarItem.SCORE_PAD
+            ShootDetailsAddEndRobot::class -> StandardBottomNavBarItem.ADD_END
+            ShootDetailsScorePadRobot::class -> StandardBottomNavBarItem.SCORE_PAD
             HeadToHeadAddEndRobot::class -> HeadToHeadBottomNavBarItem.ADD_END
             HeadToHeadAddHeatRobot::class -> HeadToHeadBottomNavBarItem.ADD_HEAT
             HeadToHeadScorePadRobot::class -> HeadToHeadBottomNavBarItem.SCORE_PAD
+            HeadToHeadStatsRobot::class -> HeadToHeadBottomNavBarItem.STATS
             else -> throw NotImplementedError()
         }
 
+        checkElementIsDisplayed(screenItem)
         clickElement(screenItem)
         createRobot(R::class, block)
     }

@@ -23,8 +23,14 @@ abstract class ArrowInputsRobot(
     fun clickScoreButton(text: String) {
         performV2Single {
             useUnmergedTree()
+            +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON_GROUP)
+            +CodexNodeInteraction.PerformScrollTo()
+        }
+        performV2Single {
+            useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON)
             +CodexNodeMatcher.HasContentDescription("$text arrow input")
+            +CodexNodeInteraction.PerformScrollTo().waitFor()
             +CodexNodeInteraction.PerformClick()
         }
     }
@@ -56,11 +62,11 @@ abstract class ArrowInputsRobot(
     }
 
     fun clickClear() {
-        clickElement(ArrowInputsTestTag.CLEAR_BUTTON, true)
+        clickElement(ArrowInputsTestTag.CLEAR_BUTTON, useUnmergedTree = true, scrollTo = true)
     }
 
     fun clickBackspace() {
-        clickElement(ArrowInputsTestTag.BACKSPACE_BUTTON, true)
+        clickElement(ArrowInputsTestTag.BACKSPACE_BUTTON, useUnmergedTree = true, scrollTo = true)
     }
 
     protected fun clickArrowInputsSubmit() {

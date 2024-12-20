@@ -46,7 +46,7 @@ class ArcherInfoE2eTest {
     }
 
     @Test
-    fun testHandicaps() {
+    fun testArcherInfo() {
         setup()
 
         composeTestRule.mainMenuRobot {

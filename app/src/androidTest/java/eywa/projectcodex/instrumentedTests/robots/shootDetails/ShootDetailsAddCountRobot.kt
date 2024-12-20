@@ -13,10 +13,10 @@ import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.SightMarkIndicatorRobot
 
-class AddCountRobot(
+class ShootDetailsAddCountRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, AddArrowCountTestTag.SCREEN) {
-    val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this)
+    val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this, AddArrowCountTestTag.SCREEN)
 
     fun checkDate(date: String) {
         checkElementText(StatsTestTag.DATE_TEXT, date, true)
@@ -48,9 +48,9 @@ class AddCountRobot(
         checkElementTextOrDoesNotExist(AddArrowCountTestTag.SIGHTERS_COUNT, count?.toString(), true)
     }
 
-    fun clickSighters(block: AddCountRobot.() -> Unit) {
+    fun clickSighters(block: ShootDetailsAddCountRobot.() -> Unit) {
         clickElement(AddArrowCountTestTag.SIGHTERS_COUNT, true)
-        createRobot(AddCountRobot::class, block)
+        createRobot(ShootDetailsAddCountRobot::class, block)
     }
 
     fun checkShotCount(count: Int) {
@@ -79,8 +79,13 @@ class AddCountRobot(
         Espresso.closeSoftKeyboard()
         performV2Single {
             +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.ADD_COUNT_INPUT_ERROR)
-            if (error == null) +CodexNodeInteraction.AssertDoesNotExist()
-            else +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+            if (error == null) {
+                +CodexNodeInteraction.AssertDoesNotExist()
+            }
+            else {
+                +CodexNodeInteraction.PerformScrollTo().waitFor()
+                +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+            }
         }
     }
 
@@ -97,7 +102,7 @@ class AddCountRobot(
     }
 
     fun clickAdd() {
-        clickElement(AddArrowCountTestTag.SUBMIT)
+        clickElement(AddArrowCountTestTag.SUBMIT, scrollTo = true)
     }
 
     fun checkRoundComplete() {

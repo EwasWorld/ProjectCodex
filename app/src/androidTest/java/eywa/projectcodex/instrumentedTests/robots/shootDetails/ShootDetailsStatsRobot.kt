@@ -214,11 +214,32 @@ class ShootDetailsStatsRobot(
     }
 
     fun openHandicapTablesInFull(block: HandicapTablesRobot.() -> Unit) {
-        performV2Single {
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TABLES)
-            +CodexNodeInteraction.PerformScrollTo()
-            +CodexNodeInteraction.PerformClick()
+        try {
+            performV2Single {
+                +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TABLES)
+                +CodexNodeInteraction.PerformScrollTo()
+                +CodexNodeInteraction.AssertIsDisplayed()
+                +CodexNodeInteraction.PerformClick()
+            }
         }
+        catch (e: AssertionError) {
+            // Component is probably hidden by the bottom nav bar
+            // Scroll the component above to bring it into view and try again to click
+            if (e.message?.contains("The component is not displayed") == true) {
+                performV2Single {
+                    +CodexNodeMatcher.HasTestTag(StatsTestTag.HSG_SECTION)
+                    +CodexNodeInteraction.Swipe(CodexNodeInteraction.Swipe.Direction.UP)
+                }
+                performV2Single {
+                    +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TABLES)
+                    +CodexNodeInteraction.PerformScrollTo()
+                    +CodexNodeInteraction.AssertIsDisplayed()
+                    +CodexNodeInteraction.PerformClick()
+                }
+            }
+            else throw e
+        }
+
         createRobot(HandicapTablesRobot::class, block)
     }
 

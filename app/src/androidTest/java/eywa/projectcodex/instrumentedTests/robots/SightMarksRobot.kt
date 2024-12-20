@@ -41,6 +41,7 @@ class SightMarksRobot(
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT)
             +CodexNodeMatcher.HasText(text)
+            +CodexNodeInteraction.PerformScrollTo()
             +CodexNodeInteraction.AssertIsDisplayed()
         }
         performV2Single {
@@ -52,7 +53,8 @@ class SightMarksRobot(
                             CodexNodeMatcher.HasText(text),
                     )
             )
-            +if (sightMark.note == null) CodexNodeInteraction.AssertDoesNotExist() else CodexNodeInteraction.AssertIsDisplayed()
+            if (sightMark.note == null) +CodexNodeInteraction.AssertDoesNotExist()
+            else +CodexNodeInteraction.AssertIsDisplayed()
         }
     }
 
@@ -109,6 +111,6 @@ class SightMarksRobot(
     }
 
     private fun clickOptions() {
-        clickElement(OPTIONS_BUTTON)
+        clickElement(OPTIONS_BUTTON, scrollTo = true)
     }
 }

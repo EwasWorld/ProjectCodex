@@ -3,7 +3,6 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails
 import androidx.core.text.isDigitsOnly
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
-import eywa.projectcodex.common.utils.ListUtils.transpose
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
@@ -11,7 +10,7 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 
-class ScorePadRobot(
+class ShootDetailsScorePadRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, ScorePadTestTag.SCREEN) {
     fun waitForLoad() {
@@ -49,7 +48,7 @@ class ScorePadRobot(
 
     fun clickOkOnNoDataDialog() {
         clickDialogOk("No arrows entered")
-        createRobot(AddEndRobot::class) { checkEndTotal(0) }
+        createRobot(ShootDetailsAddEndRobot::class) { checkEndTotal(0) }
     }
 
     /**
@@ -80,14 +79,14 @@ class ScorePadRobot(
         }
     }
 
-    fun clickEditDropdownMenuItem(block: EditEndRobot.() -> Unit) {
+    fun clickEditDropdownMenuItem(block: ShootDetailsEditEndRobot.() -> Unit) {
         clickDropdownMenuItem(CommonStrings.EDIT_MENU_ITEM)
-        createRobot(EditEndRobot::class, block)
+        createRobot(ShootDetailsEditEndRobot::class, block)
     }
 
-    fun clickInsertDropdownMenuItem(block: InsertEndRobot.() -> Unit) {
+    fun clickInsertDropdownMenuItem(block: ShootDetailsInsertEndRobot.() -> Unit) {
         clickDropdownMenuItem(CommonStrings.INSERT_MENU_ITEM)
-        createRobot(InsertEndRobot::class, block)
+        createRobot(ShootDetailsInsertEndRobot::class, block)
     }
 
     fun clickDeleteDropdownMenuItem(dialogAction: Boolean, endNumber: Int) {

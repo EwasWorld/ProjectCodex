@@ -6,14 +6,14 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHead
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.RobotDslMarker
 import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddCountRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddCountRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.SightMarkIndicatorRobot
 
 class HeadToHeadAddEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, HeadToHeadAddEndTestTag.SCREEN) {
-    val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this)
+    val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this, HeadToHeadAddEndTestTag.SCREEN)
 
     fun checkRows(vararg rowsToIsTotal: Pair<String, Boolean>) {
         TODO()
@@ -89,9 +89,9 @@ class HeadToHeadAddEndRobot(
         TODO()
     }
 
-    fun clickSighters(block: AddCountRobot.() -> Unit) {
+    fun clickSighters(block: ShootDetailsAddCountRobot.() -> Unit) {
         TODO()
-        createRobot(AddCountRobot::class, block)
+        createRobot(ShootDetailsAddCountRobot::class, block)
     }
 
     fun clickEditRows(block: EditRowsDialogRobot.() -> Unit) {

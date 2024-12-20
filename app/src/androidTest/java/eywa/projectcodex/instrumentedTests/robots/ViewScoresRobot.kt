@@ -13,9 +13,9 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.dsl.assertTextEqualsOrDoesntExist
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddCountRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddCountRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsScorePadRobot
 
 class ViewScoresRobot(
         composeTestRule: ComposeTestRule<MainActivity>
@@ -41,13 +41,23 @@ class ViewScoresRobot(
      * Wait for the number of rows on the screen to be [rowCount]
      */
     fun waitForRowCount(rowCount: Int) {
-        performV2 {
-            allNodes {
-                useUnmergedTree()
-                +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, substring = true)
-                +CodexNodeMatcher.IsNotCached
-                +CodexNodeGroupInteraction.AssertCount(rowCount).waitFor()
-            }
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LAZY_COLUMN)
+            +CodexNodeInteraction.PerformScrollToIndex(rowCount - 1).waitFor()
+        }
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowCount - 1))
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+        }
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowCount))
+            +CodexNodeInteraction.AssertDoesNotExist().waitFor()
+        }
+        // If checking doesn't exist waited for a list change,
+        // double check it didn't result in too many nodes being removed
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowCount - 1))
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
@@ -65,6 +75,7 @@ class ViewScoresRobot(
         performV2 {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex))
+                +CodexNodeInteraction.PerformScrollTo()
                 +action
             }
         }
@@ -74,14 +85,14 @@ class ViewScoresRobot(
         performOnRowItem(rowIndex, CodexNodeInteraction.PerformClick())
     }
 
-    fun clickRow(rowIndex: Int, block: ScorePadRobot.() -> Unit = {}) {
+    fun clickRow(rowIndex: Int, block: ShootDetailsScorePadRobot.() -> Unit = {}) {
         performOnRowItem(rowIndex, CodexNodeInteraction.PerformClick())
-        createRobot(ScorePadRobot::class, block)
+        createRobot(ShootDetailsScorePadRobot::class, block)
     }
 
-    fun clickRowCount(rowIndex: Int, block: AddCountRobot.() -> Unit = {}) {
+    fun clickRowCount(rowIndex: Int, block: ShootDetailsAddCountRobot.() -> Unit = {}) {
         performOnRowItem(rowIndex, CodexNodeInteraction.PerformClick())
-        createRobot(AddCountRobot::class, block)
+        createRobot(ShootDetailsAddCountRobot::class, block)
     }
 
     fun longClickRow(rowIndex: Int) {
@@ -119,19 +130,19 @@ class ViewScoresRobot(
         createRobot(NewScoreRobot::class, block)
     }
 
-    fun clickContinueDropdownMenuItem(block: AddEndRobot.() -> Unit = {}) {
+    fun clickContinueDropdownMenuItem(block: ShootDetailsAddEndRobot.() -> Unit = {}) {
         clickDropdownMenuItem(CommonStrings.CONTINUE_MENU_ITEM)
-        createRobot(AddEndRobot::class, block)
+        createRobot(ShootDetailsAddEndRobot::class, block)
     }
 
-    fun clickViewDropdownMenuItem(block: AddCountRobot.() -> Unit = {}) {
+    fun clickViewDropdownMenuItem(block: ShootDetailsAddCountRobot.() -> Unit = {}) {
         clickDropdownMenuItem(CommonStrings.VIEW_MENU_ITEM)
-        createRobot(AddCountRobot::class, block)
+        createRobot(ShootDetailsAddCountRobot::class, block)
     }
 
-    fun clickScorePadDropdownMenuItem(block: ScorePadRobot.() -> Unit = {}) {
+    fun clickScorePadDropdownMenuItem(block: ShootDetailsScorePadRobot.() -> Unit = {}) {
         clickDropdownMenuItem(CommonStrings.SCORE_PAD_MENU_ITEM)
-        createRobot(ScorePadRobot::class, block)
+        createRobot(ShootDetailsScorePadRobot::class, block)
     }
 
     fun checkDropdownMenuItemNotThere(menuItem: String) {
@@ -197,15 +208,18 @@ class ViewScoresRobot(
             testTag: CodexTestTag,
             text: String?,
     ) {
+        if (text != null) {
+            performV2Single {
+                +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LAZY_COLUMN)
+                +CodexNodeInteraction.PerformScrollToIndex(rowIndex)
+            }
+        }
         performV2 {
             singleNode {
                 useUnmergedTree()
                 +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex)))
                 +CodexNodeMatcher.HasTestTag(testTag)
                 +CodexNodeMatcher.IsNotCached
-                if (text != null) {
-                    scrollToParentIndex(rowIndex)
-                }
                 +assertTextEqualsOrDoesntExist(text).waitFor()
             }
         }

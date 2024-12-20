@@ -12,7 +12,6 @@ import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.DateTimeFormat
-import eywa.projectcodex.common.utils.asCalendar
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -21,13 +20,13 @@ import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.rounds.RoundArrowCount
 import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.shootData.DatabaseShoot
-import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import eywa.projectcodex.instrumentedTests.robots.selectRound.SelectRoundRobot
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -41,12 +40,11 @@ import org.junit.Test
 import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 import java.util.Calendar
-import java.util.Date
 
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class NewScoreInstrumentedTest {
+class NewScoreE2eTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
@@ -235,7 +233,7 @@ class NewScoreInstrumentedTest {
                 checkDate("30 Oct 40")
 
                 clickSubmitNewScore {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkDate("30 Oct 40 20:22")
                     }
                 }
@@ -251,7 +249,7 @@ class NewScoreInstrumentedTest {
     }
 
     @Test
-    fun testEditInfo() = runTest {
+    fun testEditInfo() {
         setup()
 
         val selectedRound = roundsInput[1]
@@ -263,8 +261,6 @@ class NewScoreInstrumentedTest {
             clickViewScores {
                 longClickRow(0)
                 clickEditDropdownMenuItem {
-                    runBlocking { delay(1000) }
-
                     checkTime("17:12")
                     checkDate("10 Jun 19")
 
@@ -278,7 +274,7 @@ class NewScoreInstrumentedTest {
                     checkTime("13:15")
                     checkDate("30 Oct 40")
 
-                    selectRoundsRobot.clickSelectedRound() {
+                    selectRoundsRobot.clickSelectedRound {
                         clickRound(selectedRound.round.displayName)
                     }
 
@@ -306,34 +302,17 @@ class NewScoreInstrumentedTest {
                      */
                     clickSubmitEditScore()
                 }
+
+                checkScreenIsShown()
+
+                clickRow(0) {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
+                        checkDate("30 Oct 40 13:15")
+                        checkRound("2-1")
+                    }
+                }
             }
         }
-
-        runBlocking { delay(1000) }
-        val updated = getShoots(shootInput.shoot.shootId)
-        assertEquals(
-                DatabaseShoot(
-                        shootInput.shoot.shootId,
-                        calendar,
-                        shootInput.shoot.archerId,
-                        shootInput.shoot.countsTowardsHandicap,
-                ),
-                updated!!.shoot.copy(dateShot = calendar)
-        )
-        assertEquals(
-                DatabaseShootRound(
-                        shootId = shootInput.shoot.shootId,
-                        roundId = selectedRound.round.roundId,
-                        roundSubTypeId = 1,
-                ),
-                updated.shootRound,
-        )
-        val updatedDate = updated.shoot.dateShot
-        assertEquals(2040, updatedDate.get(Calendar.YEAR))
-        assertEquals(9, updatedDate.get(Calendar.MONTH))
-        assertEquals(30, updatedDate.get(Calendar.DATE))
-        assertEquals(13, updatedDate.get(Calendar.HOUR_OF_DAY))
-        assertEquals(15, updatedDate.get(Calendar.MINUTE))
     }
 
     @Test
@@ -490,7 +469,7 @@ class NewScoreInstrumentedTest {
         composeTestRule.mainMenuRobot {
             clickViewScores {
                 clickRow(0) {
-                    clickNavBarAddEnd {
+                    clickNavBarItem<ShootDetailsAddEndRobot> {
                         completeEnd("2")
                     }
                 }
@@ -515,8 +494,9 @@ class NewScoreInstrumentedTest {
             }
 
             clickViewScores {
+                waitForRowCount(1)
                 clickRow(0) {
-                    clickNavBarAddEnd {
+                    clickNavBarItem<ShootDetailsAddEndRobot> {
                         completeEnd("2")
                     }
                 }

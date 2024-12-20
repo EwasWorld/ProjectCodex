@@ -45,7 +45,7 @@ import org.junit.runner.RunWith
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class EmailScoresInstrumentedTest {
+class EmailScoresE2eTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 

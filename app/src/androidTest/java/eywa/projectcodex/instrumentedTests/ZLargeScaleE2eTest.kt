@@ -33,11 +33,11 @@ import eywa.projectcodex.instrumentedTests.robots.SightMarksRobot
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import eywa.projectcodex.instrumentedTests.robots.referenceTables.HandicapTablesRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.EditEndRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.InsertEndRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot.ExpectedRowData
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsEditEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsInsertEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsScorePadRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsScorePadRobot.ExpectedRowData
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsSettingsRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot
 import eywa.projectcodex.model.SightMark
@@ -56,7 +56,7 @@ import kotlin.reflect.jvm.jvmName
  * These tests span more than one screen and require an [ActivityScenario]
  */
 @HiltAndroidTest
-class ZLargeScaleInstrumentedTest {
+class ZLargeScaleE2eTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
@@ -144,17 +144,17 @@ class ZLargeScaleInstrumentedTest {
                 }
                 clickSubmitNewScore {
                     logMessage(this::class, "Score A - open score pad - no arrows entered")
-                    clickNavBarScorePad {
+                    clickNavBarItem<ShootDetailsScorePadRobot> {
                         clickOkOnNoDataDialog()
                     }
 
                     logMessage(this::class, "Score A - open stats - no arrows entered")
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("Round Name 1")
                         checkScore(0)
                     }
 
-                    clickNavBarAddEnd {
+                    clickNavBarItem<ShootDetailsAddEndRobot> {
                         logMessage(this::class, "Score A - enter 3 ends")
                         checkIndicatorTable(0, 0)
                         completeEnd("1")
@@ -168,13 +168,13 @@ class ZLargeScaleInstrumentedTest {
                     }
 
                     logMessage(this::class, "Score A - open stats - some arrows entered")
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("Round Name 1")
                         checkScore(36)
                     }
 
                     logMessage(this::class, "Score A - open score pad - some arrows entered")
-                    clickNavBarScorePad {
+                    clickNavBarItem<ShootDetailsScorePadRobot> {
                         checkScorePadData(
                                 listOf(
                                         ExpectedRowData(null, "Arrows", "H", "S", listOf("10s", "X"), "R/T"),
@@ -335,12 +335,12 @@ class ZLargeScaleInstrumentedTest {
                     )
 
                     logMessage(this::class, "Score A - View round add end - 1")
-                    clickNavBarAddEnd {
+                    clickNavBarItem<ShootDetailsAddEndRobot> {
                         checkIndicatorTable(48, 18)
                         completeEnd("1")
                         checkIndicatorTable(54, 24)
                     }
-                    clickNavBarScorePad()
+                    clickNavBarItem<ShootDetailsScorePadRobot>()
 
                     checkScorePadData(
                             listOf(
@@ -395,12 +395,12 @@ class ZLargeScaleInstrumentedTest {
                     )
 
                     logMessage(this::class, "Score A - View round add end - 2")
-                    clickNavBarAddEnd {
+                    clickNavBarItem<ShootDetailsAddEndRobot> {
                         checkIndicatorTable(42, 18)
                         completeEnd("8")
                         checkIndicatorTable(90, 24)
                     }
-                    clickNavBarScorePad()
+                    clickNavBarItem<ShootDetailsScorePadRobot>()
 
                     checkScorePadData(
                             listOf(
@@ -453,7 +453,7 @@ class ZLargeScaleInstrumentedTest {
                     )
 
                     logMessage(this::class, "Score A - Complete round")
-                    clickNavBarAddEnd {
+                    clickNavBarItem<ShootDetailsAddEndRobot> {
                         repeat(3) {
                             completeEnd("X")
                         }
@@ -562,17 +562,17 @@ class ZLargeScaleInstrumentedTest {
 
                 logMessage(this::class, "Navigating to: Input end")
                 clickSubmitNewScore {
-                    performAction(AddEndRobot::class)
+                    performAction(ShootDetailsAddEndRobot::class)
 
                     logMessage(this::class, "Navigating to: Score pad")
                     completeEnd("2")
-                    clickNavBarScorePad {
-                        performAction(ScorePadRobot::class)
+                    clickNavBarItem<ShootDetailsScorePadRobot> {
+                        performAction(ShootDetailsScorePadRobot::class)
 
                         logMessage(this::class, "Navigating to: Edit end")
                         clickEnd(1)
                         clickEditDropdownMenuItem {
-                            performAction(EditEndRobot::class)
+                            performAction(ShootDetailsEditEndRobot::class)
 
                             logMessage(this::class, "Navigating to: Insert end")
                             clickCancel()
@@ -580,19 +580,19 @@ class ZLargeScaleInstrumentedTest {
 
                         clickEnd(1)
                         clickInsertDropdownMenuItem {
-                            performAction(InsertEndRobot::class)
+                            performAction(ShootDetailsInsertEndRobot::class)
 
                             logMessage(this::class, "Navigating to: Score stats")
                             clickCancel()
                         }
                     }
 
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         performAction(ShootDetailsStatsRobot::class)
                     }
 
                     logMessage(this::class, "Navigating to: Score settings")
-                    clickNavBarSettings {
+                    clickNavBarItem<ShootDetailsSettingsRobot> {
                         performAction(ShootDetailsSettingsRobot::class)
                     }
 
@@ -680,7 +680,7 @@ class ZLargeScaleInstrumentedTest {
                 clickSubmitNewScore {
                     completeEnd("2")
 
-                    clickNavBarScorePad {
+                    clickNavBarItem<ShootDetailsScorePadRobot> {
                         logMessage(this::class, " -> press back")
                         pressBack()
                     }
@@ -732,7 +732,7 @@ class ZLargeScaleInstrumentedTest {
             clickViewScores {
                 waitForHsg(rowIndex, "6/12/0")
                 clickRow(rowIndex) {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         logMessage(this::class, " -> press back")
                         pressBack()
                     }
@@ -747,10 +747,10 @@ class ZLargeScaleInstrumentedTest {
             clickViewScores {
                 waitForHsg(rowIndex, "6/12/0")
                 clickRow(rowIndex) {
-                    clickNavBarStats()
+                    clickNavBarItem<ShootDetailsStatsRobot>()
                     repeat(6) {
-                        clickNavBarScorePad()
-                        clickNavBarAddEnd()
+                        clickNavBarItem<ShootDetailsScorePadRobot>()
+                        clickNavBarItem<ShootDetailsAddEndRobot>()
                     }
                     logMessage(this::class, " -> press back")
                     pressBack()
@@ -872,7 +872,7 @@ class ZLargeScaleInstrumentedTest {
                 clickSubmitNewScore {
                     completeEnd("2")
 
-                    clickNavBarScorePad {
+                    clickNavBarItem<ShootDetailsScorePadRobot> {
                         logMessage(this::class, " -> press home")
                         clickHomeIcon()
                     }
@@ -922,7 +922,7 @@ class ZLargeScaleInstrumentedTest {
             clickViewScores {
                 waitForHsg(rowIndex, "6/12/0")
                 clickRow(rowIndex) {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         logMessage(this::class, " -> press home")
                         clickHomeIcon()
                     }
@@ -935,10 +935,10 @@ class ZLargeScaleInstrumentedTest {
             clickViewScores {
                 waitForHsg(rowIndex, "6/12/0")
                 clickRow(rowIndex) {
-                    clickNavBarStats()
+                    clickNavBarItem<ShootDetailsStatsRobot>()
                     repeat(6) {
-                        clickNavBarScorePad()
-                        clickNavBarAddEnd()
+                        clickNavBarItem<ShootDetailsScorePadRobot>()
+                        clickNavBarItem<ShootDetailsAddEndRobot>()
                     }
                     logMessage(this::class, " -> press home")
                     clickHomeIcon()

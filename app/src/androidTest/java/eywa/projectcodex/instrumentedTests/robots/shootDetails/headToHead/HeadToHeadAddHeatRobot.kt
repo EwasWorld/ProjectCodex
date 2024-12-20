@@ -9,7 +9,7 @@ import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.SightMarkI
 class HeadToHeadAddHeatRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, HeadToHeadAddHeatTestTag.SCREEN) {
-    val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this)
+    val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this, HeadToHeadAddHeatTestTag.SCREEN)
 
     fun checkPrevious(heat: Int, score: String, result: String) {
         TODO()

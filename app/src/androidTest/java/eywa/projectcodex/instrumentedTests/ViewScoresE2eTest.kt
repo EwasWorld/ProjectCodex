@@ -26,6 +26,7 @@ import eywa.projectcodex.hiltModules.LocalDatastoreModule
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresFiltersRobot
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot
 import eywa.projectcodex.model.FullShootInfo
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -36,7 +37,7 @@ import org.junit.rules.Timeout
 import java.util.Calendar
 
 @HiltAndroidTest
-class ViewScoresInstrumentedTest {
+class ViewScoresE2eTest {
     @get:Rule
     val testTimeout: Timeout = Timeout.seconds(35)
 
@@ -249,7 +250,7 @@ class ViewScoresInstrumentedTest {
 
                 // Single click - score pad
                 clickRow(rowId) {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound(null)
                     }
                     pressBack()
@@ -258,7 +259,7 @@ class ViewScoresInstrumentedTest {
                 // Long click - score pad
                 longClickRow(rowId)
                 clickScorePadDropdownMenuItem {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound(null)
                     }
                     pressBack()
@@ -267,7 +268,7 @@ class ViewScoresInstrumentedTest {
                 // Long click - continue
                 longClickRow(rowId)
                 clickContinueDropdownMenuItem {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound(null)
                     }
                     pressBack()

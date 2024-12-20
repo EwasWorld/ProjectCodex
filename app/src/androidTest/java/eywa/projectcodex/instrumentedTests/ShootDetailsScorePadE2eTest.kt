@@ -20,8 +20,10 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
 import eywa.projectcodex.database.shootData.DatabaseShootRound
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.EditEndRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.ScorePadRobot.ExpectedRowData
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsEditEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsScorePadRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsScorePadRobot.ExpectedRowData
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsSettingsRobot
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -32,7 +34,7 @@ import org.junit.runner.RunWith
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class ScorePadInstrumentedTest {
+class ShootDetailsScorePadE2eTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
@@ -123,9 +125,9 @@ class ScorePadInstrumentedTest {
                             )
                     )
 
-                    clickNavBarSettings {
+                    clickNavBarItem<ShootDetailsSettingsRobot> {
                         setScorePadEndSize(3)
-                        clickNavBarScorePad()
+                        clickNavBarItem<ShootDetailsScorePadRobot>()
                     }
 
                     checkScorePadData(
@@ -325,7 +327,7 @@ class ScorePadInstrumentedTest {
         }
     }
 
-    private fun cancelEditEndTest(block: EditEndRobot.() -> Unit) {
+    private fun cancelEditEndTest(block: ShootDetailsEditEndRobot.() -> Unit) {
         val arrows = listOf(
                 0, 1, 2, 3, 4, 5,
                 6, 7, 8, 9, 10, 11,

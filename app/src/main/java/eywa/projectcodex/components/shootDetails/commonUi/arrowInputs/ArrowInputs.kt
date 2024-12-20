@@ -101,12 +101,14 @@ fun ArrowInputs(
                 roundFace = state.face,
                 onClick = { listener(ArrowInputted(it)) },
                 horizontalPadding = horizontalPadding,
-                modifier = Modifier.updateHelpDialogPosition(
-                        HelpShowcaseItem(
-                                helpTitle = stringResource(R.string.help_input_end__arrow_inputs_title),
-                                helpBody = stringResource(R.string.help_input_end__arrow_inputs_body),
-                        ).asHelpState(helpListener),
-                )
+                modifier = Modifier
+                        .updateHelpDialogPosition(
+                                HelpShowcaseItem(
+                                        helpTitle = stringResource(R.string.help_input_end__arrow_inputs_title),
+                                        helpBody = stringResource(R.string.help_input_end__arrow_inputs_body),
+                                ).asHelpState(helpListener),
+                        )
+                        .testTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON_GROUP)
         )
 
         ArrowInputEditButtons(showResetButton, helpListener, listener)

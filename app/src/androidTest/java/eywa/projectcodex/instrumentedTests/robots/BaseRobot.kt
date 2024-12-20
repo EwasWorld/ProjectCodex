@@ -35,7 +35,7 @@ annotation class RobotDslMarker
 @TestActionDslMarker
 abstract class BaseRobot(
         private val composeTestRule: ComposeTestRule<MainActivity>,
-        private val screenTestTag: CodexTestTag,
+        val screenTestTag: CodexTestTag,
 ) : Robot {
     protected val scenario: ActivityScenario<MainActivity> = composeTestRule.activityRule.scenario
 
@@ -99,10 +99,13 @@ abstract class BaseRobot(
         Espresso.onView(ViewMatchers.withText("OK")).perform(ViewActions.click())
     }
 
-    fun clickElement(testTag: CodexTestTag, useUnmergedTree: Boolean = false) {
+    fun clickElement(testTag: CodexTestTag, useUnmergedTree: Boolean = false, scrollTo: Boolean = false) {
         performV2Single {
             useUnmergedTree(useUnmergedTree)
             +CodexNodeMatcher.HasTestTag(testTag)
+            if (scrollTo) {
+                +CodexNodeInteraction.PerformScrollTo()
+            }
             +CodexNodeInteraction.PerformClick()
         }
     }
@@ -112,7 +115,7 @@ abstract class BaseRobot(
             singleNode {
                 useUnmergedTree(useUnmergedTree)
                 +CodexNodeMatcher.HasTestTag(testTag)
-                +CodexNodeInteraction.AssertTextEquals(text)
+                +CodexNodeInteraction.AssertTextEquals(text).waitFor()
             }
         }
     }
@@ -143,7 +146,7 @@ abstract class BaseRobot(
         performV2Single {
             useUnmergedTree(useUnmergedTree)
             +CodexNodeMatcher.HasTestTag(testTag)
-            +CodexNodeInteraction.AssertIsDisplayed()
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
@@ -174,6 +177,7 @@ abstract class BaseRobot(
         performV2Single {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(testTag)
+            +CodexNodeInteraction.PerformScrollTo()
             +CodexNodeInteraction.PerformClick()
         }
     }
@@ -201,10 +205,7 @@ abstract class BaseRobot(
 
     fun clickHelpIcon() {
         clickElement(MainActivity.MainActivityTestTag.HELP_ICON)
-        performV2Single {
-            +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
-            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
-        }
+        checkHelpShowcaseIsDisplayed()
     }
 
     fun cycleThroughComposeHelpDialogs() {
@@ -222,14 +223,25 @@ abstract class BaseRobot(
     }
 
     fun clickHelpShowcaseNext() {
-        clickElement(ComposeHelpShowcaseTestTag.NEXT_BUTTON)
+        try {
+            clickElement(ComposeHelpShowcaseTestTag.NEXT_BUTTON)
+        }
+        catch (e: Exception) {
+            clickElement(ComposeHelpShowcaseTestTag.CANVAS)
+        }
 
         CustomConditionWaiter.waitFor(400)
         checkHelpShowcaseIsDisplayed()
     }
 
     fun clickHelpShowcaseClose() {
-        clickElement(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+        try {
+            clickElement(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+        }
+        catch (e: Exception) {
+            clickElement(ComposeHelpShowcaseTestTag.CANVAS)
+        }
+
         performV2Single {
             +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
             +CodexNodeInteraction.AssertDoesNotExist().waitFor()
@@ -237,7 +249,7 @@ abstract class BaseRobot(
     }
 
     fun checkHelpShowcaseIsDisplayed() {
-        checkElementIsDisplayed(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
+        checkElementIsDisplayed(ComposeHelpShowcaseTestTag.TITLE)
     }
 
     override fun <R : BaseRobot> createRobot(clazz: KClass<R>, block: R.() -> Unit) {

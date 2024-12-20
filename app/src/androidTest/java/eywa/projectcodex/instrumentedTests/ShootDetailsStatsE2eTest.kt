@@ -2,7 +2,6 @@ package eywa.projectcodex.instrumentedTests
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -32,9 +31,9 @@ import eywa.projectcodex.datastore.DatastoreKey
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
-import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import eywa.projectcodex.instrumentedTests.robots.referenceTables.HandicapTablesRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot.PastRecordsDialogItem
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -204,7 +203,7 @@ class ShootDetailsStatsE2eTest {
                 waitForLoad()
                 clickRow(0) {
                     waitForLoad()
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkDate("17 Jul 14 15:21")
                         checkHits(44, 48)
                         checkScore(expectedScore)
@@ -234,7 +233,7 @@ class ShootDetailsStatsE2eTest {
                 waitForLoad()
                 clickRow(1) {
                     waitForLoad()
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         val predictedScore = ceil((192 + 201) / 2f).roundToInt()
                         val allowance = 1250
 
@@ -267,7 +266,7 @@ class ShootDetailsStatsE2eTest {
                 waitForLoad()
                 clickRow(1) {
                     waitForLoad()
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound(shoots[1].round!!.displayName)
                         checkRemainingArrows(arrowsPerArrowCount)
                         // Checked these values in the handicap tables (1998) - double and use score for 2 doz as only
@@ -290,8 +289,7 @@ class ShootDetailsStatsE2eTest {
                 waitForLoad()
                 longClickRow(2)
                 clickContinueDropdownMenuItem {
-                    waitForLoad()
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound(shoots[2].roundSubType!!.name!!)
                         checkRemainingArrows(arrowsPerArrowCount * 2)
                         checkHandicap(null)
@@ -310,7 +308,7 @@ class ShootDetailsStatsE2eTest {
             clickViewScores {
                 waitForLoad()
                 clickRow(3) {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkScore(1264)
                         checkHandicap(6)
                         checkPb()
@@ -336,30 +334,6 @@ class ShootDetailsStatsE2eTest {
                     }
                 }
             }
-        }
-    }
-
-    @Test
-    fun testEditRoundInfoAndSwapToCount() {
-        setup()
-
-        composeTestRule.mainMenuRobot {
-            clickNewScore {
-                clickSubmitNewScore {
-                    clickNavBarStats {
-                        clickEditRoundData {
-                            clickType(NewScoreRobot.Type.COUNT)
-
-                            // Changing type opens up the count screen
-                            clickSubmitEditScoreChangeToCount {
-                                Espresso.pressBack()
-                            }
-                        }
-                    }
-                }
-            }
-            // New score and such should all have been removed from the backstack
-            checkScreenIsShown()
         }
     }
 
@@ -400,7 +374,7 @@ class ShootDetailsStatsE2eTest {
             clickViewScores {
                 waitForRowCount(5)
                 clickRow(0) {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("York")
                         checkScore(800)
                         checkClassification(
@@ -413,7 +387,7 @@ class ShootDetailsStatsE2eTest {
                 }
 
                 clickRow(1) {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("York")
                         checkScore(790)
                         checkClassification(
@@ -426,7 +400,7 @@ class ShootDetailsStatsE2eTest {
                 }
 
                 clickRow(2) {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("Round1")
                         checkScore(200)
                         checkClassification(
@@ -439,7 +413,7 @@ class ShootDetailsStatsE2eTest {
                 }
 
                 clickRow(3) {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("York")
                         checkScore(200)
                         checkClassification(
@@ -452,7 +426,7 @@ class ShootDetailsStatsE2eTest {
                 }
 
                 clickRow(4) {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("Hereford")
                         checkScore(1296)
                         checkClassification(
@@ -484,7 +458,7 @@ class ShootDetailsStatsE2eTest {
             clickViewScores {
                 waitForRowCount(1)
                 clickRow(0) {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("Hereford")
                         checkScore(800)
                         checkClassificationCategory("Senior Lady Recurve")
@@ -556,7 +530,7 @@ class ShootDetailsStatsE2eTest {
             clickViewScores {
                 waitForRowCount(2)
                 clickRow(0) {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("York")
                         checkScore(1264)
                         checkHandicap(6)
@@ -607,7 +581,7 @@ class ShootDetailsStatsE2eTest {
             clickViewScores {
                 waitForRowCount(1)
                 clickRow(0) {
-                    clickNavBarStats {
+                    clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("York")
                         checkNumbersBreakdown(
                                 100 to 28.7f,

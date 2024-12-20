@@ -3,6 +3,7 @@ package eywa.projectcodex.components.shootDetails.commonUi.arrowInputs
 import eywa.projectcodex.common.utils.CodexTestTag
 
 enum class ArrowInputsTestTag : CodexTestTag {
+    ARROW_SCORE_BUTTON_GROUP,
     ARROW_SCORE_BUTTON,
 
     SUBMIT_BUTTON,

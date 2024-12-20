@@ -1,11 +1,14 @@
 package eywa.projectcodex.instrumentedTests.robots
 
+import androidx.test.espresso.Espresso
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.CustomConditionWaiter
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.sightMarks.detail.SightMarkDetailTestTag.*
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkInputtedText
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.model.SightMark
 
 class SightMarkDetailRobot(
@@ -25,7 +28,12 @@ class SightMarkDetailRobot(
     private fun setDistanceUnit(isMetric: Boolean) {
         var actualIsMetric = false
         try {
-            checkElementText(DISTANCE_UNIT, "yd")
+            performV2 {
+                singleNode {
+                    +CodexNodeMatcher.HasTestTag(DISTANCE_UNIT)
+                    +CodexNodeInteraction.AssertTextEquals("yd")
+                }
+            }
         }
         catch (e: AssertionError) {
             actualIsMetric = true
@@ -42,11 +50,13 @@ class SightMarkDetailRobot(
     ) {
         setText(SIGHT, sightMark.sightMark.toString())
         setText(DISTANCE, sightMark.distance.toString())
+        Espresso.closeSoftKeyboard()
         setDistanceUnit(sightMark.isMetric)
 
         setChip(MARKED, sightMark.isMarked, isMarkedCurrently)
         setChip(ARCHIVED, sightMark.isArchived, isArchivedCurrently)
         setText(NOTE, sightMark.note ?: "")
+        Espresso.closeSoftKeyboard()
     }
 
     fun checkInfo(

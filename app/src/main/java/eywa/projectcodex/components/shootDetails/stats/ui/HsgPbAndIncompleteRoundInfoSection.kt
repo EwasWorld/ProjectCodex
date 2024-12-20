@@ -47,7 +47,7 @@ internal fun HsgPbAndIncompleteRoundInfoSection(
         Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = modifier
+                modifier = modifier.testTag(StatsTestTag.HSG_SECTION)
         ) {
             val extraPadding = if (fullShootInfo.hits != fullShootInfo.arrowsShot) 10.dp else 0.dp
             val goldsType = fullShootInfo.goldsTypes[0]

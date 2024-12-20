@@ -18,6 +18,7 @@ class SightMarksShiftAndScaleRobot(
             useUnmergedTree()
             +HasTestTag(SightMarksTestTag.SIGHT_MARK_TEXT)
             +HasText(text)
+            +PerformScrollTo()
             +AssertIsDisplayed()
         }
 

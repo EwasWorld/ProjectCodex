@@ -19,7 +19,7 @@ import org.junit.rules.Timeout
 import java.util.Calendar
 
 @HiltAndroidTest
-class SightMarksInstrumentedTest {
+class SightMarksE2eTest {
     @get:Rule
     val testTimeout: Timeout = Timeout.seconds(20)
 

@@ -19,8 +19,8 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchDataRowV
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
 import eywa.projectcodex.instrumentedTests.robots.selectRound.SelectRoundBaseRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddCountRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.AddEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddCountRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddEndRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadAddHeatRobot
 import java.util.Calendar
 
@@ -98,6 +98,7 @@ class NewScoreRobot(
     fun clickType(expectedType: Type) {
         performV2Single {
             matchDataRowValue(NewScoreTestTag.TYPE_SWITCH)
+            +CodexNodeInteraction.PerformScrollTo().waitFor()
             +CodexNodeInteraction.PerformClick()
             +CodexNodeInteraction.AssertTextEquals(expectedType.text)
         }
@@ -123,33 +124,23 @@ class NewScoreRobot(
         TODO()
     }
 
-    fun clickSubmitNewScore(block: AddEndRobot.() -> Unit = {}) {
-        clickElement(NewScoreTestTag.SUBMIT_BUTTON)
-        createRobot(AddEndRobot::class, block)
+    fun clickSubmitNewScore(block: ShootDetailsAddEndRobot.() -> Unit = {}) {
+        clickElement(NewScoreTestTag.SUBMIT_BUTTON, scrollTo = true)
+        createRobot(ShootDetailsAddEndRobot::class, block)
     }
 
-    fun clickSubmitNewScoreCount(block: AddCountRobot.() -> Unit = {}) {
-        clickElement(NewScoreTestTag.SUBMIT_BUTTON)
-        createRobot(AddCountRobot::class, block)
+    fun clickSubmitNewScoreCount(block: ShootDetailsAddCountRobot.() -> Unit = {}) {
+        clickElement(NewScoreTestTag.SUBMIT_BUTTON, scrollTo = true)
+        createRobot(ShootDetailsAddCountRobot::class, block)
     }
 
     fun clickSubmitNewScoreHeadToHead(block: HeadToHeadAddHeatRobot.() -> Unit = {}) {
-        clickElement(NewScoreTestTag.SUBMIT_BUTTON)
+        clickElement(NewScoreTestTag.SUBMIT_BUTTON, scrollTo = true)
         createRobot(HeadToHeadAddHeatRobot::class, block)
     }
 
     fun clickSubmitEditScore() {
-        clickElement(NewScoreTestTag.SUBMIT_BUTTON)
-    }
-
-    fun clickSubmitEditScoreChangeToCount(block: AddCountRobot.() -> Unit = {}) {
-        clickElement(NewScoreTestTag.SUBMIT_BUTTON)
-        createRobot(AddCountRobot::class, block)
-    }
-
-    fun clickSubmitEditScoreChangeToScore(block: AddEndRobot.() -> Unit = {}) {
-        clickElement(NewScoreTestTag.SUBMIT_BUTTON)
-        createRobot(AddEndRobot::class, block)
+        clickElement(NewScoreTestTag.SUBMIT_BUTTON, scrollTo = true)
     }
 
     fun clickReset() {

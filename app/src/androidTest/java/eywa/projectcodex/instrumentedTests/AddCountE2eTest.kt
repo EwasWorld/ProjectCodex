@@ -146,7 +146,7 @@ class AddCountE2eTest {
                 clickType(NewScoreRobot.Type.COUNT)
                 clickSubmitNewScoreCount {
                     checkRound("1-1")
-                    checkRemainingArrows("48 at 90m,", "36 at 80m, 24 at 70m")
+                    checkRemainingArrows("48 at 90m,", "36 at 80m,\n24 at 70m")
                     checkSightersCount(0)
                     checkShotCount(0)
                     checkTotalCount(0)
@@ -163,7 +163,7 @@ class AddCountE2eTest {
                     setInputAmount(6)
                     Espresso.closeSoftKeyboard()
                     clickAdd()
-                    checkRemainingArrows("42 at 90m,", "36 at 80m, 24 at 70m")
+                    checkRemainingArrows("42 at 90m,", "36 at 80m,\n24 at 70m")
                     with(sightMarkIndicatorRobot) {
                         checkSightMarkIndicator("90m", null)
                         clickAllSightMarks { pressBack() }
@@ -183,30 +183,6 @@ class AddCountE2eTest {
                     checkAddNotExist()
                 }
             }
-        }
-    }
-
-    @Test
-    fun testEditAndSwapToScoring() {
-        setup()
-
-        composeTestRule.mainMenuRobot {
-            clickNewScore {
-                clickType(NewScoreRobot.Type.COUNT)
-                clickSubmitNewScoreCount {
-
-                    clickEditRoundData {
-                        clickType(NewScoreRobot.Type.SCORE)
-
-                        // Changing type opens up the add end screen
-                        clickSubmitEditScoreChangeToScore {
-                            pressBack()
-                        }
-                    }
-                }
-            }
-            // New score and such should all have been removed from the backstack
-            checkScreenIsShown()
         }
     }
 

@@ -2,24 +2,15 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails
 
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
-import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.SightMarkIndicatorRobot
 
-class AddEndRobot(
+class ShootDetailsAddEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ArrowInputsRobot(composeTestRule, AddEndTestTag.SCREEN) {
-    val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this)
-
-    fun waitForLoad() {
-        performV2Single {
-            useUnmergedTree()
-            +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.CLEAR_BUTTON)
-            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
-        }
-    }
+    val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this, AddEndTestTag.SCREEN)
 
     fun waitForRemainingArrows() {
         performV2Single {
@@ -71,9 +62,9 @@ class AddEndRobot(
         checkElementTextOrDoesNotExist(AddEndTestTag.SIGHTERS, count?.toString(), true)
     }
 
-    fun clickSighters(block: AddCountRobot.() -> Unit) {
+    fun clickSighters(block: ShootDetailsAddCountRobot.() -> Unit) {
         clickElement(AddEndTestTag.SIGHTERS, true)
-        createRobot(AddCountRobot::class, block)
+        createRobot(ShootDetailsAddCountRobot::class, block)
     }
 
     companion object {

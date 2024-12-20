@@ -207,7 +207,7 @@ class AddEndE2eTest {
                 clickContinueDropdownMenuItem {
                     waitForRemainingArrows()
 
-                    checkRemainingArrows("12 at 90m,", "12 at 70m, 12 at 50m")
+                    checkRemainingArrows("12 at 90m,", "12 at 70m,\n12 at 50m")
                     sightMarkIndicatorRobot.checkSightMarkIndicator("90m", null)
                     checkIndicatorTable(0, 0)
                     sightMarkIndicatorRobot.clickAllSightMarks {
@@ -229,7 +229,7 @@ class AddEndE2eTest {
                     checkIndicatorTable(0, 0)
 
                     completeEnd("1")
-                    checkRemainingArrows("6 at 90m,", "12 at 70m, 12 at 50m")
+                    checkRemainingArrows("6 at 90m,", "12 at 70m,\n12 at 50m")
                     sightMarkIndicatorRobot.checkSightMarkIndicator("90m", null)
                     checkIndicatorTable(6, 6)
 

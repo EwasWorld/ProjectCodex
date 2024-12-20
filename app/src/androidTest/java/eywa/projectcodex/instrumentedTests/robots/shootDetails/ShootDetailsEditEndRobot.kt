@@ -7,7 +7,7 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 
-class EditEndRobot(
+class ShootDetailsEditEndRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ArrowInputsRobot(composeTestRule, EditEndTestTag.SCREEN) {
     fun clickCancel() = clickArrowInputsCancel()

@@ -59,6 +59,7 @@ fun HelpShowcase(
                         .fillMaxSize()
                         // The clear oval doesn't work unless this is <1 - can't remember why, maybe the graphics layer?
                         .alpha(0.998f)
+                        .testTag(ComposeHelpShowcaseTestTag.CANVAS)
                         .clearAndSetSemantics { }
                         .clickable(onClick = state.overlayClickedListener)
         ) {
@@ -192,6 +193,7 @@ enum class ComposeHelpShowcaseTestTag : CodexTestTag {
     TITLE,
     NEXT_BUTTON,
     CLOSE_BUTTON,
+    CANVAS,
     ;
 
     override val screenName: String

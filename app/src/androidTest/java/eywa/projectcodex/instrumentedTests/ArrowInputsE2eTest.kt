@@ -21,6 +21,8 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddEndRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsSettingsRobot
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
@@ -31,7 +33,7 @@ import org.junit.runner.RunWith
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class ArrowInputsInstrumentedTest {
+class ArrowInputsE2eTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
@@ -274,9 +276,9 @@ class ArrowInputsInstrumentedTest {
 
                 clickContinueDropdownMenuItem {
                     checkInputtedArrows()
-                    clickNavBarSettings {
+                    clickNavBarItem<ShootDetailsSettingsRobot> {
                         setAddEndSize(5)
-                        clickNavBarAddEnd { }
+                        clickNavBarItem<ShootDetailsAddEndRobot> { }
                     }
 
                     checkInputtedArrows(5)
@@ -331,6 +333,14 @@ class ArrowInputsInstrumentedTest {
                                     dateShot = TestUtils.generateDate(2021, 6),
                             )
                             round = rounds[2]
+                        }
+                )
+                db.add(
+                        ShootPreviewHelperDsl.create {
+                            shoot = shoot.copy(
+                                    shootId = 10,
+                                    dateShot = TestUtils.generateDate(2020, 1),
+                            )
                         }
                 )
             }
