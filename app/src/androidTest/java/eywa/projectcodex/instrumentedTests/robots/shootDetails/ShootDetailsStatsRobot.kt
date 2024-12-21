@@ -2,24 +2,21 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails
 
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.common.sharedUi.TabSwitcherTestTag
-import eywa.projectcodex.common.utils.classificationTables.model.Classification
-import eywa.projectcodex.common.utils.classificationTables.model.Classification.*
 import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.ArcherHandicapRobot
-import eywa.projectcodex.instrumentedTests.robots.ArcherInfoRobot
 import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
-import eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot
-import eywa.projectcodex.instrumentedTests.robots.referenceTables.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.HandicapAndClassificationSectionRobot
 
 class ShootDetailsStatsRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, StatsTestTag.SCREEN) {
     private val facesRobot = SelectFaceBaseRobot(::performV2)
+    val handicapAndClassificationRobot = HandicapAndClassificationSectionRobot(composeTestRule, screenTestTag)
 
     fun checkFaces(expectedFacesString: String) {
         facesRobot.checkFaces(expectedFacesString)
@@ -69,15 +66,6 @@ class ShootDetailsStatsRobot(
 
     fun checkRemainingArrows(text: Int?) {
         checkElementTextOrDoesNotExist(StatsTestTag.REMAINING_ARROWS_TEXT, text?.toString(), true)
-    }
-
-    fun checkHandicap(text: Int?) {
-        checkElementText(StatsTestTag.HANDICAP_TEXT, text?.toString() ?: "--", true)
-    }
-
-    fun checkHandicapDoesNotExist() {
-        checkElementDoesNotExist(StatsTestTag.HANDICAP_TEXT, true)
-        checkElementDoesNotExist(StatsTestTag.HANDICAP_TABLES, true)
     }
 
     fun checkPredictedScore(text: Int?) {
@@ -144,34 +132,6 @@ class ShootDetailsStatsRobot(
         }
     }
 
-    fun checkClassificationCategory(value: String) {
-        checkElementText(StatsTestTag.CLASSIFICATION_CATEGORY, value, true)
-    }
-
-    fun checkClassification(
-            classification: Classification?,
-            isOfficial: Boolean,
-    ) {
-        val expectedValue = classification?.classificationString() ?: "No classification"
-        checkElementText(StatsTestTag.CLASSIFICATION, expectedValue, true)
-
-        performV2Single {
-            useUnmergedTree()
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION)
-            +CodexNodeInteraction.AssertContentDescriptionEquals(
-                    "$expectedValue " +
-                            if (isOfficial) "Classification" else "Classification (unofficial)"
-            )
-        }
-
-    }
-
-    fun checkClassificationDoesNotExist() {
-        checkElementDoesNotExist(StatsTestTag.CLASSIFICATION)
-        checkElementDoesNotExist(StatsTestTag.CLASSIFICATION_CATEGORY)
-        checkElementDoesNotExist(StatsTestTag.CLASSIFICATION_TABLES)
-    }
-
     fun clickSwitchToSimpleOrAdvanced() {
         performV2Single {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.SIMPLE_ADVANCED_SWITCH)
@@ -213,54 +173,6 @@ class ShootDetailsStatsRobot(
         }
     }
 
-    fun openHandicapTablesInFull(block: HandicapTablesRobot.() -> Unit) {
-        try {
-            performV2Single {
-                +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TABLES)
-                +CodexNodeInteraction.PerformScrollTo()
-                +CodexNodeInteraction.AssertIsDisplayed()
-                +CodexNodeInteraction.PerformClick()
-            }
-        }
-        catch (e: AssertionError) {
-            // Component is probably hidden by the bottom nav bar
-            // Scroll the component above to bring it into view and try again to click
-            if (e.message?.contains("The component is not displayed") == true) {
-                performV2Single {
-                    +CodexNodeMatcher.HasTestTag(StatsTestTag.HSG_SECTION)
-                    +CodexNodeInteraction.Swipe(CodexNodeInteraction.Swipe.Direction.UP)
-                }
-                performV2Single {
-                    +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TABLES)
-                    +CodexNodeInteraction.PerformScrollTo()
-                    +CodexNodeInteraction.AssertIsDisplayed()
-                    +CodexNodeInteraction.PerformClick()
-                }
-            }
-            else throw e
-        }
-
-        createRobot(HandicapTablesRobot::class, block)
-    }
-
-    fun openClassificationTablesInFull(block: ClassificationTablesRobot.() -> Unit) {
-        performV2Single {
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_TABLES)
-            +CodexNodeInteraction.PerformScrollTo()
-            +CodexNodeInteraction.PerformClick()
-        }
-        createRobot(ClassificationTablesRobot::class, block)
-    }
-
-    fun openEditArcherInfo(block: ArcherInfoRobot.() -> Unit) {
-        performV2Single {
-            +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_CATEGORY)
-            +CodexNodeInteraction.PerformScrollTo()
-            +CodexNodeInteraction.PerformClick()
-        }
-        createRobot(ArcherInfoRobot::class, block)
-    }
-
     fun openEditArcherHandicaps(block: ArcherHandicapRobot.() -> Unit) {
         performV2Single {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.ARCHER_HANDICAP_TEXT)
@@ -268,18 +180,6 @@ class ShootDetailsStatsRobot(
             +CodexNodeInteraction.PerformClick()
         }
         createRobot(ArcherHandicapRobot::class, block)
-    }
-
-    private fun Classification.classificationString() = when (this) {
-        ARCHER_3RD_CLASS -> "Archer 3rd"
-        ARCHER_2ND_CLASS -> "Archer 2nd"
-        ARCHER_1ST_CLASS -> "Archer 1st"
-        BOWMAN_3RD_CLASS -> "Bowman 3rd"
-        BOWMAN_2ND_CLASS -> "Bowman 2nd"
-        BOWMAN_1ST_CLASS -> "Bowman 1st"
-        MASTER_BOWMAN -> "Master Bowman"
-        GRAND_MASTER_BOWMAN -> "Grand MB"
-        ELITE_MASTER_BOWMAN -> "Elite GMB"
     }
 
     @JvmInline

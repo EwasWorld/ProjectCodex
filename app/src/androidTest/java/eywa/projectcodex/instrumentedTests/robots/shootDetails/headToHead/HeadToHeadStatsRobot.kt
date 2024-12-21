@@ -3,13 +3,17 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.stats.ui.HeadToHeadStatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.robots.RobotDslMarker
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
 import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.HandicapAndClassificationSectionRobot
 
 class HeadToHeadStatsRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, HeadToHeadStatsTestTag.SCREEN) {
     private val facesRobot = SelectFaceBaseRobot(::performV2)
+    val handicapAndClassificationRobot = HandicapAndClassificationSectionRobot(composeTestRule, screenTestTag)
 
     fun checkNoHeats() {
         TODO()
@@ -30,7 +34,59 @@ class HeadToHeadStatsRobot(
         TODO()
     }
 
+    fun checkMatchRow(rowIndex: Int, match: String, opponent: String, rank: String, result: String) {
+        TODO()
+    }
+
+    fun checkNumbersBreakdownNoData() {
+        TODO()
+    }
+
+    fun checkNumbersBreakdown(
+            handicapType: NumbersBreakdownRobot.HandicapType,
+            columns: List<NumbersBreakdownRobot.Column>,
+            block: NumbersBreakdownRobot.() -> Unit,
+    ) {
+        TODO()
+    }
+
     fun checkFaces(expectedFacesString: String) {
         facesRobot.checkFaces(expectedFacesString)
+    }
+
+    @RobotDslMarker
+    class NumbersBreakdownRobot(
+            private val performFn: PerformFnV2,
+            val handicapType: HandicapType,
+            columns: List<Column>,
+    ) {
+        init {
+            checkColumns(*columns.toTypedArray())
+        }
+
+        fun checkColumns(vararg column: Column) {
+            TODO("Check columns exist and others don't")
+        }
+
+        fun checkRow(rowIndex: Int, match: String, handicap: Float?) {
+//            if (handicapType == null) {
+//
+//            }
+//            else {
+//
+//            }
+            TODO()
+        }
+
+        fun checkEndAverages(rowIndex: Int, vararg values: Pair<Column, Float?>) {
+            TODO()
+        }
+
+        fun checkArrowAverages(rowIndex: Int, vararg values: Pair<Column, Float?>) {
+            TODO()
+        }
+
+        enum class Column { SELF, OPPONENT, TEAM, DIFFERENCE }
+        enum class HandicapType { SELF, TEAM }
     }
 }

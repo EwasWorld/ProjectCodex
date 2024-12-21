@@ -9,6 +9,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.utils.classificationTables.model.Classification
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
 import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.core.mainActivity.MainActivity
@@ -21,6 +22,8 @@ import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.GridEn
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadAddEndRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadScorePadRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadStatsRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadStatsRobot.NumbersBreakdownRobot.Column.*
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadStatsRobot.NumbersBreakdownRobot.HandicapType
 import eywa.projectcodex.model.SightMark
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -104,6 +107,7 @@ class HeadToHeadE2eTest {
                             checkRound("H2h WA 70")
                             checkH2hInfo("Individual, Set points, Rank 2 of 60")
                             checkFaces("Full")
+                            checkNumbersBreakdownNoData()
                         }
                         clickNavBarItem<HeadToHeadAddEndRobot> {}
                     }
@@ -147,15 +151,15 @@ class HeadToHeadE2eTest {
                      */
 //                    setOpponent("Amy Baker", 3)
                     checkHeat(1)
-                    checkOpponentRank(31)
+                    checkOpponentRank(3)
                     setOpponent("Claire Davids", -7)
                     checkOpponentRank(-7)
                     checkOpponentRankIsError()
-                    setOpponent("Claire Davids", 31)
+                    setOpponent("Claire Davids", 3)
                     clickStartMatch {
                         clickNavBarItem<HeadToHeadScorePadRobot> {
                             checkNoGrid(2)
-                            checkMatchDetails(2, 1, 0, "Claire Davids", 7)
+                            checkMatchDetails(2, 1, 0, "Claire Davids", 3)
                             clickNavBarItem<HeadToHeadAddEndRobot> {}
                         }
 
@@ -406,7 +410,27 @@ class HeadToHeadE2eTest {
                         checkMatchComplete()
 
                         clickNavBarItem<HeadToHeadStatsRobot> {
-                            TODO()
+                            checkDate("10/11/2020 10:15")
+                            checkRound("H2h WA 70")
+                            checkH2hInfo("Individual, Set points, Rank 2 of 60")
+                            checkFaces("Full")
+
+                            checkMatchRow(0, "1/4", "-", "-", "Bye")
+                            checkMatchRow(1, "Semi", "Claire Davids", "3", "5-6 Loss")
+                            checkMatchRow(2, "Final", "Emma Fitzgerald", "1", "6-0 Win")
+
+                            handicapAndClassificationRobot.checkClassification(Classification.MASTER_BOWMAN, false)
+                            handicapAndClassificationRobot.checkHandicap(0)
+
+                            checkNumbersBreakdown(HandicapType.SELF, listOf(SELF, OPPONENT, DIFFERENCE)) {
+                                checkRow(0, "Semi", 0f)
+                                checkEndAverages(0, SELF to 0.0f, OPPONENT to 0.0f, DIFFERENCE to 0.0f)
+                                checkArrowAverages(0, SELF to 0.0f, OPPONENT to 0.0f, DIFFERENCE to 0.0f)
+
+                                checkRow(1, "Final", 0f)
+                                checkEndAverages(1, SELF to 0.0f, OPPONENT to 0.0f, DIFFERENCE to 0.0f)
+                                checkArrowAverages(1, SELF to 0.0f, OPPONENT to 0.0f, DIFFERENCE to 0.0f)
+                            }
                         }
                     }
                 }
@@ -421,6 +445,8 @@ class HeadToHeadE2eTest {
         // Set rows
         // Check edit rows
         // Check score pad edit (end done)
+        // Edit match details
+        // Edit main details - prevent editing of standard format
         TODO()
     }
 

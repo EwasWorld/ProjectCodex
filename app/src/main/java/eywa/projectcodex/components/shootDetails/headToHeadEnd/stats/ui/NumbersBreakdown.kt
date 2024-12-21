@@ -163,7 +163,7 @@ fun calculateColumns(
     return listOfNotNull(
             HeadToHeadStatsFixedNumbersColumn.MATCH,
             handicapColumn,
-    ).plus(averages).plus(ends)
+    ).plus(ends).plus(averages)
 }
 
 sealed class HeadToHeadStatsNumbersBreakdownDataRow : CodexGridRowMetadata {

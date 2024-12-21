@@ -32,6 +32,7 @@ import eywa.projectcodex.hiltModules.LocalDatabaseModule
 import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
+import eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.referenceTables.HandicapTablesRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot.PastRecordsDialogItem
@@ -210,8 +211,8 @@ class ShootDetailsStatsE2eTest {
                         checkGolds(6)
                         checkRound(null)
                         checkRemainingArrows(null)
-                        checkHandicapDoesNotExist()
-                        checkClassificationDoesNotExist()
+                        handicapAndClassificationRobot.checkHandicapDoesNotExist()
+                        handicapAndClassificationRobot.checkClassificationDoesNotExist()
                         checkPredictedScore(null)
                         checkPb(isPb = false)
                         checkAllowance(null)
@@ -242,7 +243,7 @@ class ShootDetailsStatsE2eTest {
                         checkRemainingArrows(arrowsPerArrowCount)
                         // Checked these values in the handicap tables (2023) - double and use score for 2 doz as only
                         // the first distance has been shot so this is what's being use to calculate the handicap
-                        checkHandicap(36)
+                        handicapAndClassificationRobot.checkHandicap(36)
                         // divide by 2 because only one dozen was shot
                         checkPredictedScore(predictedScore)
                         checkFaces("Full")
@@ -271,7 +272,7 @@ class ShootDetailsStatsE2eTest {
                         checkRemainingArrows(arrowsPerArrowCount)
                         // Checked these values in the handicap tables (1998) - double and use score for 2 doz as only
                         // the first distance has been shot so this is what's being use to calculate the handicap
-                        checkHandicap(32)
+                        handicapAndClassificationRobot.checkHandicap(32)
                         // divide by 2 because only one dozen was shot
                         checkPredictedScore(floor((192 + 201) / 2f).roundToInt())
                     }
@@ -292,7 +293,7 @@ class ShootDetailsStatsE2eTest {
                     clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound(shoots[2].roundSubType!!.name!!)
                         checkRemainingArrows(arrowsPerArrowCount * 2)
-                        checkHandicap(null)
+                        handicapAndClassificationRobot.checkHandicap(null)
                         checkFaces("Full, Half")
                     }
                 }
@@ -310,7 +311,7 @@ class ShootDetailsStatsE2eTest {
                 clickRow(3) {
                     clickNavBarItem<ShootDetailsStatsRobot> {
                         checkScore(1264)
-                        checkHandicap(6)
+                        handicapAndClassificationRobot.checkHandicap(6)
                         checkPb()
                         checkArcherHandicap(40)
                         checkAllowance(535)
@@ -377,11 +378,11 @@ class ShootDetailsStatsE2eTest {
                     clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("York")
                         checkScore(800)
-                        checkClassification(
+                        handicapAndClassificationRobot.checkClassification(
                                 classification = Classification.BOWMAN_3RD_CLASS,
                                 isOfficial = true,
                         )
-                        checkClassificationCategory("Senior Gentleman Recurve")
+                        handicapAndClassificationRobot.checkClassificationCategory("Senior Gentleman Recurve")
                         pressBack()
                     }
                 }
@@ -390,11 +391,11 @@ class ShootDetailsStatsE2eTest {
                     clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("York")
                         checkScore(790)
-                        checkClassification(
+                        handicapAndClassificationRobot.checkClassification(
                                 classification = Classification.BOWMAN_3RD_CLASS,
                                 isOfficial = true,
                         )
-                        checkClassificationCategory("Senior Gentleman Recurve")
+                        handicapAndClassificationRobot.checkClassificationCategory("Senior Gentleman Recurve")
                         pressBack()
                     }
                 }
@@ -403,11 +404,11 @@ class ShootDetailsStatsE2eTest {
                     clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("Round1")
                         checkScore(200)
-                        checkClassification(
+                        handicapAndClassificationRobot.checkClassification(
                                 classification = Classification.BOWMAN_1ST_CLASS,
                                 isOfficial = false,
                         )
-                        checkClassificationCategory("Senior Gentleman Recurve")
+                        handicapAndClassificationRobot.checkClassificationCategory("Senior Gentleman Recurve")
                         pressBack()
                     }
                 }
@@ -416,11 +417,11 @@ class ShootDetailsStatsE2eTest {
                     clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("York")
                         checkScore(200)
-                        checkClassification(
+                        handicapAndClassificationRobot.checkClassification(
                                 classification = null,
                                 isOfficial = true,
                         )
-                        checkClassificationCategory("Senior Gentleman Recurve")
+                        handicapAndClassificationRobot.checkClassificationCategory("Senior Gentleman Recurve")
                         pressBack()
                     }
                 }
@@ -429,11 +430,11 @@ class ShootDetailsStatsE2eTest {
                     clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("Hereford")
                         checkScore(1296)
-                        checkClassification(
+                        handicapAndClassificationRobot.checkClassification(
                                 classification = Classification.ELITE_MASTER_BOWMAN,
                                 isOfficial = false,
                         )
-                        checkClassificationCategory("Senior Gentleman Recurve")
+                        handicapAndClassificationRobot.checkClassificationCategory("Senior Gentleman Recurve")
                         pressBack()
                     }
                 }
@@ -461,46 +462,48 @@ class ShootDetailsStatsE2eTest {
                     clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("Hereford")
                         checkScore(800)
-                        checkClassificationCategory("Senior Lady Recurve")
+                        handicapAndClassificationRobot.checkClassificationCategory("Senior Lady Recurve")
                         checkArcherHandicap(40)
-                        checkHandicap(55)
+                        handicapAndClassificationRobot.checkHandicap(55)
 
-                        openHandicapTablesInFull {
-                            checkInputText("55")
-                            selectRoundsRobot.checkSelectedSubtype("Hereford")
-                            clickTab(eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot::class) {
-                                selectRoundsRobot.checkSelectedSubtype("Hereford")
-                                selectRoundsRobot.clickSelectedRound {
-                                    clickRound("WA 1440")
-                                }
-                            }
-                            clickTab(HandicapTablesRobot::class) {
-                                selectRoundsRobot.checkSelectedSubtype("Hereford")
-                                selectRoundsRobot.clickSelectedRound {
-                                    clickRound("Round1")
-                                }
-                            }
-                            clickTab(eywa.projectcodex.instrumentedTests.robots.referenceTables.ClassificationTablesRobot::class) {
-                                selectRoundsRobot.checkSelectedSubtype("Hereford")
-                            }
-                            pressBack()
-                        }
-
-                        openClassificationTablesInFull {
-                            selectRoundsRobot.checkSelectedSubtype("Hereford")
-                            checkGender(false)
-                            clickTab(HandicapTablesRobot::class) {
-                                selectRoundsRobot.checkSelectedSubtype("Hereford")
+                        with(handicapAndClassificationRobot) {
+                            openHandicapTablesInFull {
                                 checkInputText("55")
+                                selectRoundsRobot.checkSelectedSubtype("Hereford")
+                                clickTab(ClassificationTablesRobot::class) {
+                                    selectRoundsRobot.checkSelectedSubtype("Hereford")
+                                    selectRoundsRobot.clickSelectedRound {
+                                        clickRound("WA 1440")
+                                    }
+                                }
+                                clickTab(HandicapTablesRobot::class) {
+                                    selectRoundsRobot.checkSelectedSubtype("Hereford")
+                                    selectRoundsRobot.clickSelectedRound {
+                                        clickRound("Round1")
+                                    }
+                                }
+                                clickTab(ClassificationTablesRobot::class) {
+                                    selectRoundsRobot.checkSelectedSubtype("Hereford")
+                                }
+                                pressBack()
                             }
-                            pressBack()
-                        }
 
-                        openEditArcherInfo {
-                            checkGenderIsGent(false)
-                            pressBack()
-                        }
+                            openClassificationTablesInFull {
+                                selectRoundsRobot.checkSelectedSubtype("Hereford")
+                                checkGender(false)
+                                clickTab(HandicapTablesRobot::class) {
+                                    selectRoundsRobot.checkSelectedSubtype("Hereford")
+                                    checkInputText("55")
+                                }
+                                pressBack()
+                            }
 
+                            openEditArcherInfo {
+                                checkGenderIsGent(false)
+                                pressBack()
+                            }
+
+                        }
                         openEditArcherHandicaps {
                             checkHandicap(0, archerHandicap.dateSet, archerHandicap.handicap)
                         }
@@ -533,7 +536,7 @@ class ShootDetailsStatsE2eTest {
                     clickNavBarItem<ShootDetailsStatsRobot> {
                         checkRound("York")
                         checkScore(1264)
-                        checkHandicap(6)
+                        handicapAndClassificationRobot.checkHandicap(6)
                         checkPb(isTiedPb = true)
                         checkArcherHandicap(40)
                         checkAllowance(535)
@@ -544,7 +547,7 @@ class ShootDetailsStatsE2eTest {
 
                         checkRound("York")
                         checkScore(1264)
-                        checkHandicap(6)
+                        handicapAndClassificationRobot.checkHandicap(6)
                         checkPb(isTiedPb = true)
                         checkArcherHandicapDoesNotExist()
                         checkAllowance(null)
@@ -555,7 +558,7 @@ class ShootDetailsStatsE2eTest {
 
                         checkRound("York")
                         checkScore(1264)
-                        checkHandicap(6)
+                        handicapAndClassificationRobot.checkHandicap(6)
                         checkPb(isTiedPb = true)
                         checkArcherHandicap(40)
                         checkAllowance(535)
