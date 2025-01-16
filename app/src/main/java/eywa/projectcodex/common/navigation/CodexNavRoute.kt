@@ -192,6 +192,7 @@ enum class CodexNavRoute : ScreenNavRoute {
         override val args: Map<NavArgument, Boolean>
             get() = mapOf(
                     NavArgument.SHOOT_ID to true,
+                    NavArgument.MATCH_NUMBER to false,
             )
 
         @Composable

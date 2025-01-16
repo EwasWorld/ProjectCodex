@@ -6,6 +6,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,10 +15,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +48,8 @@ import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexChip
+import eywa.projectcodex.common.sharedUi.CodexIconButton
+import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
@@ -124,7 +135,7 @@ fun HeadToHeadAddEndScreen(
                         navController,
                         mapOf(
                                 NavArgument.SHOOT_ID to data.heat.shootId.toString(),
-                                NavArgument.MATCH_NUMBER to data.heat.heat.toString(),
+                                NavArgument.MATCH_NUMBER to data.heat.matchNumber.toString(),
                                 NavArgument.IS_SIGHTERS to true.toString(),
                         ),
                 )
@@ -169,6 +180,7 @@ fun HeadToHeadAddEndScreen(
             modifier = modifier
                     .background(CodexTheme.colors.appBackground)
                     .padding(vertical = CodexTheme.dimens.screenPadding)
+                    .testTag(HeadToHeadAddEndTestTag.SCREEN)
     ) {
         Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -205,6 +217,7 @@ fun HeadToHeadAddEndScreen(
             CodexButton(
                     text = stringResource(R.string.head_to_head_add_end__next_match),
                     onClick = { listener(CreateNextMatchClicked) },
+                    modifier = Modifier.testTag(HeadToHeadAddEndTestTag.CREATE_NEXT_MATCH_BUTTON)
             )
         }
         else {
@@ -252,6 +265,7 @@ private fun HeatFixedInfo(
                     style = CodexTypography.SMALL_PLUS,
                     color = CodexTheme.colors.onAppBackground,
                     textAlign = TextAlign.Center,
+                    modifier = Modifier.testTag(HeadToHeadAddEndTestTag.OPPONENT)
             )
         }
     }
@@ -315,7 +329,9 @@ private fun HeatTransitiveInfo(
                             color = CodexTheme.colors.onAppBackground
                     ),
                     titleStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
-                    modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp)
+                    modifier = Modifier
+                            .padding(vertical = 10.dp, horizontal = 20.dp)
+                            .testTag(HeadToHeadAddEndTestTag.RUNNING_TOTALS)
             )
         }
     }
@@ -376,6 +392,7 @@ private fun EditRowTypesDialog(
                                 text = text,
                                 onClick = { listener(EditTypesItemClicked(it)) }.takeIf { enabled },
                                 textClickableStyle = textClickableStyle,
+                                modifier = Modifier.testTag(HeadToHeadAddEndTestTag.EDIT_ROW_TYPES_DIALOG_ITEM)
                         )
                     }
                 }
@@ -428,6 +445,7 @@ private fun ColumnScope.SetInfo(
                     text = setText,
                     style = CodexTypography.NORMAL_PLUS,
                     color = CodexTheme.colors.onAppBackground,
+                    modifier = Modifier.testTag(HeadToHeadAddEndTestTag.SET_RESULT)
             )
         }
         if (result == HeadToHeadResult.UNKNOWN) {
@@ -454,12 +472,11 @@ private fun ColumnScope.SetInfo(
                 modifier = Modifier.padding(vertical = 10.dp)
         )
 
-        if (state.extras.set.isShootOff) {
+        if (state.extras.set.isShootOff && state.extras.set.teamEndScore == state.extras.set.opponentEndScore) {
             CodexChip(
                     text = stringResource(R.string.head_to_head_add_end__shoot_off_win),
-                    selected = state.heat.isShootOffWin,
-                    testTag = HeadToHeadAddEndTestTag.IS_SHOOT_OFF_CHECKBOX,
-                    enabled = state.extras.set.isShootOff,
+                    selected = state.extras.set.isShootOffWin,
+                    testTag = HeadToHeadAddEndTestTag.IS_SHOOT_OFF_WIN_CHECKBOX,
                     style = CodexTypography.NORMAL,
                     onToggle = { listener(ToggleShootOffWin) },
             )
@@ -499,18 +516,120 @@ private fun Buttons(
             CodexButton(
                     text = stringResource(R.string.head_to_head_add_end__next_match),
                     onClick = { listener(CreateNextMatchClicked) },
+                    modifier = Modifier.testTag(HeadToHeadAddEndTestTag.CREATE_NEXT_MATCH_BUTTON)
             )
         }
-        CodexButton(
-                text = stringResource(R.string.head_to_head_add_end__submit),
+        if (state.editingSet == null) {
+            CodexButton(
+                    text = stringResource(R.string.head_to_head_add_end__submit),
+                    onClick = { listener(SubmitClicked) },
+                    modifier = Modifier.testTag(HeadToHeadAddEndTestTag.NEXT_END_BUTTON)
+            )
+        }
+        else {
+            EditButtons(state, Modifier, listener)
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun EditButtons(
+        state: HeadToHeadAddEndState,
+        modifier: Modifier = Modifier,
+        listener: (HeadToHeadAddEndIntent) -> Unit,
+) {
+    if (state.editingSet == null) return
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+    var isDeleteConfirmationShown by remember { mutableStateOf(false) }
+
+    SimpleDialog(
+            isShown = isDeleteConfirmationShown,
+            onDismissListener = { isDeleteConfirmationShown = false },
+    ) {
+        SimpleDialogContent(
+                title = stringResource(R.string.head_to_head_add_end__delete_dialog_title),
+                message = stringResource(
+                        R.string.head_to_head_add_end__delete_dialog_body,
+                        state.editingSet.setNumber.toString()
+                ),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.general_delete),
+                        onClick = { listener(DeleteClicked) },
+                ),
+                negativeButton = ButtonState(
+                        text = stringResource(R.string.general_cancel),
+                        onClick = { isDeleteConfirmationShown = false },
+                ),
+        )
+    }
+
+    FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+            modifier = modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+    ) {
+        CodexIconButton(
+                icon = CodexIconInfo.VectorIcon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = stringResource(R.string.general_delete),
+                ),
+                captionBelow = stringResource(R.string.general_delete),
+                onClick = { isDeleteConfirmationShown = true },
+                helpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_head_to_head_add_end__delete_title),
+                        helpBody = stringResource(R.string.help_head_to_head_add_end__delete_body),
+                ).asHelpState(helpListener),
+                modifier = Modifier
+                        .testTag(HeadToHeadAddEndTestTag.DELETE_BUTTON)
+                        .align(Alignment.CenterVertically)
+        )
+        CodexIconButton(
+                icon = CodexIconInfo.VectorIcon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = stringResource(R.string.general__reset_edits),
+                ),
+                captionBelow = stringResource(R.string.general__reset_edits),
+                onClick = { listener(ResetClicked) },
+                helpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_sight_marks__reset_title),
+                        helpBody = stringResource(R.string.help_sight_marks__reset_body),
+                ).asHelpState(helpListener),
+                modifier = Modifier
+                        .testTag(HeadToHeadAddEndTestTag.RESET_BUTTON)
+                        .align(Alignment.CenterVertically)
+        )
+        CodexIconButton(
+                icon = CodexIconInfo.VectorIcon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = stringResource(R.string.general_save),
+                ),
+                captionBelow = stringResource(R.string.general_save),
                 onClick = { listener(SubmitClicked) },
+                helpState = HelpShowcaseItem(
+                        helpTitle = stringResource(R.string.help_head_to_head_add_end__save_title),
+                        helpBody = stringResource(R.string.help_head_to_head_add_end__save_body),
+                ).asHelpState(helpListener),
+                modifier = Modifier
+                        .testTag(HeadToHeadAddEndTestTag.SAVE_BUTTON)
+                        .align(Alignment.CenterVertically)
         )
     }
 }
 
 enum class HeadToHeadAddEndTestTag : CodexTestTag {
     SCREEN,
-    IS_SHOOT_OFF_CHECKBOX,
+    IS_SHOOT_OFF_WIN_CHECKBOX,
+    CREATE_NEXT_MATCH_BUTTON,
+    OPPONENT,
+    SET_RESULT,
+    RUNNING_TOTALS,
+    NEXT_END_BUTTON,
+    DELETE_BUTTON,
+    RESET_BUTTON,
+    SAVE_BUTTON,
+    EDIT_ROW_TYPES_DIALOG_ITEM,
     ;
 
     override val screenName: String

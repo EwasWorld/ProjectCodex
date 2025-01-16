@@ -2,6 +2,7 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead
 
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.stats.ui.HeadToHeadStatsTestTag
+import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.RobotDslMarker
 import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
@@ -15,31 +16,34 @@ class HeadToHeadStatsRobot(
     private val facesRobot = SelectFaceBaseRobot(::performV2)
     val handicapAndClassificationRobot = HandicapAndClassificationSectionRobot(composeTestRule, screenTestTag)
 
-    fun checkNoHeats() {
-        TODO()
+    fun checkNoMatches() {
+        checkElementIsDisplayed(HeadToHeadStatsTestTag.NO_HEATS_TEXT)
     }
 
     fun checkDate(text: String) {
-//        checkElementText(StatsTestTag.DATE_TEXT, text, true)
-        TODO()
+        checkElementText(StatsTestTag.DATE_TEXT, text, true)
     }
 
-    fun checkRound(round: String?) {
-//        checkElementText(StatsTestTag.ROUND_TEXT, text ?: "N/A", true)
-        TODO()
+    fun checkRound(text: String) {
+        checkElementText(StatsTestTag.ROUND_TEXT, text, true)
     }
 
-    fun checkH2hInfo(info: String) {
-//        checkElementText(StatsTestTag.ROUND_TEXT, text ?: "N/A", true)
-        TODO()
+    fun checkH2hInfo(text: String) {
+        checkElementText(StatsTestTag.ROUND_H2H_INFO_TEXT, text, true)
     }
 
     fun checkMatchRow(rowIndex: Int, match: String, opponent: String, rank: String, result: String) {
         TODO()
     }
 
+    fun checkNumbersBreakdownNotShown() {
+        checkElementDoesNotExist(HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE)
+        checkElementDoesNotExist(HeadToHeadStatsTestTag.NO_NUMBERS_BREAKDOWN_TEXT)
+    }
+
     fun checkNumbersBreakdownNoData() {
-        TODO()
+        checkElementDoesNotExist(HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE)
+        checkElementIsDisplayed(HeadToHeadStatsTestTag.NO_NUMBERS_BREAKDOWN_TEXT)
     }
 
     fun checkNumbersBreakdown(

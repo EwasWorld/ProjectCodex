@@ -40,6 +40,22 @@ sealed class CodexNodeMatcher {
                 }
     }
 
+    data class HasTextMatchingRegex(val pattern: Regex) : CodexNodeMatcher() {
+        constructor(pattern: String) : this(Regex(pattern))
+
+        override fun getMatcher(): SemanticsMatcher {
+            val propertyName = "${SemanticsProperties.Text.name} + ${SemanticsProperties.EditableText.name}"
+            return SemanticsMatcher(
+                    "$propertyName matches regex '$pattern'"
+            ) {
+                it.config.getOrNull(SemanticsProperties.Text)
+                        .orEmpty()
+                        .plus(listOfNotNull(it.config.getOrNull(SemanticsProperties.EditableText)))
+                        .any { item -> pattern.matches(item.text) }
+            }
+        }
+    }
+
     data object HasNoError : CodexNodeMatcher() {
         override fun getMatcher(): SemanticsMatcher =
                 SemanticsMatcher(

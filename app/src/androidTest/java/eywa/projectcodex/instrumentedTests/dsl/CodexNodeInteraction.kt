@@ -9,6 +9,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelectable
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.filter
 import androidx.compose.ui.test.longClick
@@ -125,6 +126,12 @@ sealed class CodexNodeInteraction {
         }
     }
 
+    data class AssertFalse(val matcher: CodexNodeMatcher) : CodexNodeInteraction() {
+        override fun performInternal(node: SemanticsNodeInteraction) {
+            node.assert(matcher.getMatcher().not())
+        }
+    }
+
     class AssertDoesNotExist : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.assertDoesNotExist()
@@ -134,6 +141,20 @@ sealed class CodexNodeInteraction {
     data class AssertTextEquals(val text: String) : CodexNodeInteraction() {
         override fun performInternal(node: SemanticsNodeInteraction) {
             node.assertTextEquals(text)
+        }
+    }
+
+    data class AssertTextMatchesRegex(val pattern: Regex) : CodexNodeInteraction() {
+        constructor(pattern: String) : this(Regex(pattern))
+
+        override fun performInternal(node: SemanticsNodeInteraction) {
+            node.assert(CodexNodeMatcher.HasTextMatchingRegex(pattern).getMatcher())
+        }
+    }
+
+    data class AssertTextContains(val text: String) : CodexNodeInteraction() {
+        override fun performInternal(node: SemanticsNodeInteraction) {
+            node.assertTextContains(text, substring = true)
         }
     }
 

@@ -7,6 +7,7 @@ import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 import eywa.projectcodex.model.headToHead.HeadToHeadNoResult
 
 sealed class HeadToHeadGridState {
+    abstract val matchNumber: Int
     abstract val enteredArrows: List<FullHeadToHeadSet>
 
     /**
@@ -25,9 +26,12 @@ sealed class HeadToHeadGridState {
         init {
             require(enteredArrows.isEmpty() || enteredArrows.size == 1)
         }
+
+        override val matchNumber: Int = 1
     }
 
     data class NonEditable(
+            override val matchNumber: Int,
             override val enteredArrows: List<FullHeadToHeadSet>,
             val runningTotals: List<Either<Pair<Int, Int>, HeadToHeadNoResult>>?,
             val finalResult: HeadToHeadResult?,

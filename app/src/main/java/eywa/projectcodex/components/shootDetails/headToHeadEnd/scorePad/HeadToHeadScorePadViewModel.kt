@@ -28,6 +28,7 @@ class HeadToHeadScorePadViewModel @Inject constructor(
 ) : ViewModel() {
     private val screen = CodexNavRoute.HEAD_TO_HEAD_SCORE_PAD
     private val extraState = MutableStateFlow(HeadToHeadScorePadExtras())
+    val shootId = savedStateHandle.get<Int>(NavArgument.SHOOT_ID)!!
 
     val state = repo.getState(extraState) { main, extras ->
         HeadToHeadScorePadState(
@@ -41,9 +42,6 @@ class HeadToHeadScorePadViewModel @Inject constructor(
             ShootDetailsResponse.Loading as ShootDetailsResponse<HeadToHeadScorePadState>,
     )
 
-    private val h2hRepo = db.h2hRepo()
-    val shootId = savedStateHandle.get<Int>(NavArgument.SHOOT_ID)!!
-
     fun handle(action: HeadToHeadScorePadIntent) {
         when (action) {
             is HelpShowcaseAction -> helpShowcase.handle(action.action, screen::class)
@@ -54,6 +52,8 @@ class HeadToHeadScorePadViewModel @Inject constructor(
             is EditSighters -> extraState.update { it.copy(openSightersForHeat = action.heat) }
             EditHeatInfoHandled -> extraState.update { it.copy(openEditHeatInfo = null) }
             EditSightersHandled -> extraState.update { it.copy(openSightersForHeat = null) }
+            is EditSet -> extraState.update { it.copy(openEditSetInfo = action.match to action.setNumber) }
+            EditSetHandled -> extraState.update { it.copy(openEditSetInfo = null) }
         }
     }
 }

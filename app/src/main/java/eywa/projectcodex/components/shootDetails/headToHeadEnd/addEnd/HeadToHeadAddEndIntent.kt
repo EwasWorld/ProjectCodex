@@ -9,6 +9,8 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherT
 sealed class HeadToHeadAddEndIntent {
     data class ArrowInputsErrorHandled(val error: ArrowInputsError) : HeadToHeadAddEndIntent()
     data object OpenAddHeatScreenHandled : HeadToHeadAddEndIntent()
+    data object ResetClicked : HeadToHeadAddEndIntent()
+    data object DeleteClicked : HeadToHeadAddEndIntent()
     data object SubmitClicked : HeadToHeadAddEndIntent()
     data object CreateNextMatchClicked : HeadToHeadAddEndIntent()
     data object CreateNextMatchHandled : HeadToHeadAddEndIntent()

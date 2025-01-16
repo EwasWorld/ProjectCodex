@@ -22,7 +22,7 @@ abstract class ShootDetailsRobot(
             ShootDetailsAddEndRobot::class -> StandardBottomNavBarItem.ADD_END
             ShootDetailsScorePadRobot::class -> StandardBottomNavBarItem.SCORE_PAD
             HeadToHeadAddEndRobot::class -> HeadToHeadBottomNavBarItem.ADD_END
-            HeadToHeadAddHeatRobot::class -> HeadToHeadBottomNavBarItem.ADD_HEAT
+            HeadToHeadAddHeatRobot::class -> HeadToHeadBottomNavBarItem.ADD_END
             HeadToHeadScorePadRobot::class -> HeadToHeadBottomNavBarItem.SCORE_PAD
             HeadToHeadStatsRobot::class -> HeadToHeadBottomNavBarItem.STATS
             else -> throw NotImplementedError()

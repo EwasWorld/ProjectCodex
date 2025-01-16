@@ -81,6 +81,7 @@ fun DateAndRoundSection(
                     Text(
                             text = "$team, $style$rank$totalArchers$format",
                             textAlign = TextAlign.Center,
+                            modifier = Modifier.testTag(StatsTestTag.ROUND_H2H_INFO_TEXT)
                     )
                     Spacer(modifier = Modifier)
                 }

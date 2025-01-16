@@ -283,6 +283,7 @@ enum class StatsTestTag : CodexTestTag {
     SCREEN,
     DATE_TEXT,
     ROUND_TEXT,
+    ROUND_H2H_INFO_TEXT,
     HSG_SECTION,
     HITS_TEXT,
     HITS_OF_TEXT,

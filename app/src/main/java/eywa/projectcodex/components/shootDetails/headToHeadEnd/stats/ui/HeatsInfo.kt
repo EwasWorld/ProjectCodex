@@ -9,6 +9,7 @@ import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.sharedUi.grid.CodexGridColumnMetadata
 import eywa.projectcodex.common.sharedUi.grid.CodexGridRowMetadata
 import eywa.projectcodex.common.sharedUi.grid.CodexGridWithHeaders
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
@@ -26,7 +27,10 @@ internal fun HeatsInfo(
     val helpListener = { it: HelpShowcaseIntent -> listener(HeadToHeadStatsIntent.HelpShowcaseAction(it)) }
 
     if (heats.isEmpty()) {
-        Text(stringResource(R.string.head_to_head_stats__heats_grid_no_data))
+        Text(
+                text = stringResource(R.string.head_to_head_stats__heats_grid_no_data),
+                modifier = modifier.testTag(HeadToHeadStatsTestTag.NO_HEATS_TEXT)
+        )
     }
     else {
         val columns = listOf(
@@ -43,7 +47,7 @@ internal fun HeatsInfo(
                 columnMetadata = columns,
                 extraData = Unit,
                 helpListener = helpListener,
-                modifier = modifier
+                modifier = modifier.testTag(HeadToHeadStatsTestTag.HEATS_TABLE)
         )
     }
 }

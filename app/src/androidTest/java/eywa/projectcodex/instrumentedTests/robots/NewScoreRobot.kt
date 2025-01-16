@@ -105,23 +105,56 @@ class NewScoreRobot(
     }
 
     fun checkIsH2hSetPoints(isSetPoints: Boolean) {
-        TODO()
+        performV2Single {
+            matchDataRowValue(NewScoreTestTag.H2H_STYLE_SWITCH)
+            +CodexNodeInteraction.PerformScrollTo().waitFor()
+            +CodexNodeInteraction.AssertTextEquals(
+                    if (isSetPoints) "Set points" else "Total score"
+            )
+        }
     }
 
     fun clickH2hSetPoints(expectedIsSetPoints: Boolean) {
-        TODO("Click and check")
+        performV2Single {
+            matchDataRowValue(NewScoreTestTag.H2H_STYLE_SWITCH)
+            +CodexNodeInteraction.PerformScrollTo().waitFor()
+            +CodexNodeInteraction.PerformClick()
+            +CodexNodeInteraction.AssertTextEquals(
+                    if (expectedIsSetPoints) "Set points" else "Total score"
+            )
+        }
     }
 
     fun checkIsH2hStandardFormat(isStandardFormat: Boolean) {
-        TODO()
+        performV2Single {
+            matchDataRowValue(NewScoreTestTag.H2H_FORMAT_SWITCH)
+            +CodexNodeInteraction.PerformScrollTo().waitFor()
+            +CodexNodeInteraction.AssertTextEquals(
+                    if (isStandardFormat) "Standard" else "Non-standard"
+            )
+        }
     }
 
     fun clickH2hStandardFormat(expectedIsStandardFormat: Boolean) {
-        TODO("Click and check")
+        performV2Single {
+            matchDataRowValue(NewScoreTestTag.H2H_FORMAT_SWITCH)
+            +CodexNodeInteraction.PerformScrollTo().waitFor()
+            +CodexNodeInteraction.AssertTextEquals(
+                    if (expectedIsStandardFormat) "Standard" else "Non-standard"
+            )
+        }
     }
 
     fun setHeadToHeadFields(teamSize: Int, qualiRank: Int?, totalArchers: Int?) {
-        TODO()
+        setText(NewScoreTestTag.H2H_TEAM_SIZE_INPUT, teamSize.toString())
+        setText(NewScoreTestTag.H2H_QUALI_RANK_INPUT, qualiRank?.toString() ?: "")
+        setText(NewScoreTestTag.H2H_TOTAL_ARCHERS_INPUT, totalArchers?.toString() ?: "")
+    }
+
+    fun checkHeadToHeadFieldsAreError() {
+        checkElementIsDisplayed(NewScoreTestTag.H2H_TEAM_SIZE_ERROR)
+        checkElementIsDisplayed(NewScoreTestTag.H2H_QUALI_RANK_ERROR)
+        checkElementIsDisplayed(NewScoreTestTag.H2H_TOTAL_ARCHERS_ERROR)
     }
 
     fun clickSubmitNewScore(block: ShootDetailsAddEndRobot.() -> Unit = {}) {

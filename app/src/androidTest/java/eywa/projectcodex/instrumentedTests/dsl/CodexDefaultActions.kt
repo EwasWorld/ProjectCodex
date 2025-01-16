@@ -5,11 +5,9 @@ import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
 
 object CodexDefaultActions {
-    fun PerformFnV2.clickDialogOk() =
-            clickDialog(SimpleDialogTestTag.POSITIVE_BUTTON)
+    fun PerformFnV2.clickDialogOk() = clickDialog(SimpleDialogTestTag.POSITIVE_BUTTON)
 
-    fun PerformFnV2.clickDialogCancel() =
-            clickDialog(SimpleDialogTestTag.NEGATIVE_BUTTON)
+    fun PerformFnV2.clickDialogCancel() = clickDialog(SimpleDialogTestTag.NEGATIVE_BUTTON)
 
     private fun PerformFnV2.clickDialog(buttonTag: CodexTestTag) {
         this {
@@ -31,6 +29,12 @@ object CodexDefaultActions {
     }
 
     fun TestActionDslSingleNode.First.matchTextBox(testTag: CodexTestTag) {
+        useUnmergedTree()
+        +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(testTag))
+        +CodexNodeMatcher.HasSetTextAction
+    }
+
+    fun TestActionDslGroupNode.First.matchTextBox(testTag: CodexTestTag) {
         useUnmergedTree()
         +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(testTag))
         +CodexNodeMatcher.HasSetTextAction
@@ -61,6 +65,8 @@ object CodexDefaultActions {
         singleNode {
             matchTextBox(testTag)
             +CodexNodeInteraction.SetText(text, append)
+            if (!append) +CodexNodeInteraction.AssertTextEquals(text).waitFor()
+            else +CodexNodeInteraction.AssertTextContains(text).waitFor()
         }
     }
 

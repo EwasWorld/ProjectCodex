@@ -108,7 +108,6 @@ fun ArrowInputs(
                                         helpBody = stringResource(R.string.help_input_end__arrow_inputs_body),
                                 ).asHelpState(helpListener),
                         )
-                        .testTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON_GROUP)
         )
 
         ArrowInputEditButtons(showResetButton, helpListener, listener)

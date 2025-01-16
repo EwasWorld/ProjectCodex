@@ -8,8 +8,10 @@ sealed class HeadToHeadScorePadIntent {
     data object GoToAddEndHandled : HeadToHeadScorePadIntent()
     data class EditSighters(val heat: Int) : HeadToHeadScorePadIntent()
     data class EditHeatInfo(val heat: Int) : HeadToHeadScorePadIntent()
+    data class EditSet(val match: Int, val setNumber: Int) : HeadToHeadScorePadIntent()
     data object EditSightersHandled : HeadToHeadScorePadIntent()
     data object EditHeatInfoHandled : HeadToHeadScorePadIntent()
+    data object EditSetHandled : HeadToHeadScorePadIntent()
     data class ShootDetailsAction(val action: ShootDetailsIntent) : HeadToHeadScorePadIntent()
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : HeadToHeadScorePadIntent()
 }

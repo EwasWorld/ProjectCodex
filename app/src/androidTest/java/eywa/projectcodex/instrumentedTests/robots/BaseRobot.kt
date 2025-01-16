@@ -16,7 +16,10 @@ import eywa.projectcodex.common.sharedUi.DateSelectorRowTestTag
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkInputtedText
+import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchDataRowValue
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.setText
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslGroupNode
@@ -162,13 +165,47 @@ abstract class BaseRobot(
         performV2Single {
             useUnmergedTree(useUnmergedTree)
             +CodexNodeMatcher.HasTestTag(testTag)
-            +CodexNodeInteraction.AssertIsSelected(isChecked)
+            +CodexNodeInteraction.AssertIsSelected(isChecked).waitFor()
+        }
+    }
+
+    fun checkDataRow(testTag: CodexTestTag, title: String, text: String) {
+        checkDataRowContentDescription(testTag, "$text $title")
+    }
+
+    fun checkDataRowContentDescription(testTag: CodexTestTag, text: String) {
+        performV2Single {
+            +CodexNodeMatcher.HasTestTag(testTag)
+            +CodexNodeInteraction.AssertContentDescriptionEquals(text).waitFor()
+        }
+    }
+
+    fun checkDataRowValueText(testTag: CodexTestTag, text: String) {
+        performV2Group {
+            useUnmergedTree()
+            +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(testTag))
+            toSingle(CodexNodeGroupToOne.Index(1)) {
+                +CodexNodeInteraction.AssertTextEquals(text).waitFor()
+            }
+        }
+    }
+
+    fun clickDataRowValue(testTag: CodexTestTag) {
+        performV2Single {
+            matchDataRowValue(testTag)
+            +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun setText(testTag: CodexTestTag, text: String, append: Boolean = false) {
         performV2 {
             setText(testTag, text, append)
+        }
+    }
+
+    fun checkInputtedText(testTag: CodexTestTag, text: String) {
+        performV2 {
+            checkInputtedText(testTag, text)
         }
     }
 

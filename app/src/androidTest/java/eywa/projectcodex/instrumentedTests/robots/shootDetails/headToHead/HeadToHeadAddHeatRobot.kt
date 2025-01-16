@@ -3,6 +3,8 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat.HeadToHeadAddHeatTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.SightMarkIndicatorRobot
 
@@ -11,45 +13,63 @@ class HeadToHeadAddHeatRobot(
 ) : ShootDetailsRobot(composeTestRule, HeadToHeadAddHeatTestTag.SCREEN) {
     val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this, HeadToHeadAddHeatTestTag.SCREEN)
 
-    fun checkPrevious(heat: Int, score: String, result: String) {
-        TODO()
+    fun checkPrevious(match: String, result: String) {
+        checkElementText(HeadToHeadAddHeatTestTag.PREVIOUS_MATCH_INFO, match)
+        checkDataRowContentDescription(HeadToHeadAddHeatTestTag.PREVIOUS_MATCH_RESULT, text = result)
     }
 
-    fun selectHeat(heat: Int) {
-        TODO("Click, dialog, and check")
+    fun setHeat(heat: String?) {
+        clickDataRowValue(HeadToHeadAddHeatTestTag.HEAT)
+
+        if (heat == null) {
+            clickDialogCancel("Match:")
+        }
+        else {
+            performV2Single {
+                +CodexNodeMatcher.HasTestTag(HeadToHeadAddHeatTestTag.HEAT_SELECTOR_DIALOG_ITEM)
+                +CodexNodeMatcher.HasText(heat)
+                +CodexNodeInteraction.PerformClick().waitFor()
+            }
+        }
+
+        checkHeat(heat)
     }
 
-    fun checkHeat(heat: Int) {
-        TODO()
+    fun checkHeat(heat: String?) {
+        checkDataRowValueText(HeadToHeadAddHeatTestTag.HEAT, heat ?: "Not selected")
     }
 
     fun checkOpponentRank(rank: Int?) {
-        TODO()
+        checkInputtedText(HeadToHeadAddHeatTestTag.OPPONENT_QUALI_RANK_INPUT, rank?.toString() ?: "")
     }
 
     fun checkOpponentRankIsError() {
-        TODO()
+        checkElementIsDisplayed(HeadToHeadAddHeatTestTag.OPPONENT_QUALI_RANK_ERROR)
     }
 
     fun setIsBye(newValue: Boolean) {
-        TODO()
+        setChip(HeadToHeadAddHeatTestTag.IS_BYE_CHECKBOX, newValue, !newValue)
     }
 
     fun checkIsBye(isBye: Boolean) {
-        TODO()
+        checkCheckboxState(HeadToHeadAddHeatTestTag.IS_BYE_CHECKBOX, isBye, useUnmergedTree = true)
     }
 
-    fun checkSightMark() {
-        TODO()
+    fun checkMaxRank(rank: Int?) {
+        checkInputtedText(HeadToHeadAddHeatTestTag.MAX_RANK_INPUT, rank?.toString() ?: "")
+    }
+
+    fun setMaxRank(rank: Int?) {
+        setText(HeadToHeadAddHeatTestTag.MAX_RANK_INPUT, rank?.toString() ?: "")
     }
 
     fun setOpponent(name: String?, rank: Int?) {
-        TODO()
+        setText(HeadToHeadAddHeatTestTag.OPPONENT_INPUT, name ?: "")
+        setText(HeadToHeadAddHeatTestTag.OPPONENT_QUALI_RANK_INPUT, rank?.toString() ?: "")
     }
 
     fun clickStartMatch(block: HeadToHeadAddEndRobot.() -> Unit = {}) {
-        // clickElement()
-        TODO()
+        clickElement(HeadToHeadAddHeatTestTag.SAVE_BUTTON)
         createRobot(HeadToHeadAddEndRobot::class, block)
     }
 }

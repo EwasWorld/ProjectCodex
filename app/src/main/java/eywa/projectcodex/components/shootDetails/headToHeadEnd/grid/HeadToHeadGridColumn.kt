@@ -3,7 +3,6 @@ package eywa.projectcodex.components.shootDetails.headToHeadEnd.grid
 import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseItem
-import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
@@ -15,6 +14,8 @@ enum class HeadToHeadGridColumn {
             get() = null
         override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>?
             get() = { _, _ -> null }
+        override val testTag: HeadToHeadGridColumnTestTag
+            get() = HeadToHeadGridColumnTestTag.SET_NUMBER_CELL
     },
 
     TYPE {
@@ -22,6 +23,8 @@ enum class HeadToHeadGridColumn {
             get() = ResOrActual.StringResource(R.string.head_to_head_grid__column_type)
         override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>
             get() = { data, _ -> data.type.text }
+        override val testTag: HeadToHeadGridColumnTestTag
+            get() = HeadToHeadGridColumnTestTag.TYPE_CELL
     },
 
     ARROWS {
@@ -46,6 +49,8 @@ enum class HeadToHeadGridColumn {
                     ResOrActual.StringResource(R.string.score_pad__running_total_placeholder)
                 }
             }
+        override val testTag: HeadToHeadGridColumnTestTag
+            get() = HeadToHeadGridColumnTestTag.ARROW_CELL
     },
 
     END_TOTAL {
@@ -60,6 +65,8 @@ enum class HeadToHeadGridColumn {
                     ResOrActual.Actual(data.totalScore.toString())
                 }
             }
+        override val testTag: HeadToHeadGridColumnTestTag
+            get() = HeadToHeadGridColumnTestTag.END_TOTAL_CELL
 
         override fun cellHorizontalSpan(row: HeadToHeadGridRowData, extra: HeadToHeadSetData): Int {
             return if (row.type == HeadToHeadArcherType.RESULT) extra.resultColumnSpan else 1
@@ -77,6 +84,8 @@ enum class HeadToHeadGridColumn {
                     else -> null
                 }
             }
+        override val testTag: HeadToHeadGridColumnTestTag
+            get() = HeadToHeadGridColumnTestTag.TEAM_TOTAL_CELL
 
         override fun cellVerticalSpan(row: HeadToHeadGridRowData, extra: HeadToHeadSetData): Int {
             return if (row.type == HeadToHeadArcherType.SELF) extra.teamTotalColumnSpan else 1
@@ -88,7 +97,7 @@ enum class HeadToHeadGridColumn {
             get() = ResOrActual.StringResource(R.string.head_to_head_grid__column_points)
         override val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>?
             get() = { data, extra ->
-                if (extra.result == HeadToHeadResult.INCOMPLETE) {
+                if (extra.result == HeadToHeadResult.INCOMPLETE || extra.result == HeadToHeadResult.UNKNOWN) {
                     ResOrActual.StringResource(R.string.score_pad__running_total_placeholder)
                 }
                 else {
@@ -125,6 +134,8 @@ enum class HeadToHeadGridColumn {
                     }
                 }
             }
+        override val testTag: HeadToHeadGridColumnTestTag
+            get() = HeadToHeadGridColumnTestTag.POINTS_CELL
 
         override fun cellVerticalSpan(row: HeadToHeadGridRowData, extra: HeadToHeadSetData): Int {
             return if (row.type == HeadToHeadArcherType.SELF && extra.hasSelfAndTeamRows) 2 else 1
@@ -134,13 +145,12 @@ enum class HeadToHeadGridColumn {
 
     abstract val primaryTitle: ResOrActual<String>?
     abstract val mapping: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>?
+    abstract val testTag: HeadToHeadGridColumnTestTag
     val cellContentDescription: (HeadToHeadGridRowData, HeadToHeadSetData) -> ResOrActual<String>?
         get() = { _, _ -> null }
     val helpTitle: ResOrActual<String>?
         get() = null
     val helpBody: ResOrActual<String>?
-        get() = null
-    val testTag: CodexTestTag?
         get() = null
 
     open fun cellVerticalSpan(row: HeadToHeadGridRowData, extra: HeadToHeadSetData): Int = 1

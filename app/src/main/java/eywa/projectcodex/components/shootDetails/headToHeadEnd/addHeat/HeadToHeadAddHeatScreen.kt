@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -56,11 +55,9 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexColors
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
-import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.numberField.CodexLabelledNumberFieldWithErrorMessage
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.components.archerHandicaps.ArcherHandicapsTestTag
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.addEnd.SightMark
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
@@ -97,7 +94,7 @@ fun HeadToHeadAddHeatScreen(
     LaunchedEffect(
             data?.extras?.openAllSightMarks,
             data?.extras?.openEditSightMark,
-            data?.extras?.openAddEndScreen,
+            data?.extras?.openAddEndScreenForMatch,
     ) {
         if (data != null) {
             if (data.extras.openAllSightMarks) {
@@ -118,10 +115,13 @@ fun HeadToHeadAddHeatScreen(
                 listener(EditSightMarkHandled)
             }
 
-            if (data.extras.openAddEndScreen) {
+            if (data.extras.openAddEndScreenForMatch != null) {
                 CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
                         navController,
-                        mapOf(NavArgument.SHOOT_ID to viewModel.shootId.toString()),
+                        mapOf(
+                                NavArgument.SHOOT_ID to viewModel.shootId.toString(),
+                                NavArgument.MATCH_NUMBER to data.extras.openAddEndScreenForMatch.toString(),
+                        ),
                         popCurrentRoute = true,
                 )
                 listener(OpenAddEndScreenHandled)
@@ -145,6 +145,7 @@ fun HeadToHeadAddHeatScreen(
                 modifier = modifier
                         .background(CodexTheme.colors.appBackground)
                         .padding(vertical = CodexTheme.dimens.screenPadding)
+                        .testTag(HeadToHeadAddHeatTestTag.SCREEN)
         ) {
             if (state.roundInfo != null) {
                 SightMark(
@@ -208,9 +209,11 @@ private fun PreviousHeat(
                                 state.previousHeat.matchNumber,
                         )
                     },
+                    modifier = Modifier.testTag(HeadToHeadAddHeatTestTag.PREVIOUS_MATCH_INFO)
             )
+
             val setScore =
-                    if (state.previousHeat.runningTotal != null) {
+                    if (state.previousHeat.runningTotal != null && !state.previousHeat.isBye) {
                         stringResource(
                                 R.string.head_to_head_add_end__score_text,
                                 state.previousHeat.runningTotal.first,
@@ -220,9 +223,18 @@ private fun PreviousHeat(
                     else {
                         stringResource(R.string.head_to_head_add_heat__result)
                     }
+            val result =
+                    if (state.previousHeat.isBye) {
+                        stringResource(R.string.head_to_head_score_pad__is_bye)
+                    }
+                    else {
+                        state.previousHeat.result.title.get()
+                    }
+
             DataRow(
                     title = setScore,
-                    text = state.previousHeat.result.title.get(),
+                    text = result,
+                    modifier = Modifier.testTag(HeadToHeadAddHeatTestTag.PREVIOUS_MATCH_RESULT)
             )
         }
     }
@@ -273,7 +285,7 @@ private fun MatchDetails(
                                     .clickable { listener(SelectHeatDialogItemClicked(heat)) }
                                     .fillMaxWidth()
                                     .padding(10.dp)
-                                    .testTag(HeadToHeadAddHeatTestTag.SELECTOR_DIALOG_ITEM)
+                                    .testTag(HeadToHeadAddHeatTestTag.HEAT_SELECTOR_DIALOG_ITEM)
                     )
                 }
             }
@@ -291,20 +303,11 @@ private fun MatchDetails(
         ) {
             DataRow(
                     title = stringResource(R.string.head_to_head_add_heat__heat, state.matchNumber),
-            ) {
-                val requiredErrorString = stringResource(R.string.err__required_field)
-                Text(
-                        text = state.extras.heat?.let { HeadToHeadUseCase.shortRoundName(it).get() }
-                                ?: stringResource(R.string.head_to_head_add_heat__heat_null),
-                        style = LocalTextStyle.current
-                                .asClickableStyle()
-                                .copy(color = CodexTheme.colors.linkText),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                                .clickable { listener(HeatClicked) }
-                                .align(Alignment.CenterVertically)
-                )
-            }
+                    text = state.extras.heat?.let { HeadToHeadUseCase.shortRoundName(it).get() }
+                            ?: stringResource(R.string.head_to_head_add_heat__heat_null),
+                    onClick = { listener(HeatClicked) },
+                    modifier = Modifier.testTag(HeadToHeadAddHeatTestTag.HEAT)
+            )
             CodexChip(
                     text = stringResource(R.string.head_to_head_ref__bye),
                     selected = state.extras.isBye,
@@ -322,12 +325,14 @@ private fun MatchDetails(
                     enabled = !state.extras.isBye,
                     onValueChange = { listener(OpponentUpdated(it)) },
                     placeholderText = stringResource(R.string.head_to_head_add_heat__opponent_placeholder),
+                    modifier = Modifier.testTag(HeadToHeadAddHeatTestTag.OPPONENT_INPUT)
             )
         }
         CodexLabelledNumberFieldWithErrorMessage(
                 title = stringResource(R.string.head_to_head_add_heat__opponent_quali_rank),
                 enabled = !state.extras.isBye,
                 currentValue = state.extras.opponentQualiRank.text,
+                errorMessage = state.extras.opponentQualiRank.error,
                 fieldTestTag = HeadToHeadAddHeatTestTag.OPPONENT_QUALI_RANK_INPUT,
                 errorMessageTestTag = HeadToHeadAddHeatTestTag.OPPONENT_QUALI_RANK_ERROR,
                 placeholder = stringResource(R.string.head_to_head_add_heat__quali_rank_placeholder),
@@ -336,6 +341,7 @@ private fun MatchDetails(
         CodexLabelledNumberFieldWithErrorMessage(
                 title = stringResource(R.string.head_to_head_add_heat__max_rank),
                 currentValue = state.extras.maxPossibleRank.text,
+                errorMessage = state.extras.maxPossibleRank.error,
                 fieldTestTag = HeadToHeadAddHeatTestTag.MAX_RANK_INPUT,
                 errorMessageTestTag = HeadToHeadAddHeatTestTag.MAX_RANK_ERROR,
                 placeholder = stringResource(R.string.head_to_head_add_heat__quali_rank_placeholder),
@@ -349,7 +355,7 @@ private fun MatchDetails(
                     helpState = null,
                     modifier = Modifier
                             .padding(top = 8.dp)
-                            .testTag(ArcherHandicapsTestTag.ADD_HANDICAP_SUBMIT)
+                            .testTag(HeadToHeadAddHeatTestTag.SAVE_BUTTON)
             )
         else {
             EditButtons(
@@ -449,12 +455,16 @@ private fun EditButtons(
 
 enum class HeadToHeadAddHeatTestTag : CodexTestTag {
     SCREEN,
+    HEAT,
+    OPPONENT_INPUT,
     OPPONENT_QUALI_RANK_INPUT,
     OPPONENT_QUALI_RANK_ERROR,
     MAX_RANK_INPUT,
     MAX_RANK_ERROR,
     IS_BYE_CHECKBOX,
-    SELECTOR_DIALOG_ITEM,
+    HEAT_SELECTOR_DIALOG_ITEM,
+    PREVIOUS_MATCH_INFO,
+    PREVIOUS_MATCH_RESULT,
     DELETE_BUTTON,
     RESET_BUTTON,
     SAVE_BUTTON,
@@ -477,6 +487,7 @@ fun Heat_HeadToHeadAddScreen_Preview() {
                                 heat = 0,
                                 result = HeadToHeadResult.WIN,
                                 runningTotal = 6 to 0,
+                                isBye = false,
                         ),
                         roundInfo = SightMark(SightMarksPreviewHelper.sightMarks[0]).let {
                             HeadToHeadRoundInfo(sightMark = it, distance = it.distance, isMetric = it.isMetric)

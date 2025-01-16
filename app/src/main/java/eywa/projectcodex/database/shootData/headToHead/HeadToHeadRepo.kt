@@ -23,6 +23,11 @@ class HeadToHeadRepo(
         headToHeadDetailDao.delete(shootId = shootId, matchNumber = matchNumber)
     }
 
+    @Transaction
+    suspend fun delete(shootId: Int, matchNumber: Int, setNumber: Int) {
+        headToHeadDetailDao.delete(shootId = shootId, matchNumber = matchNumber, setNumber = setNumber)
+    }
+
     suspend fun insert(headToHead: DatabaseHeadToHead) {
         headToHeadDao.insert(headToHead)
     }

@@ -15,15 +15,17 @@
     <string name="head_to_head_add_end__shoot_off_win">Win</string>
     <string name="head_to_head_add_end__submit">Next end</string>
     <string name="head_to_head_add_end__next_match">Create next match</string>
-    <string name="head_to_head_add_end__set_result">Set: %s</string> <!-- Set: Win -->
-    <string name="head_to_head_add_end__final_result">Match result: %s</string> <!-- Match result: Win -->
-    <string name="head_to_head_add_end__running_total">R/T: %s</string> <!-- R/T: 6-0 -->
+    <string name="head_to_head_add_end__set_result">Set:</string> <!-- Set: Win -->
+    <string name="head_to_head_add_end__final_result">Match result:</string> <!-- Match result: Win -->
+    <string name="head_to_head_add_end__running_total">R/T:</string> <!-- R/T: 6-0 -->
     <string name="head_to_head_add_end__unknown_result_warning">Cannot calculate result\nRequires data for: %s</string>
     <string name="head_to_head_add_end__unknown_result_warning_opponent">opponent</string>
     <string name="head_to_head_add_end__unknown_result_warning_connector">opponent, and %s</string>
     <string name="head_to_head_add_end__unknown_result_warning_self">team or self</string>
     <string name="head_to_head_add_end__unknown_result_warning_team_mates">team or team mate(s)</string>
     <string name="head_to_head_add_end__unknown_result_warning_both">team or (self and team mate(s))</string>
+    <string name="head_to_head_add_end__delete_dialog_title">Delete end</string>
+    <string name="head_to_head_add_end__delete_dialog_body">Are you sure you want to delete set %s?</string>
 
     <string name="head_to_head_add_end__total_text_placeholder">0</string>
     <string name="head_to_head_add_end__archer_self">Self</string>
@@ -59,7 +61,7 @@
     <string name="head_to_head_score_pad__edit_heat">Edit heat info</string>
 
     <string name="head_to_head_add_heat__title">Create match</string>
-    <string name="head_to_head_add_heat__match_header_with_heat">Match %d %s</string>
+    <string name="head_to_head_add_heat__match_header_with_heat">Match %d: %s</string>
     <string name="head_to_head_add_heat__match_header">Match %d</string>
     <string name="head_to_head_add_heat__heat">Match %d:</string>
     <string name="head_to_head_add_heat__heat_match">Match:</string>
@@ -80,12 +82,16 @@
     <string name="head_to_head_add_heat__editing">Editing %d match</string>
     <string name="head_to_head_add_heat__match_exists">Match already exists</string>
     <string name="head_to_head_add_heat__delete_dialog_title">Delete match</string>
-    <string name="head_to_head_add_heat__delete_dialog_body">Are you sure you want to delete %s match?</string>
+    <string name="head_to_head_add_heat__delete_dialog_body">Are you sure you want to delete match %s?</string>
 
     <string name="help_head_to_head_add_heat__delete_title">Delete</string>
     <string name="help_head_to_head_add_heat__delete_body">Permanently deletes the match</string>
     <string name="help_head_to_head_add_heat__save_title">Save</string>
     <string name="help_head_to_head_add_heat__save_body">Updates the match with the current data</string>
+    <string name="help_head_to_head_add_end__delete_title">Delete</string>
+    <string name="help_head_to_head_add_end__delete_body">Permanently deletes the set</string>
+    <string name="help_head_to_head_add_end__save_title">Save</string>
+    <string name="help_head_to_head_add_end__save_body">Updates the set with the current data</string>
 
     <string name="head_to_head_stats__title">Stats</string>
     <string name="head_to_head_stats__heats_grid_match_title">Match</string>

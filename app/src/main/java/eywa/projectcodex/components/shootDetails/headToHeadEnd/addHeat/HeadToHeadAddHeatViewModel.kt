@@ -6,8 +6,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.navigation.CodexNavRoute
+import eywa.projectcodex.common.navigation.DEFAULT_INT_NAV_ARG
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.navigation.get
+import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.ShootDetailsError
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
@@ -19,12 +21,14 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat.HeadToHea
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
 import eywa.projectcodex.database.shootData.headToHead.Opponent
+import eywa.projectcodex.model.headToHead.FullHeadToHeadHeat
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.pow
 
 @HiltViewModel
 class HeadToHeadAddHeatViewModel @Inject constructor(
@@ -62,40 +66,59 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
                 sightMark = main.sightMark,
                 isMetric = shoot.fullRoundInfo?.round?.isMetric ?: shoot.shootDetail?.isDistanceInMeters,
         )
-        val editingMatch = fullH2hInfo.heats.find { it.heat.heat == editingMatchNumber }?.heat
+        val editingMatch = fullH2hInfo.heats.find { it.heat.matchNumber == editingMatchNumber }?.heat
 
-        // Edit heat from database
-        if (editingMatchNumber != null && editingMatch != null) {
-
-            if (extraState.value == null) {
-                extraState.update { (it ?: HeadToHeadAddHeatExtras()).resetEditInfo(editingMatch) }
-            }
-
-            return HeadToHeadAddHeatState(
-                    matchNumber = editingMatchNumber,
-                    roundInfo = roundInfo,
-                    extras = extras ?: HeadToHeadAddHeatExtras(),
-                    previousHeat = null,
-                    editing = editingMatch,
-            )
+        fun estimatedHeat(): Int? {
+            val totalMatches = HeadToHeadUseCase.getOpponents(
+                    rank = fullH2hInfo.headToHead.qualificationRank ?: return null,
+                    totalArchers = fullH2hInfo.headToHead.totalArchers ?: return null,
+            ).count()
+            return (totalMatches - (editingMatchNumber?.minus(1) ?: 0) - 1).coerceAtLeast(0)
         }
 
-        // Create new heat with fixed match number
+        fun FullHeadToHeadHeat.asPreviousHeat() =
+                HeadToHeadAddHeatState.PreviousHeat(
+                        matchNumber = heat.matchNumber,
+                        heat = heat.heat,
+                        result = sets.lastOrNull()?.result ?: HeadToHeadResult.INCOMPLETE,
+                        runningTotal = runningTotals.lastOrNull()?.left,
+                        isBye = heat.isBye,
+                )
+
         if (editingMatchNumber != null) {
+            val previous = fullH2hInfo.heats.find { it.heat.matchNumber == editingMatchNumber - 1 }
+
+            // Edit heat from database
+            if (editingMatch != null) {
+                if (extraState.value == null) {
+                    extraState.update { (it ?: HeadToHeadAddHeatExtras()).resetEditInfo(editingMatch) }
+                }
+
+                return HeadToHeadAddHeatState(
+                        matchNumber = editingMatchNumber,
+                        roundInfo = roundInfo,
+                        extras = extras ?: HeadToHeadAddHeatExtras(),
+                        previousHeat = previous?.asPreviousHeat(),
+                        editing = editingMatch,
+                )
+            }
+
+            // Create new heat with fixed match number
             if (extraState.value == null) {
-                val previous = fullH2hInfo.heats.find { it.heat.matchNumber == editingMatchNumber - 1 }
                 extraState.update {
-                    HeadToHeadAddHeatExtras(heat = previous?.heat?.heat?.minus(1)?.coerceAtLeast(0))
-                            .setMaxRank(if (previous == null) 1 else previous.heat.maxPossibleRank)
+                    HeadToHeadAddHeatExtras(
+                            heat = previous?.heat?.heat?.minus(1)?.coerceAtLeast(0) ?: estimatedHeat(),
+                    )
+                            .setMaxRank(previous)
+                            .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(editingMatchNumber))
                 }
             }
 
             return HeadToHeadAddHeatState(
                     matchNumber = editingMatchNumber,
                     roundInfo = roundInfo,
-                    extras = (extras ?: HeadToHeadAddHeatExtras())
-                            .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(editingMatchNumber)),
-                    previousHeat = null,
+                    extras = (extras ?: HeadToHeadAddHeatExtras()),
+                    previousHeat = previous?.asPreviousHeat(),
                     editing = null,
             )
         }
@@ -107,7 +130,8 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
 
             if (extraState.value == null) {
                 extraState.update {
-                    HeadToHeadAddHeatExtras().setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(1))
+                    HeadToHeadAddHeatExtras(heat = estimatedHeat())
+                            .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(1))
                 }
             }
 
@@ -122,18 +146,13 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
 
         // Create next new heat
         if (maxHeat.isComplete && !maxHeat.heat.isBye) {
-            val previousHeat = HeadToHeadAddHeatState.PreviousHeat(
-                    matchNumber = maxHeat.heat.matchNumber,
-                    heat = maxHeat.heat.heat,
-                    result = maxHeat.sets.lastOrNull()?.result ?: HeadToHeadResult.INCOMPLETE,
-                    runningTotal = maxHeat.runningTotals.lastOrNull()?.left,
-            )
+            val previousHeat = maxHeat.asPreviousHeat()
 
             if (extraState.value == null || maxHeat.heat.heat == extraState.value?.heat) {
                 extraState.update {
                     HeadToHeadAddHeatExtras(heat = maxHeat.heat.heat?.minus(1)?.coerceAtLeast(0))
                             .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(previousHeat.matchNumber + 1))
-                            .setMaxRank(maxHeat.heat.maxPossibleRank)
+                            .setMaxRank(maxHeat)
                 }
             }
 
@@ -147,8 +166,8 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
         }
 
         // Previous heat not completed, jump to add end screen
-        if (extras?.openAddEndScreen != true) {
-            extraState.update { (it ?: HeadToHeadAddHeatExtras()).copy(openAddEndScreen = true) }
+        if (extras?.openAddEndScreenForMatch == null) {
+            extraState.update { (it ?: HeadToHeadAddHeatExtras()).copy(openAddEndScreenForMatch = DEFAULT_INT_NAV_ARG) }
         }
 
         return HeadToHeadAddHeatState(
@@ -167,8 +186,17 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
             isBye = editing.isBye,
     )
 
-    private fun HeadToHeadAddHeatExtras.setMaxRank(maxRank: Int?) =
-            copy(maxPossibleRank = maxPossibleRank.copy(text = maxRank?.toString() ?: ""))
+    private fun HeadToHeadAddHeatExtras.setMaxRank(previous: FullHeadToHeadHeat?): HeadToHeadAddHeatExtras {
+        fun HeadToHeadAddHeatExtras.set(rank: Int?) =
+                copy(maxPossibleRank = maxPossibleRank.copy(text = rank?.toString() ?: ""))
+
+        return set(
+                if (previous?.heat?.maxPossibleRank == null) null
+                else if (previous.result == HeadToHeadResult.WIN) previous.heat.maxPossibleRank
+                else if (previous.heat.heat != null) previous.heat.maxPossibleRank + 2.0.pow(previous.heat.heat).toInt()
+                else null
+        )
+    }
 
     private fun HeadToHeadAddHeatExtras.setOpponentQualiRank(opponentQualiRank: Opponent?) =
             when (opponentQualiRank) {
@@ -201,7 +229,7 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
             ExpandSightMarkClicked -> updateState { it.copy(openAllSightMarks = true) }
             EditSightMarkHandled -> updateState { it.copy(openEditSightMark = false) }
             ExpandSightMarkHandled -> updateState { it.copy(openAllSightMarks = false) }
-            OpenAddEndScreenHandled -> updateState { it.copy(openAddEndScreen = false) }
+            OpenAddEndScreenHandled -> updateState { it.copy(openAddEndScreenForMatch = null) }
 
             is HelpShowcaseAction -> helpShowcaseUseCase.handle(action.action, screen::class)
 
@@ -225,8 +253,14 @@ class HeadToHeadAddHeatViewModel @Inject constructor(
             SubmitClicked -> state.value.getData()?.let { state ->
                 val newHeat = state.asHeadToHeadHeat(shootId)
                 viewModelScope.launch {
-                    if (state.editing != null) h2hRepo.update(newHeat)
-                    else h2hRepo.insert(newHeat)
+                    if (state.editing != null) {
+                        h2hRepo.update(newHeat)
+                        extraState.update { it!!.copy(pressBack = true) }
+                    }
+                    else {
+                        h2hRepo.insert(newHeat)
+                        extraState.update { it!!.copy(openAddEndScreenForMatch = newHeat.matchNumber) }
+                    }
                 }
             }
 

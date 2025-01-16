@@ -129,6 +129,7 @@ data class FullHeadToHeadHeat(
     }
 
     fun toGridState() = HeadToHeadGridState.NonEditable(
+            matchNumber = heat.matchNumber,
             enteredArrows = sets,
             runningTotals = runningTotals,
             finalResult = result,

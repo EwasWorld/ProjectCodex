@@ -38,7 +38,7 @@ class AddArrowCountState(
             )
     )
 
-    val heatId = extras.heatId
+    val heatId = extras.h2hMatchNumber
     val sightMark = main.sightMark
     val openFullSightMarks = extras.openFullSightMarks
     val openEditSightMark = extras.openEditSightMark
@@ -79,7 +79,7 @@ class AddArrowCountState(
 
 data class AddArrowCountExtras(
         val endSize: PartialNumberFieldState = PartialNumberFieldState(DEFAULT_END_SIZE.toString()),
-        val heatId: Int? = null,
+        val h2hMatchNumber: Int? = null,
         val editShootInfoClicked: Boolean = false,
         val openFullSightMarks: Boolean = false,
         val openEditSightMark: Boolean = false,

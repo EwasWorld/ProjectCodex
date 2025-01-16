@@ -11,4 +11,5 @@ data class HeadToHeadScorePadExtras(
         val openAddHeat: Boolean = false,
         val openSightersForHeat: Int? = null,
         val openEditHeatInfo: Int? = null,
+        val openEditSetInfo: Pair<Int, Int>? = null,
 )

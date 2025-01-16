@@ -9,6 +9,7 @@ import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.common.sharedUi.numberField.PartialNumberFieldState
+import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountIntent.*
@@ -26,12 +27,21 @@ class AddArrowCountViewModel @Inject constructor(
         savedStateHandle: SavedStateHandle,
         private val helpShowcase: HelpShowcaseUseCase,
 ) : ViewModel() {
-    private val heatId = savedStateHandle.get<Int>(NavArgument.MATCH_NUMBER)
+    private val h2hMatchNumber = savedStateHandle.get<Int>(NavArgument.MATCH_NUMBER)
     private val screen = CodexNavRoute.SHOOT_DETAILS_ADD_COUNT
-    private val extraState = MutableStateFlow(AddArrowCountExtras(heatId = heatId))
+    private val extraState = MutableStateFlow(AddArrowCountExtras(h2hMatchNumber = h2hMatchNumber))
     private val isEditingSighters = savedStateHandle.get<Boolean>(NavArgument.IS_SIGHTERS) ?: false
+    private var endSizeInitComplete = false
 
-    val state = repo.getState(extraState) { main, extras -> AddArrowCountState(main, extras, isEditingSighters) }
+    val state = repo.getState(extraState) { main, extras ->
+        if (!endSizeInitComplete && main.fullShootInfo?.h2h != null) {
+            endSizeInitComplete = true
+
+            val endSize = HeadToHeadUseCase.endSize(main.fullShootInfo.h2h.headToHead.teamSize, false)
+            extraState.update { it.copy(endSize = it.endSize.copy(text = endSize.toString())) }
+        }
+        AddArrowCountState(main, extras, isEditingSighters)
+    }
             .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(),
@@ -45,6 +55,7 @@ class AddArrowCountViewModel @Inject constructor(
         viewModelScope.launch {
             var previousRemainingArrows: Int? = null
             state.collect { response ->
+                if (response.getData()?.fullShootInfo?.h2h != null) return@collect
                 val data = response.getData()
                 val remaining = data?.fullShootInfo?.remainingArrows ?: return@collect
 
@@ -79,7 +90,7 @@ class AddArrowCountViewModel @Inject constructor(
                 }
 
                 if (isEditingSighters) {
-                    if (heatId == null) {
+                    if (h2hMatchNumber == null) {
                         val shootRound = currentState.fullShootInfo.shootRound ?: return
                         val currentCount = shootRound.sightersCount
                         viewModelScope.launch {
@@ -89,11 +100,12 @@ class AddArrowCountViewModel @Inject constructor(
                     }
                     else {
                         val heat =
-                                currentState.fullShootInfo.h2h?.heats?.find { it.heat.heat == heatId }?.heat ?: return
+                                currentState.fullShootInfo.h2h?.heats
+                                        ?.find { it.heat.matchNumber == h2hMatchNumber }?.heat
+                                        ?: return
                         val currentCount = heat.sightersCount
                         viewModelScope.launch {
-                            repo.db.h2hRepo()
-                                    .update(heat.copy(sightersCount = currentCount + toAdd))
+                            repo.db.h2hRepo().update(heat.copy(sightersCount = currentCount + toAdd))
                         }
                     }
                 }

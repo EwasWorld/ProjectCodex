@@ -28,6 +28,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesPreviewHelper
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
@@ -127,6 +128,7 @@ fun HeadToHeadStatsScreen(
                 modifier = modifier
                         .background(CodexTheme.colors.appBackground)
                         .padding(vertical = CodexTheme.dimens.screenPadding)
+                        .testTag(HeadToHeadStatsTestTag.SCREEN)
         ) {
             DateAndRoundSection(
                     fullShootInfo = state.fullShootInfo,
@@ -198,6 +200,10 @@ private fun ColumnScope.HandicapClassification(
 
 enum class HeadToHeadStatsTestTag : CodexTestTag {
     SCREEN,
+    HEATS_TABLE,
+    NO_HEATS_TEXT,
+    NUMBERS_BREAKDOWN_TABLE,
+    NO_NUMBERS_BREAKDOWN_TEXT,
     ;
 
     override val screenName: String

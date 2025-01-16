@@ -20,6 +20,7 @@ import eywa.projectcodex.common.sharedUi.grid.CodexGridRowMetadata
 import eywa.projectcodex.common.sharedUi.grid.CodexGridWithHeaders
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.asDecimalFormat
@@ -77,7 +78,7 @@ internal fun ColumnScope.NumbersBreakdown(
         if (columns.isNullOrEmpty()) {
             Text(
                     text = stringResource(R.string.head_to_head_stats__heats_grid_no_data),
-                    modifier = modifier
+                    modifier = modifier.testTag(HeadToHeadStatsTestTag.NO_NUMBERS_BREAKDOWN_TEXT)
             )
         }
         else {
@@ -105,7 +106,7 @@ internal fun ColumnScope.NumbersBreakdown(
                     columnMetadata = columns,
                     extraData = Unit,
                     helpListener = helpListener,
-                    modifier = modifier
+                    modifier = modifier.testTag(HeadToHeadStatsTestTag.NO_NUMBERS_BREAKDOWN_TEXT)
             )
         }
     }

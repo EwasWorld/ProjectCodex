@@ -51,6 +51,7 @@ fun ArrowButtonGroup(
             modifier = modifier
                     .horizontalScroll(rememberScrollState())
                     .padding(horizontal = horizontalPadding)
+                    .testTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON_GROUP)
     ) {
         when {
             round == null -> TenZoneArrowButtonGroup(roundFace, onClick)

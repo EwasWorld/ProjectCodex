@@ -35,12 +35,14 @@ data class HeadToHeadAddHeatState(
             val matchNumber: Int,
             val heat: Int?,
             val result: HeadToHeadResult,
+            val isBye: Boolean,
             val runningTotal: Pair<Int, Int>?,
     )
 }
 
 data class HeadToHeadAddHeatExtras(
-        val openAddEndScreen: Boolean = false,
+        val openAddEndScreenForMatch: Int? = null,
+        val pressBack: Boolean = false,
         val openEditSightMark: Boolean = false,
         val openAllSightMarks: Boolean = false,
         /**

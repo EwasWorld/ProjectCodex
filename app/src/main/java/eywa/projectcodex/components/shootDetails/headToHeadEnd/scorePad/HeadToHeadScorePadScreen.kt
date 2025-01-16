@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
+import eywa.projectcodex.common.logging.debugLog
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.CodexButton
@@ -36,6 +37,7 @@ import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.DataRow
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
@@ -46,6 +48,9 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGr
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
 import eywa.projectcodex.model.headToHead.FullHeadToHeadHeat
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
+
+private fun Modifier.testTag(matchNumber: Int, testTag: HeadToHeadScorePadMatchTestTag) =
+        testTag(testTag.getTestTag(matchNumber))
 
 @Composable
 fun HeadToHeadScorePadScreen(
@@ -72,6 +77,7 @@ fun HeadToHeadScorePadScreen(
             data?.extras?.openAddHeat,
             data?.extras?.openSightersForHeat,
             data?.extras?.openEditHeatInfo,
+            data?.extras?.openEditSetInfo,
     ) {
         if (data?.extras?.openAddHeat == true) {
             CodexNavRoute.HEAD_TO_HEAD_ADD_HEAT.navigate(
@@ -101,9 +107,21 @@ fun HeadToHeadScorePadScreen(
                             NavArgument.SHOOT_ID to viewModel.shootId.toString(),
                             NavArgument.MATCH_NUMBER to data.extras.openEditHeatInfo.toString(),
                     ),
-                    popCurrentRoute = true,
             )
             listener(HeadToHeadScorePadIntent.EditHeatInfoHandled)
+        }
+
+        if (data?.extras?.openEditSetInfo != null) {
+            debugLog("Cheeses")
+            CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
+                    navController,
+                    mapOf(
+                            NavArgument.SHOOT_ID to viewModel.shootId.toString(),
+                            NavArgument.MATCH_NUMBER to data.extras.openEditSetInfo.first.toString(),
+                            NavArgument.SET_NUMBER to data.extras.openEditSetInfo.second.toString(),
+                    ),
+            )
+            listener(HeadToHeadScorePadIntent.EditSetHandled)
         }
     }
 }
@@ -124,13 +142,15 @@ fun HeadToHeadScorePadScreen(
                     modifier = modifier
                             .background(CodexTheme.colors.appBackground)
                             .padding(CodexTheme.dimens.screenPadding)
+                            .testTag(HeadToHeadScorePadTestTag.SCREEN)
             ) {
                 Text(
                         text = stringResource(R.string.head_to_head_score_pad__no_heats),
                 )
                 CodexButton(
                         text = stringResource(R.string.head_to_head_score_pad__no_heats_button),
-                        onClick = { listener(HeadToHeadScorePadIntent.GoToAddEnd) }
+                        onClick = { listener(HeadToHeadScorePadIntent.GoToAddEnd) },
+                        modifier = Modifier.testTag(HeadToHeadScorePadTestTag.ADD_MATCH_BUTTON)
                 )
             }
             return@ProvideTextStyle
@@ -142,6 +162,7 @@ fun HeadToHeadScorePadScreen(
                 modifier = modifier
                         .background(CodexTheme.colors.appBackground)
                         .padding(vertical = CodexTheme.dimens.screenPadding)
+                        .testTag(HeadToHeadScorePadTestTag.SCREEN)
         ) {
             state.entries.forEach { entry ->
                 Surface(
@@ -174,6 +195,10 @@ fun HeadToHeadScorePadScreen(
                                                 entry.heat.matchNumber,
                                         ),
                                         text = HeadToHeadUseCase.roundName(entry.heat.heat).get(),
+                                        modifier = Modifier.testTag(
+                                                entry.heat.matchNumber,
+                                                HeadToHeadScorePadMatchTestTag.MATCH_TEXT,
+                                        )
                                 )
                             }
                             else {
@@ -181,6 +206,10 @@ fun HeadToHeadScorePadScreen(
                                         text = stringResource(
                                                 R.string.head_to_head_add_heat__match_header,
                                                 entry.heat.matchNumber,
+                                        ),
+                                        modifier = Modifier.testTag(
+                                                entry.heat.matchNumber,
+                                                HeadToHeadScorePadMatchTestTag.MATCH_TEXT,
                                         )
                                 )
                             }
@@ -189,6 +218,10 @@ fun HeadToHeadScorePadScreen(
                                 if (!entry.heat.opponent.isNullOrBlank()) {
                                     Text(
                                             text = opponent,
+                                            modifier = Modifier.testTag(
+                                                    entry.heat.matchNumber,
+                                                    HeadToHeadScorePadMatchTestTag.OPPONENT_TEXT,
+                                            )
                                     )
                                 }
                             }
@@ -203,6 +236,10 @@ fun HeadToHeadScorePadScreen(
                                 DataRow(
                                         title = stringResource(R.string.head_to_head_add_heat__max_rank),
                                         text = maxRank,
+                                        modifier = Modifier.testTag(
+                                                entry.heat.matchNumber,
+                                                HeadToHeadScorePadMatchTestTag.MAX_RANK,
+                                        )
                                 )
                             }
                             DataRow(
@@ -211,6 +248,10 @@ fun HeadToHeadScorePadScreen(
                                     onClick = {
                                         listener(HeadToHeadScorePadIntent.EditSighters(entry.heat.matchNumber))
                                     },
+                                    modifier = Modifier.testTag(
+                                            entry.heat.matchNumber,
+                                            HeadToHeadScorePadMatchTestTag.SIGHTERS,
+                                    )
                             )
                         }
                     }
@@ -227,6 +268,10 @@ fun HeadToHeadScorePadScreen(
                             modifier = Modifier
                                     .padding(horizontal = CodexTheme.dimens.screenPadding)
                                     .padding(top = 5.dp, bottom = 30.dp)
+                                    .testTag(
+                                            entry.heat.matchNumber,
+                                            HeadToHeadScorePadMatchTestTag.NO_ENDS,
+                                    )
                     )
                 }
                 else {
@@ -234,11 +279,18 @@ fun HeadToHeadScorePadScreen(
                     HeadToHeadGrid(
                             state = entry.toGridState(),
                             errorOnIncompleteRows = false,
-                            rowClicked = { _, _ -> },
+                            rowClicked = { setNumber, _ ->
+                                listener(HeadToHeadScorePadIntent.EditSet(entry.heat.matchNumber, setNumber))
+                            },
                             onTextValueChanged = { _, _ -> },
                             editTypesClicked = {},
                             helpListener = helpListener,
-                            modifier = Modifier.padding(top = 10.dp, bottom = 40.dp)
+                            modifier = Modifier
+                                    .padding(top = 10.dp, bottom = 40.dp)
+                                    .testTag(
+                                            entry.heat.matchNumber,
+                                            HeadToHeadScorePadMatchTestTag.GRID,
+                                    )
                     )
                 }
             }
@@ -248,12 +300,31 @@ fun HeadToHeadScorePadScreen(
 
 enum class HeadToHeadScorePadTestTag : CodexTestTag {
     SCREEN,
+    ADD_MATCH_BUTTON,
     ;
 
     override val screenName: String
         get() = "HEAD_TO_HEAD_SCORE_PAD"
 
     override fun getElement(): String = name
+}
+
+enum class HeadToHeadScorePadMatchTestTag {
+    MATCH_TEXT,
+    OPPONENT_TEXT,
+    SIGHTERS,
+    MAX_RANK,
+    NO_ENDS,
+    GRID,
+    ;
+
+    fun getTestTag(matchNumber: Int) =
+            object : CodexTestTag {
+                override val screenName: String
+                    get() = "HEAD_TO_HEAD_SCORE_PAD"
+
+                override fun getElement(): String = "${name}_$matchNumber"
+            }
 }
 
 @Preview(

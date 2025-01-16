@@ -20,7 +20,6 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHead
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData.Arrows
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData.EditableTotal
-import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,7 +30,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HeadToHeadAddEndViewModel @Inject constructor(
-        db: ScoresRoomDatabase,
         private val repo: ShootDetailsRepo,
         savedStateHandle: SavedStateHandle,
         private val helpShowcaseUseCase: HelpShowcaseUseCase,
@@ -46,7 +44,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     ShootDetailsResponse.Loading as ShootDetailsResponse<HeadToHeadAddEndState>,
             )
 
-    private val h2hRepo = db.h2hRepo()
+    private val h2hRepo = repo.db.h2hRepo()
     val shootId = savedStateHandle.get<Int>(NavArgument.SHOOT_ID)!!
     private val editingMatchNumber = savedStateHandle.get<Int>(NavArgument.MATCH_NUMBER)
     private val editingSetNumber = savedStateHandle.get<Int>(NavArgument.SET_NUMBER)
@@ -370,6 +368,19 @@ class HeadToHeadAddEndViewModel @Inject constructor(
 
                 s.copy(selectRowTypesDialogState = null, set = s.set.copy(data = newSetData))
             }
+
+            DeleteClicked -> viewModelScope.launch {
+                val currentState = state.value.getData() ?: return@launch
+                val setNumber = currentState.editingSet?.setNumber ?: return@launch
+
+                repo.db.h2hRepo().delete(
+                        shootId = shootId,
+                        matchNumber = currentState.heat.matchNumber,
+                        setNumber = setNumber,
+                )
+            }
+
+            ResetClicked -> extraState.update { null }
         }
     }
 }
