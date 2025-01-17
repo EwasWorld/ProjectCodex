@@ -3,10 +3,10 @@ package eywa.projectcodex.instrumentedTests.robots.selectFace
 import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDialogTestTag
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
 
 @SelectFaceDsl
-class SelectFaceBaseRobot(val perform: PerformFnV2) {
+class SelectFaceBaseRobot(val perform: PerformFn) {
     fun checkFaces(expectedFacesString: String) {
         perform {
             singleNode {

@@ -4,10 +4,10 @@ import eywa.projectcodex.common.sharedUi.selectRoundFaceDialog.SelectRoundFaceDi
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.checkDialogIsDisplayed
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
 
 @SelectFaceDsl
-class SingleSelectFaceRobot internal constructor(val perform: PerformFnV2) {
+class SingleSelectFaceRobot internal constructor(val perform: PerformFn) {
     init {
         perform.checkDialogIsDisplayed("Select a face")
     }

@@ -14,14 +14,14 @@ class EmailScoreRobot(
         composeTestRule: ComposeTestRule<MainActivity>,
 ) : BaseRobot(composeTestRule, EmailScoresTestTag.Screen) {
     fun clickEmailField() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(EmailScoresTestTag.EmailTextField)
             +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun clickEmail(text: String) {
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(EmailScoresTestTag.SavedEmailDropdownItem)
             +CodexNodeMatcher.HasText(text)
@@ -30,25 +30,25 @@ class EmailScoreRobot(
     }
 
     fun checkEmailText(text: String) {
-        performV2 {
+        perform {
             checkInputtedText(EmailScoresTestTag.EmailTextField, text)
         }
     }
 
     fun typeEmail(text: String, append: Boolean = false) {
-        performV2 {
+        perform {
             setText(EmailScoresTestTag.EmailTextField, text, append)
         }
     }
 
     fun typeText(field: EmailScoresTextField, text: String, append: Boolean = false) {
-        performV2 {
+        perform {
             setText(EmailScoresTestTag.TextField(field), text, append)
         }
     }
 
     fun clickCheckbox(field: EmailScoresCheckbox) {
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(EmailScoresTestTag.Checkbox(field))
             +CodexNodeInteraction.PerformClick()
@@ -56,13 +56,13 @@ class EmailScoreRobot(
     }
 
     fun checkTextFieldText(field: EmailScoresTextField, text: String) {
-        performV2 {
+        perform {
             checkInputtedText(EmailScoresTestTag.TextField(field), text)
         }
     }
 
     fun clickSend() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(EmailScoresTestTag.SendButton)
             +CodexNodeInteraction.PerformClick()
         }
@@ -73,7 +73,7 @@ class EmailScoreRobot(
     }
 
     fun checkScoreText(text: String) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(EmailScoresTestTag.ScoreText)
             +CodexNodeInteraction.AssertTextEquals(text)
         }

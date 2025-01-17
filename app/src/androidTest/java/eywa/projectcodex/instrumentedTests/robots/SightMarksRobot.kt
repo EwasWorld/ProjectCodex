@@ -37,14 +37,14 @@ class SightMarksRobot(
     fun checkSightMarkDisplayed(sightMark: SightMark, isLeft: Boolean = false) {
         val text = sightMark.asText(isLeft)
 
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT)
             +CodexNodeMatcher.HasText(text)
             +CodexNodeInteraction.PerformScrollTo()
             +CodexNodeInteraction.AssertIsDisplayed()
         }
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(DIAGRAM_NOTE_ICON)
             +CodexNodeMatcher.HasAnySibling(
@@ -63,7 +63,7 @@ class SightMarksRobot(
             isLeft: Boolean = false,
             block: SightMarkDetailRobot.() -> Unit,
     ) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(SIGHT_MARK_TEXT)
             +CodexNodeMatcher.HasText(sightMark.asText(isLeft))
             useUnmergedTree()
@@ -77,14 +77,14 @@ class SightMarksRobot(
     }
 
     fun checkDiagramTickLabelRange(topTick: String, bottomTick: String) {
-        performV2Group {
+        performGroup {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(DIAGRAM_TICK_LABEL)
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.AssertTextEquals(topTick)
             }
         }
-        performV2Group {
+        performGroup {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(DIAGRAM_TICK_LABEL)
             toSingle(CodexNodeGroupToOne.Last) {

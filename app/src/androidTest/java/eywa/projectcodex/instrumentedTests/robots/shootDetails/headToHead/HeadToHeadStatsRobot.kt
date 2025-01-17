@@ -5,7 +5,7 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.stats.ui.HeadToHe
 import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.robots.RobotDslMarker
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
 import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.HandicapAndClassificationSectionRobot
@@ -13,7 +13,7 @@ import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.HandicapAn
 class HeadToHeadStatsRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, HeadToHeadStatsTestTag.SCREEN) {
-    private val facesRobot = SelectFaceBaseRobot(::performV2)
+    private val facesRobot = SelectFaceBaseRobot(::perform)
     val handicapAndClassificationRobot = HandicapAndClassificationSectionRobot(composeTestRule, screenTestTag)
 
     fun checkNoMatches() {
@@ -60,7 +60,7 @@ class HeadToHeadStatsRobot(
 
     @RobotDslMarker
     class NumbersBreakdownRobot(
-            private val performFn: PerformFnV2,
+            private val performFn: PerformFn,
             val handicapType: HandicapType,
             columns: List<Column>,
     ) {

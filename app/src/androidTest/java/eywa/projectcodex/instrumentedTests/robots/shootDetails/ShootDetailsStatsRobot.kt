@@ -15,7 +15,7 @@ import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.HandicapAn
 class ShootDetailsStatsRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, StatsTestTag.SCREEN) {
-    private val facesRobot = SelectFaceBaseRobot(::performV2)
+    private val facesRobot = SelectFaceBaseRobot(::perform)
     val handicapAndClassificationRobot = HandicapAndClassificationSectionRobot(composeTestRule, screenTestTag)
 
     fun checkFaces(expectedFacesString: String) {
@@ -31,7 +31,7 @@ class ShootDetailsStatsRobot(
     }
 
     fun clickEditRoundData(block: NewScoreRobot.() -> Unit) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.EDIT_SHOOT_INFO)
             +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.SHOOT_DETAIL_SECTION))
             +CodexNodeInteraction.PerformClick()
@@ -41,14 +41,14 @@ class ShootDetailsStatsRobot(
     }
 
     fun checkHits(hits: Int, totalShot: Int? = null) {
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(StatsTestTag.HITS_TEXT)
             +CodexNodeInteraction.AssertContentDescriptionEquals(
                     "$hits hits" + (" of $totalShot".takeIf { totalShot != null } ?: "")
             )
         }
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(StatsTestTag.HITS_OF_TEXT)
             if (totalShot != null) +CodexNodeInteraction.AssertIsDisplayed()
@@ -114,7 +114,7 @@ class ShootDetailsStatsRobot(
     }
 
     private fun clickPastRecordsTab(tab: String) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_DIALOG_TAB))
             +CodexNodeMatcher.HasTestTag(TabSwitcherTestTag.ITEM)
             +CodexNodeMatcher.HasText(tab)
@@ -123,7 +123,7 @@ class ShootDetailsStatsRobot(
     }
 
     fun checkPastRecordsDialogItems(items: List<PastRecordsDialogItem>) {
-        performV2Group {
+        performGroup {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(StatsTestTag.PAST_RECORDS_DIALOG_ITEM)
             +CodexNodeGroupInteraction.ForEach(
@@ -133,7 +133,7 @@ class ShootDetailsStatsRobot(
     }
 
     fun clickSwitchToSimpleOrAdvanced() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.SIMPLE_ADVANCED_SWITCH)
             +CodexNodeInteraction.PerformScrollTo()
             +CodexNodeInteraction.PerformClick()
@@ -141,7 +141,7 @@ class ShootDetailsStatsRobot(
     }
 
     fun checkNumbersBreakdownShown(isShown: Boolean = true) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.NUMBERS_BREAKDOWN)
             if (isShown) {
                 +CodexNodeInteraction.PerformScrollTo()
@@ -154,7 +154,7 @@ class ShootDetailsStatsRobot(
     }
 
     fun checkNumbersBreakdown(vararg distancesToHandicaps: Pair<Int?, Float>) {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.NUMBERS_BREAKDOWN_DISTANCE)
             +CodexNodeGroupInteraction.ForEach(
                     distancesToHandicaps.map {
@@ -163,7 +163,7 @@ class ShootDetailsStatsRobot(
                     }
             )
         }
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.NUMBERS_BREAKDOWN_HANDICAP)
             +CodexNodeGroupInteraction.ForEach(
                     distancesToHandicaps.map {
@@ -174,7 +174,7 @@ class ShootDetailsStatsRobot(
     }
 
     fun openEditArcherHandicaps(block: ArcherHandicapRobot.() -> Unit) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.ARCHER_HANDICAP_TEXT)
             +CodexNodeInteraction.PerformScrollTo()
             +CodexNodeInteraction.PerformClick()

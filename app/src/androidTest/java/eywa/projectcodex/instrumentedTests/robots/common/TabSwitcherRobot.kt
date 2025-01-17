@@ -20,7 +20,7 @@ interface TabSwitcherRobot : Robot {
     fun <T : BaseRobot> clickTab(tab: KClass<T>, block: T.() -> Unit) {
         require(tab.getGroup() == group) { "Tab not available from this robot" }
 
-        performV2 {
+        perform {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(TabSwitcherTestTag.ITEM)
                 +CodexNodeMatcher.HasText(tab.getTextLabel())

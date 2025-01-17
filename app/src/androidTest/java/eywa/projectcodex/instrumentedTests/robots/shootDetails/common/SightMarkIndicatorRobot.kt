@@ -17,7 +17,7 @@ class SightMarkIndicatorRobot(
 ) {
     fun checkSightMarkIndicator(distance: String, sightMark: String?) {
         scrollToComponent()
-        robot.performV2 {
+        robot.perform {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(AddEndTestTag.SIGHT_MARK)
                 +CodexNodeInteraction.AssertContentDescriptionEquals((sightMark ?: "None") + " $distance:")
@@ -27,13 +27,13 @@ class SightMarkIndicatorRobot(
 
     fun checkAllSightMarkOnly() {
         scrollToComponent(AddEndTestTag.EXPAND_SIGHT_MARK)
-        robot.performV2 {
+        robot.perform {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(AddEndTestTag.EXPAND_SIGHT_MARK)
                 +CodexNodeInteraction.AssertIsDisplayed()
             }
         }
-        robot.performV2 {
+        robot.perform {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(AddEndTestTag.SIGHT_MARK)
                 +CodexNodeInteraction.AssertDoesNotExist()
@@ -43,7 +43,7 @@ class SightMarkIndicatorRobot(
 
     fun clickAllSightMarks(block: SightMarksRobot.() -> Unit) {
         scrollToComponent(AddEndTestTag.EXPAND_SIGHT_MARK)
-        robot.performV2 {
+        robot.perform {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(AddEndTestTag.EXPAND_SIGHT_MARK)
                 +CodexNodeInteraction.PerformClick()
@@ -54,7 +54,7 @@ class SightMarkIndicatorRobot(
 
     fun clickEditSightMark(block: SightMarkDetailRobot.() -> Unit) {
         scrollToComponent()
-        robot.performV2 {
+        robot.perform {
             singleNode {
                 matchDataRowValue(AddEndTestTag.SIGHT_MARK)
                 +CodexNodeInteraction.PerformScrollTo()
@@ -77,7 +77,7 @@ class SightMarkIndicatorRobot(
             else -> throw UnsupportedOperationException()
         }
 
-        robot.performV2 {
+        robot.perform {
             singleNode {
                 useUnmergedTree()
                 +CodexNodeMatcher.HasTestTag(verticalScrollParent)

@@ -14,7 +14,7 @@ class ShootDetailsScorePadRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, ScorePadTestTag.SCREEN) {
     fun waitForLoad() {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL)
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.AssertIsDisplayed()
@@ -26,7 +26,7 @@ class ShootDetailsScorePadRobot(
      * Checks all cells including headers
      */
     fun checkScorePadData(list: List<ExpectedRowData>) {
-        performV2Group {
+        performGroup {
             val allCells = list
                     .drop(1)
                     .flatMap { it.asList() }
@@ -55,7 +55,7 @@ class ShootDetailsScorePadRobot(
      * @param endNumber 1-indexed
      */
     fun clickEnd(endNumber: Int) {
-        performV2Group {
+        performGroup {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ScorePadTestTag.CELL)
             +CodexNodeMatcher.IsNotCached
@@ -67,7 +67,7 @@ class ShootDetailsScorePadRobot(
     }
 
     private fun clickDropdownMenuItem(menuItem: String) {
-        performV2Group {
+        performGroup {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ScorePadTestTag.DROPDOWN_MENU_ITEM)
             +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))

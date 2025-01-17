@@ -27,8 +27,8 @@ import java.util.Calendar
 class NewScoreRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, NewScoreTestTag.SCREEN) {
-    val selectFaceBaseRobot = SelectFaceBaseRobot(::performV2)
-    val selectRoundsRobot = SelectRoundBaseRobot(::performV2)
+    val selectFaceBaseRobot = SelectFaceBaseRobot(::perform)
+    val selectRoundsRobot = SelectRoundBaseRobot(::perform)
 
     init {
         waitForDatabaseUpdate()
@@ -89,14 +89,14 @@ class NewScoreRobot(
     }
 
     fun checkType(expectedType: Type) {
-        performV2Single {
+        performSingle {
             matchDataRowValue(NewScoreTestTag.TYPE_SWITCH)
             +CodexNodeInteraction.AssertTextEquals(expectedType.text)
         }
     }
 
     fun clickType(expectedType: Type) {
-        performV2Single {
+        performSingle {
             matchDataRowValue(NewScoreTestTag.TYPE_SWITCH)
             +CodexNodeInteraction.PerformScrollTo().waitFor()
             +CodexNodeInteraction.PerformClick()
@@ -105,7 +105,7 @@ class NewScoreRobot(
     }
 
     fun checkIsH2hSetPoints(isSetPoints: Boolean) {
-        performV2Single {
+        performSingle {
             matchDataRowValue(NewScoreTestTag.H2H_STYLE_SWITCH)
             +CodexNodeInteraction.PerformScrollTo().waitFor()
             +CodexNodeInteraction.AssertTextEquals(
@@ -115,7 +115,7 @@ class NewScoreRobot(
     }
 
     fun clickH2hSetPoints(expectedIsSetPoints: Boolean) {
-        performV2Single {
+        performSingle {
             matchDataRowValue(NewScoreTestTag.H2H_STYLE_SWITCH)
             +CodexNodeInteraction.PerformScrollTo().waitFor()
             +CodexNodeInteraction.PerformClick()
@@ -126,7 +126,7 @@ class NewScoreRobot(
     }
 
     fun checkIsH2hStandardFormat(isStandardFormat: Boolean) {
-        performV2Single {
+        performSingle {
             matchDataRowValue(NewScoreTestTag.H2H_FORMAT_SWITCH)
             +CodexNodeInteraction.PerformScrollTo().waitFor()
             +CodexNodeInteraction.AssertTextEquals(
@@ -136,7 +136,7 @@ class NewScoreRobot(
     }
 
     fun clickH2hStandardFormat(expectedIsStandardFormat: Boolean) {
-        performV2Single {
+        performSingle {
             matchDataRowValue(NewScoreTestTag.H2H_FORMAT_SWITCH)
             +CodexNodeInteraction.PerformScrollTo().waitFor()
             +CodexNodeInteraction.AssertTextEquals(

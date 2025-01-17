@@ -12,7 +12,7 @@ abstract class ArrowInputsRobot(
         screenTestTag: CodexTestTag,
 ) : ShootDetailsRobot(composeTestRule, screenTestTag) {
     fun checkScoreButtonNotDisplayed(text: String) {
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON)
             +CodexNodeMatcher.HasText(text)
@@ -21,12 +21,12 @@ abstract class ArrowInputsRobot(
     }
 
     fun clickScoreButton(text: String) {
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON_GROUP)
             +CodexNodeInteraction.PerformScrollTo()
         }
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.ARROW_SCORE_BUTTON)
             +CodexNodeMatcher.HasContentDescription("$text arrow input")
@@ -49,7 +49,7 @@ abstract class ArrowInputsRobot(
     }
 
     fun checkInputtedArrows(expectedArrows: List<String>, endSize: Int = 6) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.END_ARROWS_TEXT)
             +CodexNodeInteraction.AssertTextEquals(
                     expectedArrows.plus(List(endSize - expectedArrows.size) { "." }).joinToString("-")
@@ -70,7 +70,7 @@ abstract class ArrowInputsRobot(
     }
 
     protected fun clickArrowInputsSubmit() {
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ArrowInputsTestTag.SUBMIT_BUTTON)
             +CodexNodeInteraction.PerformScrollTo()

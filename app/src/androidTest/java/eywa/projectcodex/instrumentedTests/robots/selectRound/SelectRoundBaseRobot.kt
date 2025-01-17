@@ -5,10 +5,10 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDataRow
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchDataRowValue
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
 
 @SelectRoundDsl
-class SelectRoundBaseRobot(val perform: PerformFnV2) {
+class SelectRoundBaseRobot(val perform: PerformFn) {
     fun checkNoDialogShown() {
         perform {
             singleNode {

@@ -25,7 +25,7 @@ class HeadToHeadAddHeatRobot(
             clickDialogCancel("Match:")
         }
         else {
-            performV2Single {
+            performSingle {
                 +CodexNodeMatcher.HasTestTag(HeadToHeadAddHeatTestTag.HEAT_SELECTOR_DIALOG_ITEM)
                 +CodexNodeMatcher.HasText(heat)
                 +CodexNodeInteraction.PerformClick().waitFor()

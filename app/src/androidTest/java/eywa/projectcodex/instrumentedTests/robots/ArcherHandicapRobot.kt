@@ -19,7 +19,7 @@ class ArcherHandicapRobot(
         get() = TabSwitcherGroup.ARCHER_INFO
 
     fun checkNoHandicapsMessageShown(isShown: Boolean = true) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.NO_HANDICAPS_MESSAGE)
             if (isShown) +CodexNodeInteraction.AssertIsDisplayed().waitFor()
             else +CodexNodeInteraction.AssertDoesNotExist().waitFor()
@@ -30,7 +30,7 @@ class ArcherHandicapRobot(
      * Check the "Past:" header appears above the given [rowIndex]
      */
     fun checkPastHeader(rowIndex: Int) {
-        performV2Group {
+        performGroup {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ROW)
             toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
@@ -47,7 +47,7 @@ class ArcherHandicapRobot(
     }
 
     fun checkHandicap(index: Int, date: Calendar, handicap: Int) {
-        performV2Group {
+        performGroup {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ROW_TIME)
             toSingle(CodexNodeGroupToOne.Index(index)) {
@@ -55,14 +55,14 @@ class ArcherHandicapRobot(
                 +CodexNodeInteraction.AssertTextEquals(DateTimeFormat.TIME_24_HOUR.format(date))
             }
         }
-        performV2Group {
+        performGroup {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ROW_DATE)
             toSingle(CodexNodeGroupToOne.Index(index)) {
                 +CodexNodeInteraction.AssertTextEquals(DateTimeFormat.SHORT_DATE.format(date))
             }
         }
-        performV2Group {
+        performGroup {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ROW_HANDICAP)
             toSingle(CodexNodeGroupToOne.Index(index)) {
@@ -72,11 +72,11 @@ class ArcherHandicapRobot(
     }
 
     fun clickAdd() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ADD_BUTTON)
             +CodexNodeInteraction.PerformClick()
         }
-        performV2Single {
+        performSingle {
             matchTextBox(ArcherHandicapsTestTag.ADD_HANDICAP_VALUE)
             +CodexNodeInteraction.AssertIsDisplayed()
         }
@@ -87,7 +87,7 @@ class ArcherHandicapRobot(
     }
 
     fun setAddHandicap(handicap: Int, expectedErrorText: String? = null) {
-        performV2Single {
+        performSingle {
             matchTextBox(ArcherHandicapsTestTag.ADD_HANDICAP_VALUE)
             +CodexNodeInteraction.SetText(handicap.toString())
             +CodexNodeInteraction.AssertHasError(expectedErrorText)
@@ -95,18 +95,18 @@ class ArcherHandicapRobot(
     }
 
     fun clickAddSubmit() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ADD_HANDICAP_SUBMIT)
             +CodexNodeInteraction.PerformClick()
         }
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ADD_HANDICAP_VALUE)
             +CodexNodeInteraction.AssertDoesNotExist()
         }
     }
 
     fun clickRow(index: Int) {
-        performV2Group {
+        performGroup {
             CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.ROW_LIST_ITEM)
             toSingle(CodexNodeGroupToOne.Index(index)) {
                 +CodexNodeInteraction.PerformClick()
@@ -115,14 +115,14 @@ class ArcherHandicapRobot(
     }
 
     fun checkDeleteShown() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.DELETE_BUTTON)
             +CodexNodeInteraction.AssertIsDisplayed()
         }
     }
 
     fun clickDelete() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ArcherHandicapsTestTag.DELETE_BUTTON)
             +CodexNodeInteraction.PerformClick()
         }

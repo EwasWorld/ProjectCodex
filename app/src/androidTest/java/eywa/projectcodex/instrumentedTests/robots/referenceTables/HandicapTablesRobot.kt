@@ -22,11 +22,11 @@ class HandicapTablesRobot(
     override val group: TabSwitcherGroup
         get() = TabSwitcherGroup.REFERENCES
 
-    val selectFaceBaseRobot = SelectFaceBaseRobot(::performV2)
-    val selectRoundsRobot = SelectRoundBaseRobot(::performV2)
+    val selectFaceBaseRobot = SelectFaceBaseRobot(::perform)
+    val selectRoundsRobot = SelectRoundBaseRobot(::perform)
 
     fun scrollTo(index: Int) {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasParent(CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.SCREEN))
             toSingle(CodexNodeGroupToOne.Index(index)) {
                 +CodexNodeInteraction.PerformScrollTo()
@@ -35,20 +35,20 @@ class HandicapTablesRobot(
     }
 
     fun clickHandicapSystem() {
-        performV2 {
+        perform {
             clickDataRow(HandicapTablesTestTag.SYSTEM_SELECTOR)
         }
     }
 
     fun clickInputMethod() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.INPUT_SELECTOR)
             +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun checkInputMethod(isHandicap: Boolean) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.INPUT_SELECTOR)
             +CodexNodeInteraction.AssertTextEquals(if (isHandicap) "Handicap:" else "Score:")
         }
@@ -59,13 +59,13 @@ class HandicapTablesRobot(
     }
 
     fun checkInputText(text: String) {
-        performV2 {
+        perform {
             checkInputtedText(HandicapTablesTestTag.INPUT_TEXT, text)
         }
     }
 
     fun checkNoDataInTable() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_EMPTY_TEXT)
             +CodexNodeInteraction.AssertIsDisplayed()
         }
@@ -78,22 +78,22 @@ class HandicapTablesRobot(
                         CodexNodeInteraction.AssertTextEquals(value.toString()),
                 )
 
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_HANDICAP)
             +CodexNodeGroupInteraction.ForEach(data.map { getChecks(it.handicap, "Handicap") })
         }
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_SCORE)
             +CodexNodeGroupInteraction.ForEach(data.map { getChecks(it.score, "Score") })
         }
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_ALLOWANCE)
             +CodexNodeGroupInteraction.ForEach(data.map { getChecks(it.allowance, "Allowance") })
         }
     }
 
     fun clickToggleSimple() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.SIMPLE_TOGGLE)
             +CodexNodeInteraction.PerformScrollTo()
             +CodexNodeInteraction.PerformClick()
@@ -101,14 +101,14 @@ class HandicapTablesRobot(
     }
 
     fun checkIsSimpleView() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_AVERAGE_END)
             +CodexNodeInteraction.AssertDoesNotExist()
         }
     }
 
     fun checkIsAdvancedView() {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.TABLE_AVERAGE_END)
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.AssertIsDisplayed()
@@ -117,7 +117,7 @@ class HandicapTablesRobot(
     }
 
     fun checkDetailedBreakdownVisible() {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.DETAIL_TABLE_DISTANCE)
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.AssertIsDisplayed()
@@ -126,7 +126,7 @@ class HandicapTablesRobot(
     }
 
     fun checkDetailedBreakdownHidden() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HandicapTablesTestTag.DETAIL_TABLE_DISTANCE)
             +CodexNodeInteraction.AssertDoesNotExist()
         }

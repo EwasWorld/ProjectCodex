@@ -36,7 +36,7 @@ class ShootDetailsAddCountRobot(
     }
 
     fun checkRemainingArrows(currentDistance: String, laterDistances: String?) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
             +CodexNodeInteraction.AssertTextEquals(currentDistance).waitFor()
         }
@@ -62,7 +62,7 @@ class ShootDetailsAddCountRobot(
     }
 
     fun checkInput(amount: Int, error: String? = null) {
-        performV2Single {
+        performSingle {
             matchTextBox(AddArrowCountTestTag.ADD_COUNT_INPUT)
             +CodexNodeInteraction.AssertTextEquals(amount.toString())
             +CodexNodeInteraction.AssertHasError(error)
@@ -71,13 +71,13 @@ class ShootDetailsAddCountRobot(
     }
 
     fun setInputAmount(amount: Int, error: String? = null) {
-        performV2Single {
+        performSingle {
             matchTextBox(AddArrowCountTestTag.ADD_COUNT_INPUT)
             +CodexNodeInteraction.SetText(amount.toString())
             +CodexNodeInteraction.AssertHasError(error)
         }
         Espresso.closeSoftKeyboard()
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(AddArrowCountTestTag.ADD_COUNT_INPUT_ERROR)
             if (error == null) {
                 +CodexNodeInteraction.AssertDoesNotExist()

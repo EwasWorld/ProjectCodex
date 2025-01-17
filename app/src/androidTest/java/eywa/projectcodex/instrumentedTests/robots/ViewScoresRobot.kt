@@ -21,7 +21,7 @@ class ViewScoresRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : BaseRobot(composeTestRule, ViewScoresTestTag.SCREEN) {
     fun waitForLoad() {
-        performV2 {
+        perform {
             allNodes {
                 useUnmergedTree()
                 +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, true)
@@ -41,28 +41,28 @@ class ViewScoresRobot(
      * Wait for the number of rows on the screen to be [rowCount]
      */
     fun waitForRowCount(rowCount: Int) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LAZY_COLUMN)
             +CodexNodeInteraction.PerformScrollToIndex(rowCount - 1).waitFor()
         }
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowCount - 1))
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowCount))
             +CodexNodeInteraction.AssertDoesNotExist().waitFor()
         }
         // If checking doesn't exist waited for a list change,
         // double check it didn't result in too many nodes being removed
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowCount - 1))
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }
 
     fun scrollToRow(rowIndex: Int) {
-        performV2 {
+        perform {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LAZY_COLUMN)
                 +CodexNodeInteraction.PerformScrollToIndex(rowIndex)
@@ -72,7 +72,7 @@ class ViewScoresRobot(
 
     private fun performOnRowItem(rowIndex: Int, action: CodexNodeInteraction) {
         scrollToRow(rowIndex)
-        performV2 {
+        perform {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex))
                 +CodexNodeInteraction.PerformScrollTo()
@@ -98,7 +98,7 @@ class ViewScoresRobot(
     fun longClickRow(rowIndex: Int) {
         performOnRowItem(rowIndex, CodexNodeInteraction.PerformLongClick())
 
-        performV2 {
+        perform {
             allNodes {
                 useUnmergedTree()
                 +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
@@ -110,7 +110,7 @@ class ViewScoresRobot(
     }
 
     fun clickDropdownMenuItem(menuItem: String) {
-        performV2 {
+        perform {
             singleNode {
                 useUnmergedTree()
                 +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
@@ -147,7 +147,7 @@ class ViewScoresRobot(
 
     fun checkDropdownMenuItemNotThere(menuItem: String) {
         // Check at least one menu item is showing
-        performV2 {
+        perform {
             allNodes {
                 useUnmergedTree()
                 +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
@@ -157,7 +157,7 @@ class ViewScoresRobot(
             }
         }
         // Check that the intended menu item is not showing
-        performV2 {
+        perform {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.DROPDOWN_MENU_ITEM)
                 +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
@@ -168,7 +168,7 @@ class ViewScoresRobot(
 
     fun chooseConvertDialogOption(convertType: String) {
         checkDialogIsDisplayed(CONVERT_SCORE_DIALOG_TITLE)
-        performV2 {
+        perform {
             allNodes {
                 +CodexNodeMatcher.HasTestTag(RadioButtonDialogTestTag.RADIO_BUTTON)
                 toSingle(CodexNodeGroupToOne.Filter(CodexNodeMatcher.HasText(convertType))) {
@@ -209,12 +209,12 @@ class ViewScoresRobot(
             text: String?,
     ) {
         if (text != null) {
-            performV2Single {
+            performSingle {
                 +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LAZY_COLUMN)
                 +CodexNodeInteraction.PerformScrollToIndex(rowIndex)
             }
         }
-        performV2 {
+        perform {
             singleNode {
                 useUnmergedTree()
                 +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex)))
@@ -239,14 +239,14 @@ class ViewScoresRobot(
             waitForTextInRow(rowIndex, ViewScoresRowTestTag.FIRST_NAME, roundName)
 
     fun waitForRowNotExist(rowIndex: Int) {
-        performV2 {
+        perform {
             singleNode {
                 useUnmergedTree()
                 +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex - 1))
                 scrollToParentIndex(rowIndex - 1)
             }
         }
-        performV2 {
+        perform {
             singleNode {
                 useUnmergedTree()
                 +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex))
@@ -256,7 +256,7 @@ class ViewScoresRobot(
     }
 
     fun checkContentDescription(rowIndex: Int, vararg description: String) {
-        performV2 {
+        perform {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(viewScoresListItemTestTag(rowIndex))
                 +CodexNodeInteraction.AssertContentDescriptionEquals(description.toList()).waitFor()
@@ -300,7 +300,7 @@ class ViewScoresRobot(
     }
 
     fun checkMultiSelectMode(isInMultiSelectMode: Boolean = true) {
-        performV2 {
+        perform {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(
                         if (isInMultiSelectMode) ViewScoresTestTag.MULTI_SELECT_CANCEL
@@ -312,7 +312,7 @@ class ViewScoresRobot(
     }
 
     fun checkEntriesNotSelectable() {
-        performV2 {
+        perform {
             allNodes {
                 +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM)
                 +CodexNodeGroupInteraction.AssertAll(CodexNodeMatcher.IsNotSelectable)
@@ -325,7 +325,7 @@ class ViewScoresRobot(
      * and that [rowIndexes] are selected and all other rows are not selected
      */
     fun checkEntriesSelected(rowIndexes: Iterable<Int>, totalEntries: Int) {
-        performV2 {
+        perform {
             allNodes {
                 +CodexNodeMatcher.HasTestTag(ViewScoresTestTag.LIST_ITEM, true)
                 +CodexNodeGroupInteraction.ForEach(
@@ -341,17 +341,17 @@ class ViewScoresRobot(
     }
 
     fun clickFilters(block: ViewScoresFiltersRobot.() -> Unit) {
-        performV2 {
+        perform {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(ViewScoresFiltersTestTag.COLLAPSED_BUTTON)
                 +CodexNodeInteraction.PerformClick()
             }
         }
-        ViewScoresFiltersRobot(::performV2, ::performDatePickerDateSelection).apply(block)
+        ViewScoresFiltersRobot(::perform, ::performDatePickerDateSelection).apply(block)
     }
 
     fun checkFiltersCount(count: Int) {
-        performV2 {
+        perform {
             singleNode {
                 useUnmergedTree()
                 +CodexNodeMatcher.HasTestTag(ViewScoresFiltersTestTag.COLLAPSED_FILTER_COUNT)

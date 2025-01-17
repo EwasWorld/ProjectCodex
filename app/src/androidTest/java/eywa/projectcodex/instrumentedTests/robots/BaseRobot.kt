@@ -24,8 +24,8 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslGroupNode
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslMarker
+import eywa.projectcodex.instrumentedTests.dsl.TestActionDslRoot
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslSingleNode
-import eywa.projectcodex.instrumentedTests.dsl.TestActionDslV2
 import eywa.projectcodex.instrumentedTests.robots.common.Robot
 import java.util.Calendar
 import kotlin.reflect.KClass
@@ -51,31 +51,23 @@ abstract class BaseRobot(
      * Checks that the node with the tag [screenTestTag] is shown,
      */
     fun checkScreenIsShown(): Boolean {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(this@BaseRobot.screenTestTag)
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
         return true
     }
 
-    override fun performV2(config: TestActionDslV2.() -> Unit) {
-        TestActionDslV2().apply(config).perform(composeTestRule)
+    override fun perform(config: TestActionDslRoot.() -> Unit) {
+        TestActionDslRoot().apply(config).perform(composeTestRule)
     }
 
-    fun performV2Single(config: TestActionDslSingleNode.First.() -> Unit) {
-        TestActionDslV2().apply {
-            singleNode {
-                config()
-            }
-        }.perform(composeTestRule)
+    fun performSingle(config: TestActionDslSingleNode.First.() -> Unit) {
+        perform { singleNode { config() } }
     }
 
-    fun performV2Group(config: TestActionDslGroupNode.First.() -> Unit) {
-        TestActionDslV2().apply {
-            allNodes {
-                config()
-            }
-        }.perform(composeTestRule)
+    fun performGroup(config: TestActionDslGroupNode.First.() -> Unit) {
+        perform { allNodes { config() } }
     }
 
     fun setDateAndTime(calendar: Calendar) {
@@ -103,7 +95,7 @@ abstract class BaseRobot(
     }
 
     fun clickElement(testTag: CodexTestTag, useUnmergedTree: Boolean = false, scrollTo: Boolean = false) {
-        performV2Single {
+        performSingle {
             useUnmergedTree(useUnmergedTree)
             +CodexNodeMatcher.HasTestTag(testTag)
             if (scrollTo) {
@@ -114,7 +106,7 @@ abstract class BaseRobot(
     }
 
     fun checkElementText(testTag: CodexTestTag, text: String, useUnmergedTree: Boolean = false) {
-        performV2 {
+        perform {
             singleNode {
                 useUnmergedTree(useUnmergedTree)
                 +CodexNodeMatcher.HasTestTag(testTag)
@@ -146,7 +138,7 @@ abstract class BaseRobot(
     }
 
     fun checkElementIsDisplayed(testTag: CodexTestTag, useUnmergedTree: Boolean = false) {
-        performV2Single {
+        performSingle {
             useUnmergedTree(useUnmergedTree)
             +CodexNodeMatcher.HasTestTag(testTag)
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
@@ -154,7 +146,7 @@ abstract class BaseRobot(
     }
 
     fun checkElementDoesNotExist(testTag: CodexTestTag, useUnmergedTree: Boolean = false) {
-        performV2Single {
+        performSingle {
             useUnmergedTree(useUnmergedTree)
             +CodexNodeMatcher.HasTestTag(testTag)
             +CodexNodeInteraction.AssertDoesNotExist()
@@ -162,7 +154,7 @@ abstract class BaseRobot(
     }
 
     fun checkCheckboxState(testTag: CodexTestTag, isChecked: Boolean, useUnmergedTree: Boolean = false) {
-        performV2Single {
+        performSingle {
             useUnmergedTree(useUnmergedTree)
             +CodexNodeMatcher.HasTestTag(testTag)
             +CodexNodeInteraction.AssertIsSelected(isChecked).waitFor()
@@ -174,14 +166,14 @@ abstract class BaseRobot(
     }
 
     fun checkDataRowContentDescription(testTag: CodexTestTag, text: String) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(testTag)
             +CodexNodeInteraction.AssertContentDescriptionEquals(text).waitFor()
         }
     }
 
     fun checkDataRowValueText(testTag: CodexTestTag, text: String) {
-        performV2Group {
+        performGroup {
             useUnmergedTree()
             +CodexNodeMatcher.HasAnyAncestor(CodexNodeMatcher.HasTestTag(testTag))
             toSingle(CodexNodeGroupToOne.Index(1)) {
@@ -191,27 +183,27 @@ abstract class BaseRobot(
     }
 
     fun clickDataRowValue(testTag: CodexTestTag) {
-        performV2Single {
+        performSingle {
             matchDataRowValue(testTag)
             +CodexNodeInteraction.PerformClick()
         }
     }
 
     fun setText(testTag: CodexTestTag, text: String, append: Boolean = false) {
-        performV2 {
+        perform {
             setText(testTag, text, append)
         }
     }
 
     fun checkInputtedText(testTag: CodexTestTag, text: String) {
-        performV2 {
+        perform {
             checkInputtedText(testTag, text)
         }
     }
 
     fun setChip(testTag: CodexTestTag, value: Boolean, currentValue: Boolean) {
         if (value == currentValue) return
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(testTag)
             +CodexNodeInteraction.PerformScrollTo()
@@ -220,7 +212,7 @@ abstract class BaseRobot(
     }
 
     fun checkDialogIsDisplayed(titleText: String) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(SimpleDialogTestTag.TITLE)
             +CodexNodeMatcher.HasText(titleText)
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
@@ -279,7 +271,7 @@ abstract class BaseRobot(
             clickElement(ComposeHelpShowcaseTestTag.CANVAS)
         }
 
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ComposeHelpShowcaseTestTag.CLOSE_BUTTON)
             +CodexNodeInteraction.AssertDoesNotExist().waitFor()
         }

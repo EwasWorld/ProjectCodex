@@ -2,14 +2,14 @@ package eywa.projectcodex.instrumentedTests.dsl
 
 import eywa.projectcodex.common.sharedUi.SimpleDialogTestTag
 import eywa.projectcodex.common.utils.CodexTestTag
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
 
 object CodexDefaultActions {
-    fun PerformFnV2.clickDialogOk() = clickDialog(SimpleDialogTestTag.POSITIVE_BUTTON)
+    fun PerformFn.clickDialogOk() = clickDialog(SimpleDialogTestTag.POSITIVE_BUTTON)
 
-    fun PerformFnV2.clickDialogCancel() = clickDialog(SimpleDialogTestTag.NEGATIVE_BUTTON)
+    fun PerformFn.clickDialogCancel() = clickDialog(SimpleDialogTestTag.NEGATIVE_BUTTON)
 
-    private fun PerformFnV2.clickDialog(buttonTag: CodexTestTag) {
+    private fun PerformFn.clickDialog(buttonTag: CodexTestTag) {
         this {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(buttonTag)
@@ -18,7 +18,7 @@ object CodexDefaultActions {
         }
     }
 
-    fun PerformFnV2.checkDialogIsDisplayed(titleText: String) {
+    fun PerformFn.checkDialogIsDisplayed(titleText: String) {
         this {
             singleNode {
                 +CodexNodeMatcher.HasTestTag(SimpleDialogTestTag.TITLE)
@@ -46,14 +46,14 @@ object CodexDefaultActions {
         +CodexNodeMatcher.HasClickAction
     }
 
-    fun TestActionDslV2.clickDataRow(testTag: CodexTestTag) {
+    fun TestActionDslRoot.clickDataRow(testTag: CodexTestTag) {
         singleNode {
             matchDataRowValue(testTag)
             +CodexNodeInteraction.PerformClick()
         }
     }
 
-    fun TestActionDslV2.clickDataRow(testTag: CodexTestTag, expectedText: String?) {
+    fun TestActionDslRoot.clickDataRow(testTag: CodexTestTag, expectedText: String?) {
         singleNode {
             matchDataRowValue(testTag)
             +CodexNodeInteraction.PerformClick()
@@ -61,7 +61,7 @@ object CodexDefaultActions {
         }
     }
 
-    fun TestActionDslV2.setText(testTag: CodexTestTag, text: String, append: Boolean = false) {
+    fun TestActionDslRoot.setText(testTag: CodexTestTag, text: String, append: Boolean = false) {
         singleNode {
             matchTextBox(testTag)
             +CodexNodeInteraction.SetText(text, append)
@@ -70,7 +70,7 @@ object CodexDefaultActions {
         }
     }
 
-    fun TestActionDslV2.checkInputtedText(testTag: CodexTestTag, text: String) {
+    fun TestActionDslRoot.checkInputtedText(testTag: CodexTestTag, text: String) {
         singleNode {
             matchTextBox(testTag)
             +CodexNodeInteraction.AssertTextEquals(text)

@@ -38,7 +38,7 @@ class HandicapAndClassificationSectionRobot(
         val expectedValue = classification?.classificationString() ?: "No classification"
         checkElementText(StatsTestTag.CLASSIFICATION, expectedValue, true)
 
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION)
             +CodexNodeInteraction.AssertContentDescriptionEquals(
@@ -56,7 +56,7 @@ class HandicapAndClassificationSectionRobot(
 
     fun openHandicapTablesInFull(block: HandicapTablesRobot.() -> Unit) {
         try {
-            performV2Single {
+            performSingle {
                 +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TABLES)
                 +CodexNodeInteraction.PerformScrollTo()
                 +CodexNodeInteraction.AssertIsDisplayed()
@@ -67,11 +67,11 @@ class HandicapAndClassificationSectionRobot(
             // Component is probably hidden by the bottom nav bar
             // Scroll the component above to bring it into view and try again to click
             if (e.message?.contains("The component is not displayed") == true) {
-                performV2Single {
+                performSingle {
                     +CodexNodeMatcher.HasTestTag(StatsTestTag.HSG_SECTION)
                     +CodexNodeInteraction.Swipe(CodexNodeInteraction.Swipe.Direction.UP)
                 }
-                performV2Single {
+                performSingle {
                     +CodexNodeMatcher.HasTestTag(StatsTestTag.HANDICAP_TABLES)
                     +CodexNodeInteraction.PerformScrollTo()
                     +CodexNodeInteraction.AssertIsDisplayed()
@@ -85,7 +85,7 @@ class HandicapAndClassificationSectionRobot(
     }
 
     fun openClassificationTablesInFull(block: ClassificationTablesRobot.() -> Unit) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_TABLES)
             +CodexNodeInteraction.PerformScrollTo()
             +CodexNodeInteraction.PerformClick()
@@ -94,7 +94,7 @@ class HandicapAndClassificationSectionRobot(
     }
 
     fun openEditArcherInfo(block: ArcherInfoRobot.() -> Unit) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(StatsTestTag.CLASSIFICATION_CATEGORY)
             +CodexNodeInteraction.PerformScrollTo()
             +CodexNodeInteraction.PerformClick()

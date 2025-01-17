@@ -90,13 +90,13 @@ class HeadToHeadScorePadRobot(
     }
 
     fun openEditEnd(match: Int, setNumber: Int, block: HeadToHeadAddEndRobot.() -> Unit) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadTestTag.SCREEN)
             +CodexNodeInteraction.PerformScrollToNode(
                     listOf(CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(match, setNumber)))
             )
         }
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(match, setNumber))
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.PerformClick()
@@ -120,7 +120,7 @@ class GridDsl(
     ) {
         robot.checkDataRowValueText(HeadToHeadGridColumnTestTag.SET_RESULT.get(match, setNumber), result.asString())
         robot.checkDataRowValueText(HeadToHeadGridColumnTestTag.SET_RUNNING_TOTAL.get(match, setNumber), runningTotal)
-        robot.performV2Group {
+        robot.performGroup {
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(match, setNumber))
             +CodexNodeMatcher.IsNotCached
             +CodexNodeGroupInteraction.AssertCount(rowCount).waitFor()
@@ -140,7 +140,7 @@ class GridSetDsl(
             testTag: HeadToHeadGridColumnTestTag,
             config: TestActionDslSingleNode.() -> Unit
     ) {
-        robot.performV2Group {
+        robot.performGroup {
             +CodexNodeMatcher.HasTestTag(testTag.get(match, setNumber))
             +CodexNodeMatcher.IsNotCached
             toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
@@ -151,7 +151,7 @@ class GridSetDsl(
 
     private fun checkCell(rowIndex: Int, testTag: HeadToHeadGridColumnTestTag, content: CellValue) {
         if (content is CellValue.NoColumn) {
-            robot.performV2Single {
+            robot.performSingle {
                 +CodexNodeMatcher.HasTestTag(testTag.get(match, setNumber))
                 +CodexNodeInteraction.AssertDoesNotExist()
             }
@@ -176,7 +176,7 @@ class GridSetDsl(
             +CodexNodeInteraction.AssertTextEquals(type)
         }
 
-        robot.performV2Group {
+        robot.performGroup {
             val matcher = CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(match, setNumber))
             if (isEndTotalEditable) +CodexNodeMatcher.HasAnyAncestor(matcher) else +matcher
             toSingle(CodexNodeGroupToOne.Index(rowIndex)) {

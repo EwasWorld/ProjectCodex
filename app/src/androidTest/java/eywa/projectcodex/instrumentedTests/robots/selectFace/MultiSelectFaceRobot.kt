@@ -6,10 +6,10 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDialogOk
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
 
 @SelectFaceDsl
-class MultiSelectFaceRobot internal constructor(val perform: PerformFnV2) {
+class MultiSelectFaceRobot internal constructor(val perform: PerformFn) {
     init {
         perform.checkDialogIsDisplayed("Select faces")
     }

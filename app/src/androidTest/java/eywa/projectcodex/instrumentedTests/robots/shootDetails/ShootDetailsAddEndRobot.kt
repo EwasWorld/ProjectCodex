@@ -13,7 +13,7 @@ class ShootDetailsAddEndRobot(
     val sightMarkIndicatorRobot = SightMarkIndicatorRobot(this, AddEndTestTag.SCREEN)
 
     fun waitForRemainingArrows() {
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
@@ -21,11 +21,11 @@ class ShootDetailsAddEndRobot(
     }
 
     fun checkIndicatorTable(score: Int, arrowCount: Int) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.ROUND_SCORE)
             +CodexNodeInteraction.AssertTextEquals(score.toString())
         }
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.ROUND_ARROWS)
             +CodexNodeInteraction.AssertTextEquals(arrowCount.toString())
@@ -33,12 +33,12 @@ class ShootDetailsAddEndRobot(
     }
 
     fun checkRemainingArrows(currentDistance: String, laterDistances: String) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_CURRENT)
             +CodexNodeInteraction.AssertTextEquals(currentDistance).waitFor()
         }
 
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(AddEndTestTag.REMAINING_ARROWS_LATER)
 
             if (laterDistances.isNotBlank()) {

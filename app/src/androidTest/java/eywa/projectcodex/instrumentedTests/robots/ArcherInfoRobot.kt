@@ -20,7 +20,7 @@ class ArcherInfoRobot(
     }
 
     fun checkGenderIsGent(isGent: Boolean = true) {
-        performV2Single {
+        performSingle {
             matchDataRowValue(ArcherInfoTestTag.GENDER_SELECTOR)
             +CodexNodeInteraction.AssertTextEquals(if (isGent) "Gentleman" else "Lady")
         }
@@ -28,7 +28,7 @@ class ArcherInfoRobot(
 
     fun setAge(value: String) {
         clickElement(ArcherInfoTestTag.AGE_SELECTOR)
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ArcherInfoTestTag.SELECTOR_DIALOG_ITEM)
             +CodexNodeMatcher.HasText(value)
             +CodexNodeInteraction.PerformClick()
@@ -37,7 +37,7 @@ class ArcherInfoRobot(
 
     fun setBowStyle(value: String) {
         clickElement(ArcherInfoTestTag.BOW_SELECTOR)
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ArcherInfoTestTag.SELECTOR_DIALOG_ITEM)
             +CodexNodeMatcher.HasText(value)
             +CodexNodeInteraction.PerformClick()

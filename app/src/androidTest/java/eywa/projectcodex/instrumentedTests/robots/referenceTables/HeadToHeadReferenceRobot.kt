@@ -18,38 +18,38 @@ class HeadToHeadReferenceRobot(
         get() = TabSwitcherGroup.REFERENCES
 
     fun setArcherARank(rank: Int) {
-        performV2 {
+        perform {
             setText(HeadToHeadReferenceTestTag.ARCHER_RANK, rank.toString())
         }
     }
 
     fun setArcherBRank(rank: Int) {
-        performV2 {
+        perform {
             setText(HeadToHeadReferenceTestTag.OPPONENT_RANK, rank.toString())
         }
     }
 
     fun setTotalArchers(rank: Int) {
-        performV2 {
+        perform {
             setText(HeadToHeadReferenceTestTag.TOTAL_ARCHERS, rank.toString())
         }
     }
 
     fun checkMeetInString(rankA: Int, rankB: Int, round: String) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HeadToHeadReferenceTestTag.MEET_IN)
             +CodexNodeInteraction.AssertTextEquals("Rank $rankA will face rank $rankB in the $round round")
         }
     }
 
     fun checkTable(items: Map<Int, List<Int?>>) {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(HeadToHeadReferenceTestTag.TABLE_RANK)
             +CodexNodeGroupInteraction.ForEach(
                     items.keys.map { listOf(CodexNodeInteraction.AssertTextEquals(it.toString())) }
             )
         }
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(HeadToHeadReferenceTestTag.TABLE_ROUND)
             val values = items.values.flatten()
             +CodexNodeGroupInteraction.ForEach(

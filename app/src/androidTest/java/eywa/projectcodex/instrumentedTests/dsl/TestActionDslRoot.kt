@@ -13,18 +13,19 @@ annotation class TestActionDslMarker
  * Represents a single action or check
  */
 @TestActionDslMarker
-open class TestActionDslV2 internal constructor() {
+open class TestActionDslRoot internal constructor() {
     private var nodes = mutableListOf<TestActionDslNode>()
 
     /**
      * Start a check or action by matching a single node
      */
     fun singleNode(config: TestActionDslSingleNode.First.() -> Unit) {
-        if (nodes.isNotEmpty())
+        if (nodes.isNotEmpty()) {
             throw IllegalStateException("Action already used, start a new perform block to run a new check")
+        }
 
         TestActionDslSingleNode.First(this).apply {
-            this@TestActionDslV2.nodes.add(this)
+            this@TestActionDslRoot.nodes.add(this)
             config()
         }
     }
@@ -33,11 +34,12 @@ open class TestActionDslV2 internal constructor() {
      * Start a check or action by matching a group of nodes
      */
     fun allNodes(config: TestActionDslGroupNode.First.() -> Unit) {
-        if (nodes.isNotEmpty())
+        if (nodes.isNotEmpty()) {
             throw IllegalStateException("Action already used, start a new perform block to run a new check")
+        }
 
         TestActionDslGroupNode.First(this).apply {
-            this@TestActionDslV2.nodes.add(this)
+            this@TestActionDslRoot.nodes.add(this)
             config()
         }
     }
@@ -48,15 +50,14 @@ open class TestActionDslV2 internal constructor() {
 
     internal fun perform(composeTestRule: ComposeTestRule<MainActivity>) {
         nodes.fold<TestActionDslNode, TestActionDslPreviousNode?>(null) { prev, node ->
-            val next = node.perform(composeTestRule, prev)
-            next
+            node.perform(composeTestRule, prev)
         }
     }
 }
 
 
 abstract class TestActionDslNode {
-    abstract val properties: TestActionDslV2
+    abstract val root: TestActionDslRoot
     var isComplete = false
 
     fun checkIsValidSetupCall() {
@@ -82,7 +83,7 @@ open class TestActionDslSingleNode internal constructor(
          * Null if this is the first node
          */
         private val creation: Creation?,
-        override val properties: TestActionDslV2,
+        override val root: TestActionDslRoot,
 ) : TestActionDslNode() {
     protected val actions = mutableListOf<CodexNodeInteraction>()
 
@@ -109,7 +110,7 @@ open class TestActionDslSingleNode internal constructor(
     }
 
     @TestActionDslMarker
-    class First internal constructor(props: TestActionDslV2) : TestActionDslSingleNode(null, props) {
+    class First internal constructor(props: TestActionDslRoot) : TestActionDslSingleNode(null, props) {
         private val matchers = mutableListOf<CodexNodeMatcher>()
         private var useUnmergedTree = false
         private var scrollToParentIndex: Int? = null
@@ -166,7 +167,7 @@ open class TestActionDslSingleNode internal constructor(
 
 @TestActionDslMarker
 open class TestActionDslGroupNode internal constructor(
-        override val properties: TestActionDslV2,
+        override val root: TestActionDslRoot,
 ) : TestActionDslNode() {
     protected val actions = mutableListOf<CodexNodeGroupInteraction>()
 
@@ -179,9 +180,8 @@ open class TestActionDslGroupNode internal constructor(
         checkIsValidSetupCall()
         isComplete = true
 
-        properties.addNode(
-                TestActionDslSingleNode(TestActionDslSingleNode.Creation.FromGroup(groupToOne), properties)
-                        .apply(config)
+        root.addNode(
+                TestActionDslSingleNode(TestActionDslSingleNode.Creation.FromGroup(groupToOne), root).apply(config)
         )
     }
 
@@ -193,7 +193,7 @@ open class TestActionDslGroupNode internal constructor(
     }
 
     @TestActionDslMarker
-    class First internal constructor(props: TestActionDslV2) : TestActionDslGroupNode(props) {
+    class First internal constructor(props: TestActionDslRoot) : TestActionDslGroupNode(props) {
         private val matchers = mutableListOf<CodexNodeMatcher>()
         private var useUnmergedTree = false
 

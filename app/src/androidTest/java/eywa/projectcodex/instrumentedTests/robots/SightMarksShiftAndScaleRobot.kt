@@ -14,7 +14,7 @@ class SightMarksShiftAndScaleRobot(
     fun checkSightMarkDisplayed(sightMark: SightMark, isLeft: Boolean = false) {
         val text = sightMark.asText(isLeft)
 
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +HasTestTag(SightMarksTestTag.SIGHT_MARK_TEXT)
             +HasText(text)
@@ -22,7 +22,7 @@ class SightMarksShiftAndScaleRobot(
             +AssertIsDisplayed()
         }
 
-        performV2Single {
+        performSingle {
             useUnmergedTree()
             +HasTestTag(SightMarksTestTag.DIAGRAM_NOTE_ICON)
             +HasAnySibling(
@@ -36,21 +36,21 @@ class SightMarksShiftAndScaleRobot(
     }
 
     fun clickComplete() {
-        performV2Single {
+        performSingle {
             +HasTestTag(SightMarksTestTag.SAS_COMPLETE_BUTTON)
             +PerformClick()
         }
     }
 
     fun clickFlip() {
-        performV2Single {
+        performSingle {
             +HasTestTag(SightMarksTestTag.SAS_FLIP_BUTTON)
             +PerformClick()
         }
     }
 
     fun clickScaleReset() {
-        performV2Single {
+        performSingle {
             +HasTestTag(SightMarksTestTag.SAS_RESET_BUTTON)
             +HasAnyAncestor(HasTestTag(SightMarksTestTag.SAS_SCALE_BUTTONS))
             +PerformClick()
@@ -58,7 +58,7 @@ class SightMarksShiftAndScaleRobot(
     }
 
     fun clickShiftReset() {
-        performV2Single {
+        performSingle {
             +HasTestTag(SightMarksTestTag.SAS_RESET_BUTTON)
             +HasAnyAncestor(HasTestTag(SightMarksTestTag.SAS_SHIFT_BUTTONS))
             +PerformClick()
@@ -80,7 +80,7 @@ class SightMarksShiftAndScaleRobot(
             isLarge -> SightMarksTestTag.SAS_LARGE_DECREASE_BUTTON
             else -> SightMarksTestTag.SAS_SMALL_DECREASE_BUTTON
         }
-        performV2Single {
+        performSingle {
             +HasTestTag(buttonTag)
             +HasAnyAncestor(HasTestTag(groupTestTag))
             +PerformClick()

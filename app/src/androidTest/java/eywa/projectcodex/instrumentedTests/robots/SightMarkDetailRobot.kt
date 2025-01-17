@@ -28,7 +28,7 @@ class SightMarkDetailRobot(
     private fun setDistanceUnit(isMetric: Boolean) {
         var actualIsMetric = false
         try {
-            performV2 {
+            perform {
                 singleNode {
                     +CodexNodeMatcher.HasTestTag(DISTANCE_UNIT)
                     +CodexNodeInteraction.AssertTextEquals("yd")
@@ -65,7 +65,7 @@ class SightMarkDetailRobot(
             hasSightMarkError: Boolean = false,
             hasDistanceError: Boolean = false,
     ) {
-        performV2 {
+        perform {
             checkInputtedText(SIGHT, sightMark.sightMark.toString())
         }
         SIGHT_ERROR_TEXT.let {
@@ -83,7 +83,7 @@ class SightMarkDetailRobot(
         }
         checkCheckboxState(ARCHIVED, sightMark.isArchived, useUnmergedTree = true)
 
-        performV2 {
+        perform {
             checkInputtedText(NOTE, sightMark.note ?: "")
         }
 
@@ -95,7 +95,7 @@ class SightMarkDetailRobot(
             isMetric: Boolean,
             hasDistanceError: Boolean = false,
     ) {
-        performV2 {
+        perform {
             checkInputtedText(DISTANCE, distance.toString())
         }
         DISTANCE_ERROR_TEXT.let {

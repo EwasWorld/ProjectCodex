@@ -15,7 +15,7 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.RobotDslMarker
-import eywa.projectcodex.instrumentedTests.robots.common.PerformFnV2
+import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ArrowInputsRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddCountRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.common.SightMarkIndicatorRobot
@@ -38,7 +38,7 @@ class HeadToHeadAddEndRobot(
      * Check the correct row names are displayed and that the arrow or end total columns are correctly editable
      */
     fun checkRows(endSize: Int, vararg rowsToIsTotal: Pair<String, Boolean>) {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(1, 1))
             +CodexNodeMatcher.IsNotCached
             +CodexNodeGroupInteraction.AssertCount(rowsToIsTotal.size).waitFor()
@@ -49,7 +49,7 @@ class HeadToHeadAddEndRobot(
 
         val hasAnyArrowRow = rowsToIsTotal.any { !it.second }
         if (hasAnyArrowRow) {
-            performV2Group {
+            performGroup {
                 +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1))
                 +CodexNodeMatcher.IsNotCached
                 +CodexNodeGroupInteraction.AssertCount(rowsToIsTotal.size).waitFor()
@@ -69,14 +69,14 @@ class HeadToHeadAddEndRobot(
             }
         }
         else {
-            performV2Single {
+            performSingle {
                 +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1))
                 +CodexNodeMatcher.IsNotCached
                 +CodexNodeInteraction.AssertDoesNotExist()
             }
         }
 
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1))
             +CodexNodeMatcher.IsNotCached
             +CodexNodeGroupInteraction.AssertCount(rowsToIsTotal.size).waitFor()
@@ -109,7 +109,7 @@ class HeadToHeadAddEndRobot(
             teamScore: GridSetDsl.CellValue = GridSetDsl.CellValue.NoColumn,
             points: GridSetDsl.CellValue = GridSetDsl.CellValue.NoColumn,
     ) {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1))
             toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
                 +CodexNodeInteraction.PerformClick()
@@ -137,7 +137,7 @@ class HeadToHeadAddEndRobot(
             teamScore: GridSetDsl.CellValue = GridSetDsl.CellValue.NoColumn,
             points: GridSetDsl.CellValue = GridSetDsl.CellValue.NoColumn,
     ) {
-        performV2Group {
+        performGroup {
             useUnmergedTree()
             matchTextBox(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1))
             toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
@@ -179,7 +179,7 @@ class HeadToHeadAddEndRobot(
     }
 
     fun checkArrowRowError(rowIndex: Int, error: String?) {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1))
             toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
                 +CodexNodeInteraction.AssertHasError(error)
@@ -188,7 +188,7 @@ class HeadToHeadAddEndRobot(
     }
 
     fun checkTotalRowError(rowIndex: Int, error: String?) {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasAnyAncestor(
                     CodexNodeMatcher.HasTestTag(
                             HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(
@@ -255,12 +255,12 @@ class HeadToHeadAddEndRobot(
     }
 
     fun clickEditRows(block: EditRowsDialogRobot.() -> Unit) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridTestTag.EDIT_ROWS_BUTTON)
             +CodexNodeMatcher.IsNotCached
             +CodexNodeInteraction.PerformClick()
         }
-        EditRowsDialogRobot(::performV2).apply(block)
+        EditRowsDialogRobot(::perform).apply(block)
     }
 
     fun clickConfirmEdit() {
@@ -277,7 +277,7 @@ class HeadToHeadAddEndRobot(
     }
 
     @RobotDslMarker
-    class EditRowsDialogRobot(private val performFn: PerformFnV2) {
+    class EditRowsDialogRobot(private val performFn: PerformFn) {
         fun checkEditRowsDialog(vararg rowsToValue: Pair<String, String>) {
             performFn {
                 allNodes {

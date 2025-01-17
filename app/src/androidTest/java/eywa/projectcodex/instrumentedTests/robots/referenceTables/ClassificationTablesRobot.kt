@@ -20,29 +20,29 @@ class ClassificationTablesRobot(
     override val group: TabSwitcherGroup
         get() = TabSwitcherGroup.REFERENCES
 
-    val selectRoundsRobot = SelectRoundBaseRobot(::performV2)
+    val selectRoundsRobot = SelectRoundBaseRobot(::perform)
 
     fun clickGender(expectedNewGenderIsGent: Boolean = true) {
         val expectedNewGender = if (expectedNewGenderIsGent) "Gents" else "Ladies"
-        performV2 {
+        perform {
             clickDataRow(ClassificationTablesTestTag.GENDER_SELECTOR, expectedNewGender)
         }
     }
 
     fun checkGender(isGent: Boolean = true) {
         val expectedGender = if (isGent) "Gents" else "Ladies"
-        performV2Single {
+        performSingle {
             matchDataRowValue(ClassificationTablesTestTag.GENDER_SELECTOR)
             +CodexNodeInteraction.AssertTextEquals(expectedGender).waitFor()
         }
     }
 
     fun setAge(value: String) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.AGE_SELECTOR)
             +CodexNodeInteraction.PerformClick()
         }
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.SELECTOR_DIALOG_ITEM)
             +CodexNodeMatcher.HasText(value)
             +CodexNodeInteraction.PerformClick()
@@ -51,18 +51,18 @@ class ClassificationTablesRobot(
     }
 
     fun checkAge(value: String) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.AGE_SELECTOR)
             +CodexNodeInteraction.AssertContentDescriptionEquals("$value Age:")
         }
     }
 
     fun setBowStyle(value: String) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.BOW_SELECTOR)
             +CodexNodeInteraction.PerformClick()
         }
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.SELECTOR_DIALOG_ITEM)
             +CodexNodeMatcher.HasText(value)
             +CodexNodeInteraction.PerformClick()
@@ -71,27 +71,27 @@ class ClassificationTablesRobot(
     }
 
     fun checkBowStyle(value: String) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.BOW_SELECTOR)
             +CodexNodeInteraction.AssertContentDescriptionEquals("$value Bow:")
         }
     }
 
     fun checkNoClassifications() {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.TABLE_NO_DATA)
             +CodexNodeInteraction.AssertIsDisplayed()
         }
     }
 
     fun checkClassifications(data: List<TableRow>) {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.TABLE_CLASSIFICATION)
             +CodexNodeGroupInteraction.ForEach(
                     data.map { listOf(CodexNodeInteraction.AssertTextEquals(it.classification).waitFor()) }
             )
         }
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.TABLE_SCORE)
             +CodexNodeGroupInteraction.ForEach(
                     data.map {
@@ -102,7 +102,7 @@ class ClassificationTablesRobot(
                     }
             )
         }
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.TABLE_HANDICAP)
             +CodexNodeGroupInteraction.ForEach(
                     data.map {

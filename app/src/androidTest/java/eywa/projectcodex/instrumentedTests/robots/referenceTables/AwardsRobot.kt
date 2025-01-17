@@ -19,18 +19,18 @@ class AwardsRobot(
         get() = TabSwitcherGroup.REFERENCES
 
     fun checkBowStyle(value: String) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(AwardsTestTag.BOW_SELECTOR)
             +CodexNodeInteraction.AssertContentDescriptionEquals("$value Bow:")
         }
     }
 
     fun setBowStyle(value: String) {
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(AwardsTestTag.BOW_SELECTOR)
             +CodexNodeInteraction.PerformClick()
         }
-        performV2Single {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(ClassificationTablesTestTag.SELECTOR_DIALOG_ITEM)
             +CodexNodeMatcher.HasText(value)
             +CodexNodeInteraction.PerformClick()
@@ -39,13 +39,13 @@ class AwardsRobot(
     }
 
     fun checkClub252(tenYardValue: Int, hundredYardValue: Int) {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(AwardsTestTag.CLUB_252_TABLE_SCORE)
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.AssertTextEquals(tenYardValue.toString())
             }
         }
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(AwardsTestTag.CLUB_252_TABLE_SCORE)
             toSingle(CodexNodeGroupToOne.Last) {
                 +CodexNodeInteraction.AssertTextEquals(hundredYardValue.toString())
@@ -54,13 +54,13 @@ class AwardsRobot(
     }
 
     fun checkFrostbite(twoHundredValue: Int, threeFiveFiveValue: Int) {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(AwardsTestTag.CLUB_FROSTBITE_TABLE_SCORE)
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.AssertTextEquals(twoHundredValue.toString())
             }
         }
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(AwardsTestTag.CLUB_FROSTBITE_TABLE_SCORE)
             toSingle(CodexNodeGroupToOne.Last) {
                 +CodexNodeInteraction.AssertTextEquals(threeFiveFiveValue.toString())
@@ -69,12 +69,12 @@ class AwardsRobot(
     }
 
     fun checkAwards(size: Int, herefordWhiteValue: Int) {
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(AwardsTestTag.AGB_TABLE_ROUND)
             +CodexNodeMatcher.IsNotCached
             +CodexNodeGroupInteraction.AssertCount(size)
         }
-        performV2Group {
+        performGroup {
             +CodexNodeMatcher.HasTestTag(AwardsTestTag.AGB_TABLE_SCORE)
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.AssertTextEquals(herefordWhiteValue.toString())
