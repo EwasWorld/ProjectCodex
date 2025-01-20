@@ -31,7 +31,7 @@ data class FullHeadToHeadHeat(
 
     fun getArrows(type: HeadToHeadArcherType) =
             sets.fold<FullHeadToHeadSet, RowArrows?>(RowArrows.Arrows(listOf())) { acc, set ->
-                if (acc == null) null else set.getArrows(type)?.let { it + acc }
+                if (acc == null) null else (set.getArrows(type)?.let { it + acc } ?: acc)
             }
 
     val isComplete

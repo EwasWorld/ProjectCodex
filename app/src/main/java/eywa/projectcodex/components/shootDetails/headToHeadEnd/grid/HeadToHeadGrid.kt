@@ -39,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.logging.debugLog
 import eywa.projectcodex.common.sharedUi.CodexTextField
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIf
 import eywa.projectcodex.common.sharedUi.ComposeUtils.modifierIfNotNull
@@ -71,17 +70,20 @@ fun HeadToHeadGrid(
         onTextValueChanged: (type: HeadToHeadArcherType, text: String?) -> Unit,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
-    debugLog("Grid")
     val resources = LocalContext.current.resources
 
     val focusRequesters = remember(
             state is HeadToHeadGridState.SingleEditable,
             state.enteredArrows.firstOrNull()?.data?.map { it.type },
     ) {
-        if (state !is HeadToHeadGridState.SingleEditable) null
-        else state.enteredArrows.firstOrNull()?.data
-                ?.filter { it.isTotalRow && it.type != HeadToHeadArcherType.RESULT }
-                ?.associate { it.type to FocusRequester() }
+        if (state !is HeadToHeadGridState.SingleEditable) {
+            null
+        }
+        else {
+            state.enteredArrows.firstOrNull()?.data
+                    ?.filter { it.isTotalRow && it.type != HeadToHeadArcherType.RESULT }
+                    ?.associate { it.type to FocusRequester() }
+        }
     }
 
     val columnMetadata = listOfNotNull(
@@ -263,7 +265,6 @@ fun HeadToHeadGrid(
 
                                 val horizontalPadding = if (column == HeadToHeadGridColumn.TYPE) 8.dp else 15.dp
 
-                                debugLog("testTag: ${column.testTag.get().getElement()}")
                                 Text(
                                         text = value,
                                         textAlign = TextAlign.Center,

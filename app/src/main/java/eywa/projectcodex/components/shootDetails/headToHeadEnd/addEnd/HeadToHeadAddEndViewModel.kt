@@ -18,8 +18,7 @@ import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherT
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType.*
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndIntent.*
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData.Arrows
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData.EditableTotal
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData.*
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -68,6 +67,20 @@ class HeadToHeadAddEndViewModel @Inject constructor(
         val teamSize = fullH2hInfo.headToHead.teamSize
         val editingHeat = fullH2hInfo.heats.find { it.heat.matchNumber == editingMatchNumber }
         val editingSet = editingHeat?.sets?.find { it.setNumber == editingSetNumber }
+                ?.let { fullSet ->
+                    val data = fullSet.data.map {
+                        when {
+                            it is Arrows || it.type == RESULT -> it
+                            it is Total -> {
+                                val field = EditableTotal(it.type, it.expectedArrowCount, dbId = it.dbId)
+                                field.copy(text = field.text.copy(text = it.total?.toString() ?: ""))
+                            }
+
+                            else -> throw IllegalStateException()
+                        }
+                    }
+                    fullSet.copy(data = data)
+                }
 
         // Editing
         if (editingSet != null) {
@@ -78,7 +91,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
 
             return HeadToHeadAddEndState(
                     roundInfo = roundInfo,
-                    extras = extras ?: HeadToHeadAddEndExtras(),
+                    extras = extras ?: HeadToHeadAddEndExtras().resetEditInfo(editingSet),
                     heat = editingHeat.heat,
                     isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
                     teamRunningTotal = null,
@@ -102,13 +115,15 @@ class HeadToHeadAddEndViewModel @Inject constructor(
 
             if (extras == null || extras.set.setNumber != editingSetNumber) {
                 val isShootOff = isStandardFormat && HeadToHeadUseCase.shootOffSet(teamSize) == editingSetNumber
-                val endSize = HeadToHeadUseCase.endSize(teamSize, isShootOff)
+                val data = generateEmptyDataRows(
+                        endSize = HeadToHeadUseCase.endSize(teamSize, isShootOff),
+                        teamSize = teamSize,
+                        previous = editingHeat.sets.find { it.setNumber == editingSetNumber - 1 }?.data
+                )
+
                 extraState.update {
                     HeadToHeadAddEndExtras(
-                            set = blankSet.copy(
-                                    setNumber = editingSetNumber,
-                                    data = generateDefaultDataRows(endSize = endSize, teamSize = teamSize),
-                            ),
+                            set = blankSet.copy(setNumber = editingSetNumber, data = data),
                             selected = null,
                     )
                 }
@@ -150,7 +165,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
 
             val set = blankSet.copy(
                     setNumber = setNumber,
-                    data = generateDefaultDataRows(endSize = endSize, teamSize = teamSize),
+                    data = generateEmptyDataRows(endSize = endSize, teamSize = teamSize, previous = lastSet?.data),
             )
 
             if (extras == null || extras.set.setNumber != set.setNumber) {
@@ -201,11 +216,21 @@ class HeadToHeadAddEndViewModel @Inject constructor(
         else Arrows(type = type, expectedArrowCount = expectedArrowCount)
     }
 
-    private fun generateDefaultDataRows(endSize: Int, teamSize: Int): List<HeadToHeadGridRowData> {
+    /**
+     * Copy types of the previous set or give a default set of rows
+     */
+    private fun generateEmptyDataRows(
+            endSize: Int,
+            teamSize: Int,
+            previous: List<HeadToHeadGridRowData>? = null
+    ): List<HeadToHeadGridRowData> {
         fun getRow(type: HeadToHeadArcherType, isTotal: Boolean) = getRow(type, isTotal, endSize, teamSize)
 
-        return if (teamSize == 1) listOf(getRow(SELF, false), getRow(OPPONENT, true))
-        else listOf(getRow(SELF, false), getRow(TEAM, true), getRow(OPPONENT, true))
+        return when {
+            previous != null -> previous.map { getRow(it.type, it.isTotalRow) }
+            teamSize == 1 -> listOf(getRow(SELF, false), getRow(OPPONENT, true))
+            else -> listOf(getRow(SELF, false), getRow(TEAM, true), getRow(OPPONENT, true))
+        }
     }
 
     private fun FullHeadToHeadSet.getDefaultSelected(): HeadToHeadArcherType? {
@@ -232,6 +257,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
 
             is ShootDetailsAction -> repo.handle(action.action, screen)
 
+            PressBackHandled -> updateState { it.copy(pressBack = false) }
             EditSightMarkClicked -> updateState { it.copy(openEditSightMark = true) }
             ExpandSightMarkClicked -> updateState { it.copy(openAllSightMarks = true) }
             EditSightMarkHandled -> updateState { it.copy(openEditSightMark = false) }
@@ -288,10 +314,13 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     updateState { it.copy(incompleteError = true) }
                     return
                 }
-
                 viewModelScope.launch {
-                    if (state.editingSet == null) h2hRepo.insert(*state.toDbDetails().toTypedArray())
-                    else h2hRepo.update(*state.toDbDetails().toTypedArray())
+                    if (state.editingSet == null) h2hRepo.insert(*state.setToDbDetails().toTypedArray())
+                    else h2hRepo.update(newDetails = state.setToDbDetails(), oldDetails = state.editingToDbDetails()!!)
+
+                    if (state.editingSet != null) {
+                        extraState.update { it!!.copy(pressBack = true) }
+                    }
                 }
             }
 
@@ -306,7 +335,10 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             CreateNextMatchClicked -> updateState { it.copy(openCreateNextMatch = true) }
             CreateNextMatchHandled -> updateState { it.copy(openCreateNextMatch = false) }
             EditTypesClicked -> updateState { s ->
-                s.copy(selectRowTypesDialogState = s.set.data.associate { it.type to it.isTotalRow })
+                s.copy(
+                        selectRowTypesDialogState = s.set.data.associate { it.type to it.isTotalRow },
+                        selectRowTypesDialogUnknownWarning = s.set.requiredRowsString,
+                )
             }
 
             is EditTypesItemClicked -> updateState {
@@ -314,7 +346,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 val item = dialogState[action.item]
 
                 // null -> false -> true -> null
-                val newState =
+                val newDialogState =
                         when (item) {
                             // RESULT skips false because can't have arrow values for it
                             null -> dialogState.plus(action.item to (action.item == RESULT))
@@ -322,52 +354,49 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                             true -> dialogState.minus(action.item)
                         }
 
-                it.copy(selectRowTypesDialogState = newState)
+                val updatedSetData = FullHeadToHeadSet(
+                        setNumber = it.set.setNumber,
+                        data = newDialogState.map { (type, isTotal) ->
+                            getRow(type, isTotal, it.set.endSize, it.set.teamSize)
+                        },
+                        teamSize = it.set.teamSize,
+                        isRecurveStyle = it.set.isRecurveStyle,
+                        isShootOffWin = it.set.isShootOffWin,
+                )
+
+                it.copy(
+                        selectRowTypesDialogState = newDialogState,
+                        selectRowTypesDialogUnknownWarning = updatedSetData.requiredRowsString,
+                )
             }
 
             is CompleteEditTypesDialog -> {
                 updateState { s ->
                     val requiredRows = s.selectRowTypesDialogState ?: return@updateState s
-                    val currentData = s.set.data
+                    val currentData = s.set.data.associateBy { it.type }
 
-                    val existingRows = currentData.filter { requiredRows[it.type] == it.isTotalRow }
+                    val isTeam = s.set.teamSize > 1
+                    val types = requiredRows.keys.toList()
 
-                    val currentTypes = existingRows.map { it.type }
-                    val newRows = requiredRows.keys
-                            .filterNot { it in currentTypes }
-                            .map { type ->
-                                getRow(type, requiredRows[type]!!, s.set.endSize, s.set.teamSize)
-                            }
+                    val newRows = requiredRows.map { (type, isTotal) ->
+                        val current = currentData[type]
+                        if (
+                            current != null
+                            && current.isTotalRow == isTotal
+                            && type.enabledOnSelectorDialog(isTeam, types)
+                        ) {
+                            current
+                        }
+                        else {
+                            getRow(type, isTotal, s.set.endSize, s.set.teamSize)
+                        }
+                    }
 
-                    s.copy(
-                            set = s.set.copy(data = existingRows.plus(newRows)),
-                            selectRowTypesDialogState = null,
-                    )
+                    s.copy(set = s.set.copy(data = newRows), selectRowTypesDialogState = null)
                 }
             }
 
             CloseEditTypesDialog -> updateState { it.copy(selectRowTypesDialogState = null) }
-            EditTypesOkClicked -> updateState { s ->
-                s.selectRowTypesDialogState ?: return@updateState s
-
-                val isTeam = s.set.teamSize > 1
-                val types = s.selectRowTypesDialogState.keys.toList()
-                val setData = s.set.data.associateBy { it.type }
-
-                val newSetData = s.selectRowTypesDialogState.map { (type, isTotal) ->
-                    val data = setData[type]
-                    if (data != null && data.isTotalRow == isTotal && type.enabledOnSelectorDialog(isTeam, types)) {
-                        data
-                    }
-                    else {
-                        val arrowCount = type.expectedArrowCount(endSize = s.set.endSize, teamSize = s.set.teamSize)
-                        if (isTotal) EditableTotal(type = type, expectedArrowCount = arrowCount)
-                        else Arrows(type = type, expectedArrowCount = arrowCount)
-                    }
-                }
-
-                s.copy(selectRowTypesDialogState = null, set = s.set.copy(data = newSetData))
-            }
 
             DeleteClicked -> viewModelScope.launch {
                 val currentState = state.value.getData() ?: return@launch

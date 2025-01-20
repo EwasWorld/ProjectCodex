@@ -87,7 +87,8 @@ class HeadToHeadE2eTest {
     fun testIndividualStandardFormatSetPointsWithRound() {
         setup()
 
-//                    setOpponent("Amy Baker", 3)
+        // TODO Remove
+//        setOpponent("Amy Baker", 3)
 
         composeTestRule.mainMenuRobot {
             clickNewScore {
@@ -256,7 +257,7 @@ class HeadToHeadE2eTest {
 
                     clickNavBarItem<HeadToHeadScorePadRobot> {
                         checkMatchIsBye(1)
-                        checkMatchDetails(1, "quarter-final (1/4)", 0, null, null)
+                        checkMatchDetails(1, "quarter-final (1/4)", 18, null, null)
                         checkGrid(2, HeadToHeadResult.LOSS) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
                                 checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
@@ -308,7 +309,7 @@ class HeadToHeadE2eTest {
 
                     clickNavBarItem<HeadToHeadScorePadRobot> {
                         checkMatchIsBye(1)
-                        checkMatchDetails(1, "quarter-final (1/4)", 0, null, null)
+                        checkMatchDetails(1, "quarter-final (1/4)", 18, null, null)
 
                         checkGrid(2, HeadToHeadResult.LOSS) {
                             checkEnd(6, HeadToHeadResult.LOSS, "5-6", 2) {
@@ -379,6 +380,7 @@ class HeadToHeadE2eTest {
                         setTotalRow(0, archerName, 30, arrows = NoColumn)
                         clickNextEnd()
                         checkNoRunningTotals()
+                        checkRows(3, archerName to true)
 
                         clickNavBarItem<HeadToHeadScorePadRobot> {
                             checkGrid(3, HeadToHeadResult.UNKNOWN) {
@@ -397,7 +399,7 @@ class HeadToHeadE2eTest {
 
                             openEditEnd(3, 3) {
                                 checkRows(3, archerName to true)
-                                gridSetDsl.checkRow(0, archerName, Empty, 30, NoColumn, NoColumn)
+                                gridSetDsl.checkRow(0, archerName, NoColumn, 30, NoColumn, NoColumn, isEditable = true)
 
                                 clickEditRows {
                                     checkEditRowsDialog(
@@ -416,11 +418,14 @@ class HeadToHeadE2eTest {
                                 }
 
                                 checkRows(3, archerName to true, "Result" to true)
-                                gridSetDsl.checkRow(0, archerName, Empty, 30, NoColumn, NoColumn)
+                                gridSetDsl.checkRow(0, archerName, NoColumn, 30, NoColumn, NoColumn, isEditable = true)
                                 checkResultRow(1, HeadToHeadResult.LOSS)
+                                clickResultRow(1, HeadToHeadResult.TIE)
                                 clickResultRow(1, HeadToHeadResult.WIN)
+                                checkSetResult(3, HeadToHeadResult.WIN)
                                 clickConfirmEdit()
                             }
+                            checkScreenIsShown()
 
                             checkGrid(3, HeadToHeadResult.WIN) {
                                 checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
@@ -431,36 +436,43 @@ class HeadToHeadE2eTest {
                                     checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
                                     checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
                                 }
-                                checkEnd(3, HeadToHeadResult.WIN, "6-0", 1) {
+                                checkEnd(3, HeadToHeadResult.WIN, "6-0", 2) {
                                     checkRow(0, archerName, Empty, 30, NoColumn, Value(2))
-                                    checkResultsRow(1, "Win", 2)
+                                    checkResultsRow(1, "Win", Value(2))
                                 }
                             }
                         }
 
-                        checkMatchComplete()
-
                         clickNavBarItem<HeadToHeadStatsRobot> {
                             checkDate("10 Nov 20 10:15")
                             checkRound("H2H: WA 70")
-                            checkH2hInfo("Individual, Set points, Rank 2 of 60")
+                            checkH2hInfo("Individual, Set points, Rank 2 of 6")
                             checkFaces("Full")
 
                             checkMatchRow(0, "1/4", "-", "-", "Bye")
                             checkMatchRow(1, "Semi", "Claire Davids", "3", "5-6 Loss")
                             checkMatchRow(2, "Final", "Emma Fitzgerald", "1", "6-0 Win")
 
-                            handicapAndClassificationRobot.checkClassification(Classification.MASTER_BOWMAN, false)
-                            handicapAndClassificationRobot.checkHandicap(0)
+                            handicapAndClassificationRobot.checkClassification(
+                                    Classification.ELITE_MASTER_BOWMAN,
+                                    false
+                            )
+                            handicapAndClassificationRobot.checkHandicap(14)
 
                             checkNumbersBreakdown(HandicapType.SELF, listOf(SELF, OPPONENT, DIFFERENCE)) {
-                                checkRow(0, "Semi", 0f)
-                                checkEndAverages(0, SELF to 0.0f, OPPONENT to 0.0f, DIFFERENCE to 0.0f)
-                                checkArrowAverages(0, SELF to 0.0f, OPPONENT to 0.0f, DIFFERENCE to 0.0f)
+                                checkRow(0, "Semi", 23f)
+                                // 2.6 isn't exactly correct, rounding error?
+                                checkEndAverages(0, SELF to 26.4f, OPPONENT to 29.1f, DIFFERENCE to -2.6f)
+                                checkArrowAverages(0, SELF to 8.8f, OPPONENT to 9.7f, DIFFERENCE to -0.9f)
 
                                 checkRow(1, "Final", 0f)
-                                checkEndAverages(1, SELF to 0.0f, OPPONENT to 0.0f, DIFFERENCE to 0.0f)
-                                checkArrowAverages(1, SELF to 0.0f, OPPONENT to 0.0f, DIFFERENCE to 0.0f)
+                                checkEndAverages(1, SELF to 30.0f, OPPONENT to 29.0f, DIFFERENCE to 1.0f)
+                                checkArrowAverages(1, SELF to 10.0f, OPPONENT to 9.7f, DIFFERENCE to 0.3f)
+
+                                checkRow(2, "Total", 14f)
+                                checkEndAverages(2, SELF to 27.7f, OPPONENT to 29.0f, DIFFERENCE to -1.3f)
+                                // 0.4 isn't exactly correct, rounding error?
+                                checkArrowAverages(2, SELF to 9.2f, OPPONENT to 9.7f, DIFFERENCE to -0.4f)
                             }
                         }
                     }
@@ -475,10 +487,6 @@ class HeadToHeadE2eTest {
         // Set no heat
         // New score - text field errors
         // No total archers
-        // No distance - sight marks
-        // Set rows
-        // Check edit rows
-        // Check score pad edit (end done)
         // Edit match details
         // Edit main details - prevent editing of standard format
         // Add ends, edit heat to bye

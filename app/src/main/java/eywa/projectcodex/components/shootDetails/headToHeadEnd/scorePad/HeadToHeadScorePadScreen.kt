@@ -28,7 +28,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
-import eywa.projectcodex.common.logging.debugLog
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
 import eywa.projectcodex.common.sharedUi.CodexButton
@@ -111,14 +110,13 @@ fun HeadToHeadScorePadScreen(
             listener(HeadToHeadScorePadIntent.EditHeatInfoHandled)
         }
 
-        if (data?.extras?.openEditSetInfo != null) {
-            debugLog("Cheeses")
+        data?.extras?.openEditSetInfo?.let { (match, set) ->
             CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
                     navController,
                     mapOf(
                             NavArgument.SHOOT_ID to viewModel.shootId.toString(),
-                            NavArgument.MATCH_NUMBER to data.extras.openEditSetInfo.first.toString(),
-                            NavArgument.SET_NUMBER to data.extras.openEditSetInfo.second.toString(),
+                            NavArgument.MATCH_NUMBER to match.toString(),
+                            NavArgument.SET_NUMBER to set.toString(),
                     ),
             )
             listener(HeadToHeadScorePadIntent.EditSetHandled)

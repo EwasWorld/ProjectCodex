@@ -34,6 +34,7 @@
     <string name="head_to_head_add_end__archer_opponent">Opponent</string>
     <string name="head_to_head_add_end__archer_result">Result</string>
     <string name="head_to_head_add_end__type_dialog_unavailable">Auto</string>
+    <string name="head_to_head_add_end__type_dialog_result_on">On</string>
     <string name="head_to_head_add_end__type_dialog_total">Total</string>
     <string name="head_to_head_add_end__type_dialog_arrows">Arrows</string>
     <string name="head_to_head_add_end__type_dialog_off">Off</string>

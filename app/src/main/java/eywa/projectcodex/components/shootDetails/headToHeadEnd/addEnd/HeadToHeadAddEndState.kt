@@ -1,12 +1,12 @@
 package eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd
 
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsError
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowDataPreviewHelper
 import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridState
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
-import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeatPreviewHelper
 import eywa.projectcodex.model.SightMark
@@ -32,7 +32,8 @@ data class HeadToHeadAddEndState(
             selected = extras.selected,
     )
 
-    fun toDbDetails(): List<DatabaseHeadToHeadDetail> = extras.set.asDatabaseDetails(heat.shootId, heat.matchNumber)
+    fun setToDbDetails() = extras.set.asDatabaseDetails(heat.shootId, heat.matchNumber)
+    fun editingToDbDetails() = editingSet?.asDatabaseDetails(heat.shootId, heat.matchNumber)
 }
 
 data class HeadToHeadRoundInfo(
@@ -46,6 +47,7 @@ data class HeadToHeadRoundInfo(
 
 data class HeadToHeadAddEndExtras(
         val selectRowTypesDialogState: Map<HeadToHeadArcherType, Boolean>? = null,
+        val selectRowTypesDialogUnknownWarning: ResOrActual<String>? = null,
         val openAddHeatScreen: Boolean = false,
         val openEditSightMark: Boolean = false,
         val openAllSightMarks: Boolean = false,
@@ -61,6 +63,7 @@ data class HeadToHeadAddEndExtras(
         val incompleteError: Boolean = false,
         val openSighters: Boolean = false,
         val openCreateNextMatch: Boolean = false,
+        val pressBack: Boolean = false,
 ) {
     val selectedData
         get() = set.data.find { it.type == selected }

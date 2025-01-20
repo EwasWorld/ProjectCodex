@@ -4,7 +4,7 @@ import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
+import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType.SELF
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -204,7 +204,7 @@ data class FullShootInfo(
             )
         }
         else if (h2h != null && h2h.arrowsShot > 0 && fullRoundInfo != null) {
-            val rowArrows = h2h.getArrows(HeadToHeadArcherType.SELF) ?: return@lazy null
+            val rowArrows = h2h.getArrows(SELF) ?: return@lazy null
             val roundInfo = fullRoundInfo?.maxDistanceOnlyWithArrowCount(rowArrows.arrowCount)
             Handicap.getHandicapForRound(
                     round = roundInfo!!,
@@ -221,12 +221,13 @@ data class FullShootInfo(
     }
 
     val h2hHandicapToIsSelf by lazy {
-        if (fullRoundInfo != null || h2h == null || h2h.arrowsShot == 0) return@lazy null
+        if (fullRoundInfo == null || h2h == null) return@lazy null
 
         val (rowArrows, isSelf) = h2h.arrowsToIsSelf ?: return@lazy null
+        if (rowArrows.arrowCount == 0) return@lazy null
 
         Handicap.getHandicapForRound(
-                round = fullRoundInfo?.maxDistanceOnlyWithArrowCount(rowArrows.arrowCount) ?: return@lazy null,
+                round = fullRoundInfo!!.maxDistanceOnlyWithArrowCount(rowArrows.arrowCount),
                 subType = null,
                 score = rowArrows.total,
                 innerTenArcher = isInnerTenArcher,

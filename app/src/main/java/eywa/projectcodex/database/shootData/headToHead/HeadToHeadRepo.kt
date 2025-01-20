@@ -14,7 +14,7 @@ class HeadToHeadRepo(
     suspend fun delete(shootId: Int) {
         headToHeadDao.delete(shootId)
         headToHeadHeatDao.delete(shootId)
-        headToHeadDetailDao.delete(shootId)
+        headToHeadDetailDao.deleteAll(shootId)
     }
 
     @Transaction
@@ -40,8 +40,35 @@ class HeadToHeadRepo(
         headToHeadDetailDao.insert(*details)
     }
 
-    suspend fun update(vararg details: DatabaseHeadToHeadDetail) {
-        headToHeadDetailDao.update(*details)
+    @Transaction
+    suspend fun update(
+            newDetails: List<DatabaseHeadToHeadDetail>,
+            oldDetails: List<DatabaseHeadToHeadDetail>,
+    ) {
+        check(newDetails.distinctBy { it.type }.size == newDetails.size) { "Duplicate types found" }
+        check(oldDetails.all { it.headToHeadArrowScoreId != 0 }) { "Old details not from database" }
+
+        val remove = oldDetails.toMutableList()
+        val insert = mutableListOf<DatabaseHeadToHeadDetail>()
+        val update = mutableListOf<DatabaseHeadToHeadDetail>()
+
+        newDetails.forEach { new ->
+            val old = oldDetails.find { it.type == new.type }
+            if (old == null) insert.add(new.copy(headToHeadArrowScoreId = 0))
+            else {
+                remove.remove(old)
+                update.add(new.copy(headToHeadArrowScoreId = old.headToHeadArrowScoreId))
+            }
+        }
+
+        check(remove.size + update.size == oldDetails.size) { "Old details not properly converted" }
+        check(insert.size + update.size == newDetails.size) { "New details not properly converted" }
+
+        remove.forEach {
+            headToHeadDetailDao.delete(it.headToHeadArrowScoreId)
+        }
+        headToHeadDetailDao.update(*update.toTypedArray())
+        headToHeadDetailDao.insert(*insert.toTypedArray())
     }
 
     suspend fun update(heat: DatabaseHeadToHeadHeat) {

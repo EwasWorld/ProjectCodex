@@ -23,7 +23,7 @@ data class HeadToHeadAddHeatState(
                     shootId = shootId,
                     matchNumber = matchNumber,
                     heat = extras.heat,
-                    opponent = extras.opponent,
+                    opponent = extras.opponent.takeIf { it.isNotBlank() },
                     opponentQualificationRank = extras.opponentQualiRank.parsed,
                     isShootOffWin = false,
                     sightersCount = 0,

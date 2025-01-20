@@ -228,6 +228,9 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
 
         override fun update(type: ResOrActual<String>?, columnCount: Int): HeadToHeadStatsNumbersColumn =
                 SelfAverageArrow(type, columnCount)
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_SELF_ARROW_AVG_CELL
     }
 
     data class TeamAverageArrow(
@@ -242,6 +245,9 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
 
         override fun update(type: ResOrActual<String>?, columnCount: Int): HeadToHeadStatsNumbersColumn =
                 TeamAverageArrow(type, columnCount)
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_TEAM_ARROW_AVG_CELL
     }
 
     data class OpponentAverageArrow(
@@ -256,6 +262,9 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
 
         override fun update(type: ResOrActual<String>?, columnCount: Int): HeadToHeadStatsNumbersColumn =
                 OpponentAverageArrow(type, columnCount)
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_OPPONENT_ARROW_AVG_CELL
     }
 
     data class DiffAverageArrow(
@@ -285,6 +294,9 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
 
         override fun update(type: ResOrActual<String>?, columnCount: Int): HeadToHeadStatsNumbersColumn =
                 DiffAverageArrow(type, columnCount)
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_DIFF_ARROW_AVG_CELL
     }
 
     data class SelfAverageEnd(
@@ -301,6 +313,9 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
 
         override fun update(type: ResOrActual<String>?, columnCount: Int): HeadToHeadStatsNumbersColumn =
                 SelfAverageEnd(type, columnCount)
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_SELF_END_AVG_CELL
     }
 
     data class TeamAverageEnd(
@@ -317,6 +332,9 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
 
         override fun update(type: ResOrActual<String>?, columnCount: Int): HeadToHeadStatsNumbersColumn =
                 TeamAverageEnd(type, columnCount)
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_TEAM_END_AVG_CELL
     }
 
     data class OpponentAverageEnd(
@@ -333,6 +351,9 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
 
         override fun update(type: ResOrActual<String>?, columnCount: Int): HeadToHeadStatsNumbersColumn =
                 OpponentAverageEnd(type, columnCount)
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_OPPONENT_END_AVG_CELL
     }
 
     data class DiffAverageEnd(
@@ -362,6 +383,9 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
 
         override fun update(type: ResOrActual<String>?, columnCount: Int): HeadToHeadStatsNumbersColumn =
                 DiffAverageEnd(type, columnCount)
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_DIFF_END_AVG_CELL
     }
 
     override val primaryTitle: ResOrActual<String>?
@@ -373,8 +397,6 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
     override val helpTitle: ResOrActual<String>?
         get() = null
     override val helpBody: ResOrActual<String>?
-        get() = null
-    override val testTag: CodexTestTag?
         get() = null
     override val cellContentDescription: (HeadToHeadStatsNumbersBreakdownDataRow, Unit) -> ResOrActual<String>?
         get() = { _, _ -> null }
@@ -404,6 +426,9 @@ enum class HeadToHeadStatsFixedNumbersColumn : CodexGridColumnMetadata<HeadToHea
                     ResOrActual.Actual("Total")
                 }
             }
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_MATCH_CELL
     },
     SELF_HANDICAP {
         override val primaryTitle: ResOrActual<String>
@@ -414,6 +439,9 @@ enum class HeadToHeadStatsFixedNumbersColumn : CodexGridColumnMetadata<HeadToHea
 
         override val mapping: (HeadToHeadStatsNumbersBreakdownDataRow) -> ResOrActual<String>
             get() = { it.selfHandicap.asDecimalFormat() }
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_SELF_HC_CELL
     },
     TEAM_HANDICAP {
         override val primaryTitle: ResOrActual<String>
@@ -424,6 +452,9 @@ enum class HeadToHeadStatsFixedNumbersColumn : CodexGridColumnMetadata<HeadToHea
 
         override val mapping: (HeadToHeadStatsNumbersBreakdownDataRow) -> ResOrActual<String>
             get() = { it.teamHandicap.asDecimalFormat() }
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_TEAM_HC_CELL
     },
     ;
 
@@ -436,8 +467,6 @@ enum class HeadToHeadStatsFixedNumbersColumn : CodexGridColumnMetadata<HeadToHea
     override val helpTitle: ResOrActual<String>?
         get() = null
     override val helpBody: ResOrActual<String>?
-        get() = null
-    override val testTag: CodexTestTag?
         get() = null
     override val cellContentDescription: (HeadToHeadStatsNumbersBreakdownDataRow, Unit) -> ResOrActual<String>?
         get() = { _, _ -> null }

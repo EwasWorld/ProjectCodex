@@ -89,7 +89,7 @@ class LocalDatabaseModule {
                 h2hRepo().insert(heat.heat)
 
                 heat.sets.flatMap {
-                    HeadToHeadAddEndState(extras = HeadToHeadAddEndExtras(set = it), heat = heat.heat).toDbDetails()
+                    HeadToHeadAddEndState(extras = HeadToHeadAddEndExtras(set = it), heat = heat.heat).setToDbDetails()
                 }.forEach { h2hRepo().insert(it.copy(headToHeadArrowScoreId = headToHeadArrowScoreId++)) }
             }
         }

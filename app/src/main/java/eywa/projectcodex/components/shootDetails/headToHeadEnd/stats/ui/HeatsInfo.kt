@@ -64,6 +64,9 @@ enum class HeadToHeadStatsHeatsColumn : CodexGridColumnMetadata<HeadToHeadStatsH
                 it.heat.heat.heat?.let { heat -> HeadToHeadUseCase.shortRoundName(heat) }
                         ?: ResOrActual.Actual(it.heat.heat.matchNumber.toString())
             }
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.MATCHES_TABLE_MATCH_CELL
     },
     OPPONENT {
         override val primaryTitle: ResOrActual<String>
@@ -74,6 +77,9 @@ enum class HeadToHeadStatsHeatsColumn : CodexGridColumnMetadata<HeadToHeadStatsH
                 data.heat.heat.opponent?.let { ResOrActual.Actual(it) }
                         ?: ResOrActual.StringResource(R.string.head_to_head_stats__heats_grid_empty)
             }
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.MATCHES_TABLE_OPPONENT_CELL
     },
     RANK {
         override val primaryTitle: ResOrActual<String>
@@ -84,6 +90,9 @@ enum class HeadToHeadStatsHeatsColumn : CodexGridColumnMetadata<HeadToHeadStatsH
                 data.heat.heat.opponentQualificationRank?.let { ResOrActual.Actual(it.toString()) }
                         ?: ResOrActual.StringResource(R.string.head_to_head_stats__heats_grid_empty)
             }
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.MATCHES_TABLE_RANK_CELL
     },
     RESULT {
         override val primaryTitle: ResOrActual<String>
@@ -109,6 +118,9 @@ enum class HeadToHeadStatsHeatsColumn : CodexGridColumnMetadata<HeadToHeadStatsH
                     }
                 }
             }
+
+        override val testTag: CodexTestTag
+            get() = HeadToHeadStatsTestTag.MATCHES_TABLE_RESULT_CELL
     },
     ;
 
@@ -121,8 +133,6 @@ enum class HeadToHeadStatsHeatsColumn : CodexGridColumnMetadata<HeadToHeadStatsH
     override val helpTitle: ResOrActual<String>?
         get() = null
     override val helpBody: ResOrActual<String>?
-        get() = null
-    override val testTag: CodexTestTag?
         get() = null
     override val cellContentDescription: (HeadToHeadStatsHeatInfoDataRow, Unit) -> ResOrActual<String>?
         get() = { _, _ -> null }

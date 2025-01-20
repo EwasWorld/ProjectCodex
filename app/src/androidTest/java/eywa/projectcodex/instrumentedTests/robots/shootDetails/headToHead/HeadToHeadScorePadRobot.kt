@@ -85,6 +85,12 @@ class HeadToHeadScorePadRobot(
     }
 
     fun checkGrid(match: Int, result: HeadToHeadResult, config: GridDsl.() -> Unit) {
+        performSingle {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadTestTag.SCREEN)
+            +CodexNodeInteraction.PerformScrollToNode(
+                    listOf(CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(match, 1)))
+            )
+        }
         checkDataRowValueText(HeadToHeadGridColumnTestTag.MATCH_RESULT.get(match, 1), result.asString())
         GridDsl(match, this).apply(config)
     }
@@ -170,7 +176,7 @@ class GridSetDsl(
             score: Int,
             teamScore: CellValue,
             points: CellValue = CellValue.NoColumn,
-            isEndTotalEditable: Boolean = false,
+            isEditable: Boolean = false,
     ) {
         performOn(rowIndex, HeadToHeadGridColumnTestTag.TYPE_CELL) {
             +CodexNodeInteraction.AssertTextEquals(type)
@@ -178,7 +184,7 @@ class GridSetDsl(
 
         robot.performGroup {
             val matcher = CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(match, setNumber))
-            if (isEndTotalEditable) +CodexNodeMatcher.HasAnyAncestor(matcher) else +matcher
+            if (isEditable) +CodexNodeMatcher.HasAnyAncestor(matcher) else +matcher
             toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
                 +CodexNodeInteraction.AssertTextEquals(score.toString()).waitFor()
             }
@@ -189,16 +195,14 @@ class GridSetDsl(
         checkCell(rowIndex, HeadToHeadGridColumnTestTag.POINTS_CELL, points)
     }
 
-    fun checkResultsRow(rowIndex: Int, result: String, points: Int?) {
+    fun checkResultsRow(rowIndex: Int, result: String, points: CellValue) {
         performOn(rowIndex, HeadToHeadGridColumnTestTag.TYPE_CELL) {
             +CodexNodeInteraction.AssertTextEquals("Result")
         }
         performOn(rowIndex, HeadToHeadGridColumnTestTag.END_TOTAL_CELL) {
             +CodexNodeInteraction.AssertTextEquals(result)
         }
-        performOn(rowIndex, HeadToHeadGridColumnTestTag.POINTS_CELL) {
-            +CodexNodeInteraction.AssertTextEquals(points.toString())
-        }
+        checkCell(rowIndex, HeadToHeadGridColumnTestTag.POINTS_CELL, points)
     }
 
     sealed class CellValue {

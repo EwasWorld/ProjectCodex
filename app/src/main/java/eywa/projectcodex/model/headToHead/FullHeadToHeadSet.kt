@@ -89,9 +89,9 @@ data class FullHeadToHeadSet(
     val isComplete
         get() = result.isComplete || data.all { it.isComplete }
 
-    val requiredRowsString: ResOrActual<String>
+    val requiredRowsString: ResOrActual<String>?
         get() {
-            check(result == HeadToHeadResult.UNKNOWN)
+            if (result != HeadToHeadResult.UNKNOWN) return null
 
             val opponentRequired = opponent.right == HeadToHeadNoResult.UNKNOWN
             return if (team.right != HeadToHeadNoResult.UNKNOWN) {

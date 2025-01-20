@@ -59,6 +59,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
 import eywa.projectcodex.common.sharedUi.previewHelpers.HeadToHeadSetPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.ToastSpamPrevention
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
@@ -98,14 +99,7 @@ fun HeadToHeadAddEndScreen(
 
     val context = LocalContext.current
     val data = state.getData()
-    LaunchedEffect(
-            data?.extras?.openAllSightMarks,
-            data?.extras?.openEditSightMark,
-            data?.extras?.openSighters,
-            data?.extras?.openAddHeatScreen,
-            data?.extras?.arrowInputsError,
-            data?.extras?.openCreateNextMatch,
-    ) {
+    LaunchedEffect(data?.extras) {
         if (data != null) {
             data.extras.arrowInputsError.forEach {
                 ToastSpamPrevention.displayToast(context, context.resources.getString(it.messageId))
@@ -161,6 +155,10 @@ fun HeadToHeadAddEndScreen(
                         popCurrentRoute = true,
                 )
                 listener(OpenAddHeatScreenHandled)
+            }
+            if (data.extras.pressBack) {
+                navController.popBackStack()
+                listener(PressBackHandled)
             }
         }
     }
@@ -375,7 +373,15 @@ private fun EditRowTypesDialog(
                                 }
                                 else {
                                     when (dialogState[it]) {
-                                        true -> stringResource(R.string.head_to_head_add_end__type_dialog_total)
+                                        true -> {
+                                            if (it == HeadToHeadArcherType.RESULT) {
+                                                stringResource(R.string.head_to_head_add_end__type_dialog_result_on)
+                                            }
+                                            else {
+                                                stringResource(R.string.head_to_head_add_end__type_dialog_total)
+                                            }
+                                        }
+
                                         false -> stringResource(R.string.head_to_head_add_end__type_dialog_arrows)
                                         null -> stringResource(R.string.head_to_head_add_end__type_dialog_off)
                                     }
@@ -395,6 +401,20 @@ private fun EditRowTypesDialog(
                                 modifier = Modifier.testTag(HeadToHeadAddEndTestTag.EDIT_ROW_TYPES_DIALOG_ITEM)
                         )
                     }
+                }
+
+                if (state.extras.selectRowTypesDialogUnknownWarning != null) {
+                    Text(
+                            text = stringResource(
+                                    R.string.head_to_head_add_end__unknown_result_warning,
+                                    state.extras.selectRowTypesDialogUnknownWarning.get(),
+                            ),
+                            fontStyle = FontStyle.Italic,
+                            modifier = Modifier
+                                    .align(Alignment.Start)
+                                    .padding(top = 15.dp)
+                                    .testTag(HeadToHeadAddEndTestTag.EDIT_ROW_TYPES_DIALOG_WARNING)
+                    )
                 }
             }
         }
@@ -452,7 +472,7 @@ private fun ColumnScope.SetInfo(
             Text(
                     text = stringResource(
                             R.string.head_to_head_add_end__unknown_result_warning,
-                            state.extras.set.requiredRowsString.get(),
+                            state.extras.set.requiredRowsString!!.get(),
                     ),
                     style = CodexTypography.SMALL_PLUS,
                     color = CodexTheme.colors.onAppBackground,
@@ -630,6 +650,7 @@ enum class HeadToHeadAddEndTestTag : CodexTestTag {
     RESET_BUTTON,
     SAVE_BUTTON,
     EDIT_ROW_TYPES_DIALOG_ITEM,
+    EDIT_ROW_TYPES_DIALOG_WARNING,
     ;
 
     override val screenName: String
@@ -672,6 +693,7 @@ fun EditRowTypes_HeadToHeadAddScreen_Preview() {
                                         HeadToHeadArcherType.TEAM_MATE to true,
                                         HeadToHeadArcherType.OPPONENT to true,
                                 ),
+                                selectRowTypesDialogUnknownWarning = ResOrActual.Actual("opponent"),
                         ),
                 ),
         ) {}
