@@ -12,7 +12,7 @@ import eywa.projectcodex.database.rounds.RoundDistance
 import eywa.projectcodex.database.rounds.RoundSubType
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
-import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
 import java.util.Calendar
 
 data class DatabaseFullShootInfo(
@@ -106,7 +106,7 @@ data class DatabaseFullShootInfo(
                 parentColumn = "shootId",
                 entityColumn = "shootId",
         )
-        val headToHeadHeats: List<DatabaseHeadToHeadHeat>? = null,
+        val headToHeadHeats: List<DatabaseHeadToHeadMatch>? = null,
 
         @Relation(
                 parentColumn = "shootId",

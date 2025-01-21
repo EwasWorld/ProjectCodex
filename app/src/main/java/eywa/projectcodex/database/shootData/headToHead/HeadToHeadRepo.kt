@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 class HeadToHeadRepo(
         private val headToHeadDao: HeadToHeadDao,
-        private val headToHeadHeatDao: HeadToHeadHeatDao,
+        private val headToHeadMatchDao: HeadToHeadMatchDao,
         private val headToHeadDetailDao: HeadToHeadDetailDao,
 ) {
     fun get(shootId: Int): Flow<DatabaseFullHeadToHead?> = headToHeadDao.getFullHeadToHead(shootId)
@@ -13,13 +13,13 @@ class HeadToHeadRepo(
     @Transaction
     suspend fun delete(shootId: Int) {
         headToHeadDao.delete(shootId)
-        headToHeadHeatDao.delete(shootId)
+        headToHeadMatchDao.delete(shootId)
         headToHeadDetailDao.deleteAll(shootId)
     }
 
     @Transaction
     suspend fun delete(shootId: Int, matchNumber: Int) {
-        headToHeadHeatDao.delete(shootId = shootId, matchNumber = matchNumber)
+        headToHeadMatchDao.delete(shootId = shootId, matchNumber = matchNumber)
         headToHeadDetailDao.delete(shootId = shootId, matchNumber = matchNumber)
     }
 
@@ -32,8 +32,8 @@ class HeadToHeadRepo(
         headToHeadDao.insert(headToHead)
     }
 
-    suspend fun insert(heat: DatabaseHeadToHeadHeat) {
-        headToHeadHeatDao.insert(heat)
+    suspend fun insert(match: DatabaseHeadToHeadMatch) {
+        headToHeadMatchDao.insert(match)
     }
 
     suspend fun insert(vararg details: DatabaseHeadToHeadDetail) {
@@ -71,11 +71,11 @@ class HeadToHeadRepo(
         headToHeadDetailDao.insert(*insert.toTypedArray())
     }
 
-    suspend fun update(heat: DatabaseHeadToHeadHeat) {
-        headToHeadHeatDao.update(heat)
+    suspend fun update(match: DatabaseHeadToHeadMatch) {
+        headToHeadMatchDao.update(match)
     }
 
-    suspend fun update(heat: DatabaseHeadToHead) {
-        headToHeadDao.update(heat)
+    suspend fun update(h2h: DatabaseHeadToHead) {
+        headToHeadDao.update(h2h)
     }
 }

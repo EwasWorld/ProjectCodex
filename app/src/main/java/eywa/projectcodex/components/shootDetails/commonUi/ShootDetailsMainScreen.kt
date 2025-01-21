@@ -26,7 +26,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadBottomNavBarItem
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadBottomNavBarItem
 
 @Composable
 fun <T : Any> ShootDetailsMainScreen(

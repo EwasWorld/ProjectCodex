@@ -16,7 +16,7 @@ import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.shootData.DatabaseShoot.Companion.TABLE_NAME
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
-import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
 import eywa.projectcodex.database.views.PersonalBest
 import eywa.projectcodex.database.views.ShootWithScore
 import kotlinx.coroutines.flow.Flow
@@ -183,7 +183,7 @@ interface ShootDao {
                 ) as rounds ON shoot.shootId = rounds.shootId
                 LEFT JOIN (
                     SELECT h.shootId, SUM(h.sightersCount) as count
-                    FROM ${DatabaseHeadToHeadHeat.TABLE_NAME} as h
+                    FROM ${DatabaseHeadToHeadMatch.TABLE_NAME} as h
                     GROUP BY h.shootId
                 ) as h2hHeats ON shoot.shootId = h2hHeats.shootId
                 LEFT JOIN (

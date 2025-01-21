@@ -28,10 +28,10 @@ import eywa.projectcodex.components.settings.SettingsScreen
 import eywa.projectcodex.components.shootDetails.addArrowCount.AddArrowCountScreen
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndScreen
 import eywa.projectcodex.components.shootDetails.editEnd.EditEndScreen
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndScreen
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addHeat.HeadToHeadAddHeatScreen
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.scorePad.HeadToHeadScorePadScreen
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.stats.ui.HeadToHeadStatsScreen
+import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndScreen
+import eywa.projectcodex.components.shootDetails.headToHead.addMatch.HeadToHeadAddMatchScreen
+import eywa.projectcodex.components.shootDetails.headToHead.scorePad.HeadToHeadScorePadScreen
+import eywa.projectcodex.components.shootDetails.headToHead.stats.ui.HeadToHeadStatsScreen
 import eywa.projectcodex.components.shootDetails.insertEnd.InsertEndScreen
 import eywa.projectcodex.components.shootDetails.scorePad.ScorePadScreen
 import eywa.projectcodex.components.shootDetails.settings.ShootDetailsSettingsScreen
@@ -190,7 +190,7 @@ enum class CodexNavRoute : ScreenNavRoute {
             HeadToHeadAddEndScreen(navController)
         }
     },
-    HEAD_TO_HEAD_ADD_HEAT {
+    HEAD_TO_HEAD_ADD_MATCH {
         override val args: Map<NavArgument, Boolean>
             get() = mapOf(
                     NavArgument.SHOOT_ID to true,
@@ -203,7 +203,7 @@ enum class CodexNavRoute : ScreenNavRoute {
 
         @Composable
         override fun Screen(navController: NavController) {
-            HeadToHeadAddHeatScreen(navController)
+            HeadToHeadAddMatchScreen(navController)
         }
     },
     HEAD_TO_HEAD_REF {

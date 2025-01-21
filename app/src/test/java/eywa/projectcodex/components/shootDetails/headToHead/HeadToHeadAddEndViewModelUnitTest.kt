@@ -7,13 +7,11 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.previewHelpers.asDatabaseFullShootInfo
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.getData
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndExtras
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndState
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndViewModel
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadRoundInfo
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData
+import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndExtras
+import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndState
+import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndViewModel
+import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadRoundInfo
+import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData
 import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.model.SightMark
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
@@ -61,7 +59,6 @@ class HeadToHeadAddEndViewModelUnitTest {
         )
 
         val sut = HeadToHeadAddEndViewModel(
-                db = database.mock,
                 repo = shootDetailsRepo,
                 helpShowcaseUseCase = helpShowcase,
                 savedStateHandle = MockSavedStateHandle().apply { values["shootId"] = 1 }.mock,
@@ -83,7 +80,7 @@ class HeadToHeadAddEndViewModelUnitTest {
                 ShootPreviewHelperDsl.create {
                     round = RoundPreviewHelper.wa70RoundData
                     h2h = HeadToHeadPreviewHelperDsl(1).apply {
-                        addHeat { }
+                        addMatch { }
                     }.asFull()
                 }.asDatabaseFullShootInfo()
         )
@@ -118,7 +115,7 @@ class HeadToHeadAddEndViewModelUnitTest {
 
         assertEquals(
                 true,
-                currentState?.extras?.openAddHeatScreen,
+                currentState?.extras?.openAddMatchScreen,
         )
 
         job.cancel()
@@ -129,7 +126,7 @@ class HeadToHeadAddEndViewModelUnitTest {
         database.shootRepo.fullShoots = listOf(
                 ShootPreviewHelperDsl.create {
                     h2h = HeadToHeadPreviewHelperDsl(1).apply {
-                        addHeat {
+                        addMatch {
                             addSet { addRows() }
                             addSet { addRows() }
                             addSet { addRows() }
@@ -143,7 +140,7 @@ class HeadToHeadAddEndViewModelUnitTest {
 
         assertEquals(
                 true,
-                currentState?.extras?.openAddHeatScreen,
+                currentState?.extras?.openAddMatchScreen,
         )
 
         job.cancel()
@@ -154,7 +151,7 @@ class HeadToHeadAddEndViewModelUnitTest {
         database.shootRepo.fullShoots = listOf(
                 ShootPreviewHelperDsl.create {
                     h2h = HeadToHeadPreviewHelperDsl(1).apply {
-                        addHeat {
+                        addMatch {
                             addSet { addRows() }
                             addSet { addRows() }
                             addSet { addRows(result = HeadToHeadResult.LOSS) }
@@ -171,7 +168,7 @@ class HeadToHeadAddEndViewModelUnitTest {
 
         assertEquals(
                 true,
-                currentState?.extras?.openAddHeatScreen,
+                currentState?.extras?.openAddMatchScreen,
         )
 
         job.cancel()
@@ -183,7 +180,7 @@ class HeadToHeadAddEndViewModelUnitTest {
     @Test
     fun testInitialisation_LastSetIsEmptyUnknown() = runTest {
         val h2h = HeadToHeadPreviewHelperDsl(1).apply {
-            addHeat {
+            addMatch {
                 addSet { addRows() }
                 addSet { addRows() }
                 addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
@@ -202,13 +199,13 @@ class HeadToHeadAddEndViewModelUnitTest {
                 HeadToHeadAddEndState(
                         roundInfo = HeadToHeadRoundInfo(),
                         extras = HeadToHeadAddEndExtras(
-                                set = h2h.heats.first().sets.last(),
+                                set = h2h.matches.first().sets.last(),
                                 selected = HeadToHeadArcherType.TEAM,
                         ),
                         teamRunningTotal = null,
                         opponentRunningTotal = null,
                         isRecurveStyle = true,
-                        heat = h2h.heats.first().heat,
+                        match = h2h.matches.first().match,
                 ),
                 currentState,
         )
@@ -222,7 +219,7 @@ class HeadToHeadAddEndViewModelUnitTest {
     @Test
     fun testInitialisation_LastSetIsIncomplete() = runTest {
         val h2h = HeadToHeadPreviewHelperDsl(1).apply {
-            addHeat {
+            addMatch {
                 addSet { addRows() }
                 addSet { addRows() }
                 addSet { addRows(result = HeadToHeadResult.INCOMPLETE) }
@@ -241,13 +238,13 @@ class HeadToHeadAddEndViewModelUnitTest {
                 HeadToHeadAddEndState(
                         roundInfo = HeadToHeadRoundInfo(),
                         extras = HeadToHeadAddEndExtras(
-                                set = h2h.heats.first().sets.last(),
+                                set = h2h.matches.first().sets.last(),
                                 selected = HeadToHeadArcherType.TEAM,
                         ),
                         teamRunningTotal = null,
                         opponentRunningTotal = null,
                         isRecurveStyle = true,
-                        heat = h2h.heats.first().heat,
+                        match = h2h.matches.first().match,
                 ),
                 currentState,
         )
@@ -259,15 +256,15 @@ class HeadToHeadAddEndViewModelUnitTest {
     fun testInitialisation_CreateNewSet() = runTest {
         val inputs = listOf(
                 HeadToHeadPreviewHelperDsl(1).apply {
-                    addHeat {}
+                    addMatch {}
                 },
                 HeadToHeadPreviewHelperDsl(1).apply {
-                    addHeat {
+                    addMatch {
                         addSet { addRows() }
                     }
                 },
                 HeadToHeadPreviewHelperDsl(1).apply {
-                    addHeat {
+                    addMatch {
                         addSet {
                             addRows()
                             removeRow(HeadToHeadArcherType.OPPONENT)
@@ -275,8 +272,8 @@ class HeadToHeadAddEndViewModelUnitTest {
                     }
                 },
                 HeadToHeadPreviewHelperDsl(1).apply {
-                    addHeat {
-                        heat = heat.copy(isBye = true)
+                    addMatch {
+                        match = match.copy(isBye = true)
                     }
                 },
         ).map { it.asFull() }
@@ -297,7 +294,7 @@ class HeadToHeadAddEndViewModelUnitTest {
                             roundInfo = HeadToHeadRoundInfo(),
                             extras = HeadToHeadAddEndExtras(
                                     set = FullHeadToHeadSet(
-                                            setNumber = h2h.heats.first().sets.size + 1,
+                                            setNumber = h2h.matches.first().sets.size + 1,
                                             data = listOf(
                                                     HeadToHeadGridRowData.Arrows(
                                                             type = HeadToHeadArcherType.SELF,
@@ -314,10 +311,10 @@ class HeadToHeadAddEndViewModelUnitTest {
                                     ),
                                     selected = HeadToHeadArcherType.SELF,
                             ),
-                            teamRunningTotal = if (index == 2) null else h2h.heats.first().sets.size * 2,
+                            teamRunningTotal = if (index == 2) null else h2h.matches.first().sets.size * 2,
                             opponentRunningTotal = if (index == 2) null else 0,
                             isRecurveStyle = true,
-                            heat = h2h.heats.first().heat,
+                            match = h2h.matches.first().match,
                     ),
                     currentState,
             )

@@ -3,7 +3,7 @@ package eywa.projectcodex.database.shootData.headToHead
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
 import eywa.projectcodex.database.shootData.DatabaseShoot
 
 @Entity(

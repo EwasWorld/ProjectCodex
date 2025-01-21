@@ -11,7 +11,7 @@ import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.utils.classificationTables.model.Classification
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -22,7 +22,7 @@ import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.GridSetDsl
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.GridSetDsl.CellValue.*
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadAddEndRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadAddHeatRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadAddMatchRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadScorePadRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadStatsRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadStatsRobot.NumbersBreakdownRobot.Column.*
@@ -125,7 +125,7 @@ class HeadToHeadE2eTest {
                         checkNoMatches()
                         checkNumbersBreakdownNotShown()
 
-                        clickNavBarItem<HeadToHeadAddHeatRobot> {}
+                        clickNavBarItem<HeadToHeadAddMatchRobot> {}
                     }
 
                     /*
@@ -284,7 +284,7 @@ class HeadToHeadE2eTest {
                                 checkRow(1, opponentName, Empty, 10, NoColumn, Value(1))
                             }
                         }
-                        clickNavBarItem<HeadToHeadAddHeatRobot> {}
+                        clickNavBarItem<HeadToHeadAddMatchRobot> {}
                     }
 
                     /*

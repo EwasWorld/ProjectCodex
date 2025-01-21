@@ -1,8 +1,8 @@
 package eywa.projectcodex.model.headToHead
 
 import eywa.projectcodex.common.sharedUi.previewHelpers.HeadToHeadPreviewHelperDsl
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -10,7 +10,7 @@ class FullHeadToHeadUnitTest {
     @Test
     fun testConversion() {
         val data = HeadToHeadPreviewHelperDsl(2).apply {
-            addHeat {
+            addMatch {
                 addSet {
                     addRows(
                             result = HeadToHeadResult.WIN,
@@ -37,12 +37,12 @@ class FullHeadToHeadUnitTest {
                 addSet { addRows(result = HeadToHeadResult.LOSS) }
                 addSet { addRows(result = HeadToHeadResult.LOSS, winnerScore = 10, loserScore = 1) }
             }
-            addHeat {
+            addMatch {
                 addSet { addRows(result = HeadToHeadResult.WIN) }
                 addSet { addRows(result = HeadToHeadResult.LOSS) }
                 addSet { addRows(result = HeadToHeadResult.TIE) }
             }
-            addHeat {
+            addMatch {
                 addSet { addRows() }
                 addSet { addRows() }
                 addSet { addRows() }
@@ -52,10 +52,13 @@ class FullHeadToHeadUnitTest {
         val original = data.asFull()
         val converted = FullHeadToHead(
                 headToHead = original.headToHead,
-                heats = original.heats.map { it.heat },
-                details = original.heats.flatMap { heat ->
+                matches = original.matches.map { it.match },
+                details = original.matches.flatMap { heat ->
                     heat.sets.flatMap {
-                        it.asDatabaseDetails(shootId = original.headToHead.shootId, matchNumber = heat.heat.matchNumber)
+                        it.asDatabaseDetails(
+                                shootId = original.headToHead.shootId,
+                                matchNumber = heat.match.matchNumber
+                        )
                     }
                 },
                 isEditable = false,

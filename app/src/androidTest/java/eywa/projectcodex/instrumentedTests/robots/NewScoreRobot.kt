@@ -21,7 +21,7 @@ import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
 import eywa.projectcodex.instrumentedTests.robots.selectRound.SelectRoundBaseRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddCountRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddEndRobot
-import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadAddHeatRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadAddMatchRobot
 import java.util.Calendar
 
 class NewScoreRobot(
@@ -167,9 +167,9 @@ class NewScoreRobot(
         createRobot(ShootDetailsAddCountRobot::class, block)
     }
 
-    fun clickSubmitNewScoreHeadToHead(block: HeadToHeadAddHeatRobot.() -> Unit = {}) {
+    fun clickSubmitNewScoreHeadToHead(block: HeadToHeadAddMatchRobot.() -> Unit = {}) {
         clickElement(NewScoreTestTag.SUBMIT_BUTTON, scrollTo = true)
-        createRobot(HeadToHeadAddHeatRobot::class, block)
+        createRobot(HeadToHeadAddMatchRobot::class, block)
     }
 
     fun clickSubmitEditScore() {

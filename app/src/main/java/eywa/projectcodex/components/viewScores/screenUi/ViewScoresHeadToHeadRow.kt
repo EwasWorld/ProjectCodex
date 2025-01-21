@@ -30,7 +30,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.testTag
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryList
 import eywa.projectcodex.components.viewScores.data.ViewScoresEntryPreviewProvider.toEntry
 
@@ -147,36 +147,15 @@ class ViewScoresHeadToHeadRowPreviewProvider : CollectionPreviewParameterProvide
                         ShootPreviewHelperDsl.create {
                             round = RoundPreviewHelper.wa70RoundData
                             addH2h {
-                                addHeat {
+                                addMatch {
                                     addSet { addRows() }
                                     addSet { addRows() }
                                     addSet { addRows() }
                                 }
-                                addHeat {
+                                addMatch {
                                     addSet { addRows(result = HeadToHeadResult.LOSS) }
                                     addSet { addRows(result = HeadToHeadResult.LOSS) }
                                     addSet { addRows(result = HeadToHeadResult.LOSS) }
-                                }
-                            }
-                        }.toEntry()
-                ),
-                listOf(
-                        ShootPreviewHelperDsl.create {
-                            addH2h {
-                                addHeat {
-                                    addSet { addRows() }
-                                    addSet { addRows() }
-                                    addSet { addRows() }
-                                }
-                                addHeat {
-                                    addSet { addRows(result = HeadToHeadResult.LOSS) }
-                                    addSet { addRows(result = HeadToHeadResult.LOSS) }
-                                    addSet { addRows(result = HeadToHeadResult.LOSS) }
-                                }
-                                addHeat {
-                                    addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
-                                    addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
-                                    addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
                                 }
                             }
                         }.toEntry()
@@ -184,7 +163,28 @@ class ViewScoresHeadToHeadRowPreviewProvider : CollectionPreviewParameterProvide
                 listOf(
                         ShootPreviewHelperDsl.create {
                             addH2h {
-                                addHeat {
+                                addMatch {
+                                    addSet { addRows() }
+                                    addSet { addRows() }
+                                    addSet { addRows() }
+                                }
+                                addMatch {
+                                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                                }
+                                addMatch {
+                                    addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
+                                    addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
+                                    addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
+                                }
+                            }
+                        }.toEntry()
+                ),
+                listOf(
+                        ShootPreviewHelperDsl.create {
+                            addH2h {
+                                addMatch {
                                     addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
                                     addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
                                     addSet { addRows(result = HeadToHeadResult.UNKNOWN) }

@@ -100,8 +100,8 @@ class AddArrowCountViewModel @Inject constructor(
                     }
                     else {
                         val heat =
-                                currentState.fullShootInfo.h2h?.heats
-                                        ?.find { it.heat.matchNumber == h2hMatchNumber }?.heat
+                                currentState.fullShootInfo.h2h?.matches
+                                        ?.find { it.match.matchNumber == h2hMatchNumber }?.match
                                         ?: return
                         val currentCount = heat.sightersCount
                         viewModelScope.launch {

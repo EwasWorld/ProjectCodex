@@ -2,10 +2,10 @@ package eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead
 
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndTestTag
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridColumnTestTag
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridTestTag
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
+import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndTestTag
+import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridColumnTestTag
+import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDialogCancel
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDialogOk
@@ -176,16 +176,16 @@ class HeadToHeadAddEndRobot(
     }
 
     /**
-     * Should stay on add end screen, use overload for jump to add heat screen
+     * Should stay on add end screen, use overload for jump to add match screen
      */
     fun clickNextEnd() {
         clickElement(HeadToHeadAddEndTestTag.NEXT_END_BUTTON)
         checkScreenIsShown()
     }
 
-    fun clickNextEnd(block: HeadToHeadAddHeatRobot.() -> Unit) {
+    fun clickNextEnd(block: HeadToHeadAddMatchRobot.() -> Unit) {
         clickElement(HeadToHeadAddEndTestTag.NEXT_END_BUTTON)
-        createRobot(HeadToHeadAddHeatRobot::class, block)
+        createRobot(HeadToHeadAddMatchRobot::class, block)
     }
 
     fun checkArrowRowError(rowIndex: Int, error: String?) {
@@ -277,9 +277,9 @@ class HeadToHeadAddEndRobot(
         clickElement(HeadToHeadAddEndTestTag.SAVE_BUTTON)
     }
 
-    fun clickCreateNextMatch(block: HeadToHeadAddHeatRobot.() -> Unit) {
+    fun clickCreateNextMatch(block: HeadToHeadAddMatchRobot.() -> Unit) {
         clickElement(HeadToHeadAddEndTestTag.CREATE_NEXT_MATCH_BUTTON)
-        createRobot(HeadToHeadAddHeatRobot::class, block)
+        createRobot(HeadToHeadAddMatchRobot::class, block)
     }
 
     @RobotDslMarker

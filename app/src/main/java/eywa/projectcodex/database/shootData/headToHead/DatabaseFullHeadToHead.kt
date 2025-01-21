@@ -11,7 +11,7 @@ data class DatabaseFullHeadToHead(
                 parentColumn = "shootId",
                 entityColumn = "shootId",
         )
-        val heats: List<DatabaseHeadToHeadHeat>? = null,
+        val matches: List<DatabaseHeadToHeadMatch>? = null,
 
         @Relation(
                 parentColumn = "shootId",

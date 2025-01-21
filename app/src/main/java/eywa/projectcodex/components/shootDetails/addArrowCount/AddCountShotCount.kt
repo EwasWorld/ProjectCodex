@@ -28,8 +28,8 @@ fun ShotCount(
         helpListener: (HelpShowcaseIntent) -> Unit,
         onSightersClicked: () -> Unit,
 ) {
-    val heat = state.fullShootInfo.h2h?.heats?.find { it.heat.matchNumber == state.heatId }
-    val sighters = heat?.heat?.sightersCount ?: state.fullShootInfo.shootRound?.sightersCount
+    val heat = state.fullShootInfo.h2h?.matches?.find { it.match.matchNumber == state.heatId }
+    val sighters = heat?.match?.sightersCount ?: state.fullShootInfo.shootRound?.sightersCount
     val shot = heat?.arrowsShot ?: state.fullShootInfo.arrowsShot
 
     if (state.isEditingSighters) {

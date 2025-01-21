@@ -3,9 +3,9 @@ package eywa.projectcodex.model.headToHead
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
+import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.Either

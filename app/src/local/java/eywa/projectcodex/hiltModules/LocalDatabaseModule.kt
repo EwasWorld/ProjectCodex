@@ -10,8 +10,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.components.newScore.NewScoreType
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndExtras
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.addEnd.HeadToHeadAddEndState
+import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndExtras
+import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndState
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.UpdateType
@@ -85,11 +85,14 @@ class LocalDatabaseModule {
 
         suspend fun ScoresRoomDatabase.add(h2hInfo: FullHeadToHead) {
             h2hRepo().insert(h2hInfo.headToHead)
-            h2hInfo.heats.forEach { heat ->
-                h2hRepo().insert(heat.heat)
+            h2hInfo.matches.forEach { heat ->
+                h2hRepo().insert(heat.match)
 
                 heat.sets.flatMap {
-                    HeadToHeadAddEndState(extras = HeadToHeadAddEndExtras(set = it), heat = heat.heat).setToDbDetails()
+                    HeadToHeadAddEndState(
+                            extras = HeadToHeadAddEndExtras(set = it),
+                            match = heat.match
+                    ).setToDbDetails()
                 }.forEach { h2hRepo().insert(it.copy(headToHeadArrowScoreId = headToHeadArrowScoreId++)) }
             }
         }

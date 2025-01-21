@@ -4,7 +4,7 @@ import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType.SELF
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType.SELF
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -61,7 +61,7 @@ data class FullShootInfo(
             h2h = full.headToHead?.let {
                 FullHeadToHead(
                         headToHead = it,
-                        heats = full.headToHeadHeats.orEmpty(),
+                        matches = full.headToHeadHeats.orEmpty(),
                         details = full.headToHeadDetails.orEmpty(),
                         isEditable = false,
                 )

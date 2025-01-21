@@ -1,0 +1,66 @@
+package eywa.projectcodex.components.shootDetails.headToHead.addMatch
+
+import eywa.projectcodex.common.sharedUi.numberField.NumberFieldState
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
+import eywa.projectcodex.common.sharedUi.numberField.NumberValidatorGroup
+import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
+import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
+import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadRoundInfo
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
+
+data class HeadToHeadAddMatchState(
+        val roundInfo: HeadToHeadRoundInfo? = null,
+        val previousMatch: PreviousMatch? = null,
+        val editing: DatabaseHeadToHeadMatch? = null,
+
+        val extras: HeadToHeadAddMatchExtras = HeadToHeadAddMatchExtras(),
+        val matchNumber: Int = editing?.matchNumber ?: previousMatch?.matchNumber?.plus(1) ?: 1
+) {
+
+    fun asHeadToHeadMatch(shootId: Int) =
+            DatabaseHeadToHeadMatch(
+                    shootId = shootId,
+                    matchNumber = matchNumber,
+                    heat = extras.heat,
+                    opponent = extras.opponent.takeIf { it.isNotBlank() },
+                    opponentQualificationRank = extras.opponentQualiRank.parsed,
+                    isShootOffWin = false,
+                    sightersCount = 0,
+                    maxPossibleRank = extras.maxPossibleRank.parsed,
+                    isBye = extras.isBye,
+            )
+
+    data class PreviousMatch(
+            val matchNumber: Int,
+            val heat: Int?,
+            val result: HeadToHeadResult,
+            val isBye: Boolean,
+            val runningTotal: Pair<Int, Int>?,
+    )
+}
+
+data class HeadToHeadAddMatchExtras(
+        val openAddEndScreenForMatch: Int? = null,
+        val pressBack: Boolean = false,
+        val openEditSightMark: Boolean = false,
+        val openAllSightMarks: Boolean = false,
+        /**
+         * 0 is final, 1 is semi, etc.
+         */
+        val heat: Int? = null,
+        val showSelectHeatDialog: Boolean = false,
+        val opponent: String = "",
+        val opponentQualiRank: NumberFieldState<Int> = NumberFieldState(
+                TypeValidator.IntValidator,
+                NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
+        ),
+        val maxPossibleRank: NumberFieldState<Int> = NumberFieldState(
+                text = "1",
+                validators = NumberValidatorGroup(
+                        TypeValidator.IntValidator,
+                        NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
+                ),
+        ),
+        val isBye: Boolean = false,
+)

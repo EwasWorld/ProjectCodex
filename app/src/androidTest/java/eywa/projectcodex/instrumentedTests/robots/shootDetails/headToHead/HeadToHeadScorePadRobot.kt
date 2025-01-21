@@ -1,10 +1,10 @@
 package eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead
 
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridColumnTestTag
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.scorePad.HeadToHeadScorePadMatchTestTag
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.scorePad.HeadToHeadScorePadTestTag
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
+import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridColumnTestTag
+import eywa.projectcodex.components.shootDetails.headToHead.scorePad.HeadToHeadScorePadMatchTestTag
+import eywa.projectcodex.components.shootDetails.headToHead.scorePad.HeadToHeadScorePadTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne

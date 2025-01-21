@@ -13,7 +13,7 @@ interface HeadToHeadDetailDao {
     suspend fun insert(vararg shootDetail: DatabaseHeadToHeadDetail)
 
     @Update
-    suspend fun update(vararg heats: DatabaseHeadToHeadDetail)
+    suspend fun update(vararg details: DatabaseHeadToHeadDetail)
 
     @Query("DELETE FROM $TABLE_NAME WHERE shootId = :shootId")
     suspend fun deleteAll(shootId: Int)
@@ -34,5 +34,5 @@ interface HeadToHeadDetailDao {
                 WHERE shootId = :shootId AND matchNumber = :oldMatchNumber
             """
     )
-    suspend fun updateHeat(shootId: Int, newMatchNumber: Int, oldMatchNumber: Int)
+    suspend fun updateMatchNumber(shootId: Int, newMatchNumber: Int, oldMatchNumber: Int)
 }

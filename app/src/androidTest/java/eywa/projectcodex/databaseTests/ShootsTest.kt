@@ -5,7 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.shootData.DatabaseArrowCountCalendarData
@@ -387,7 +387,7 @@ class ShootsTest {
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(shootId = 15, dateShot = "8/3/20 10:00".parseDate())
                     addH2h {
-                        addHeat {
+                        addMatch {
                             addSet {
                                 addRows(winnerScore = 30, loserScore = 29, selfScore = 0)
                             }
@@ -453,15 +453,15 @@ class ShootsTest {
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(shootId = 6, dateShot = "7/3/20 10:00".parseDate())
                     addH2h {
-                        addHeat {}
+                        addMatch {}
                     }
                 },
                 // Full 6-0 and 6-5 h2h with heat with sighters
                 ShootPreviewHelperDsl.create {
                     shoot = shoot.copy(shootId = 7, dateShot = "8/3/20 10:00".parseDate())
                     addH2h {
-                        addHeat {
-                            heat = heat.copy(heat = 1, sightersCount = 4)
+                        addMatch {
+                            match = match.copy(heat = 1, sightersCount = 4)
                             addSet {
                                 addRows(winnerScore = 30, loserScore = 29, selfScore = 30)
                             }
@@ -472,8 +472,8 @@ class ShootsTest {
                                 addRows(winnerScore = 30, loserScore = 29, selfScore = 30)
                             }
                         }
-                        addHeat {
-                            heat = heat.copy(heat = 0, sightersCount = 0, isShootOffWin = true)
+                        addMatch {
+                            match = match.copy(heat = 0, sightersCount = 0, isShootOffWin = true)
                             addSet {
                                 addRows(
                                         winnerScore = 30,

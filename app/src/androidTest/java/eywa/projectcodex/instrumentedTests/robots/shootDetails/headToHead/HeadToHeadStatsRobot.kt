@@ -1,7 +1,7 @@
 package eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead
 
 import eywa.projectcodex.common.ComposeTestRule
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.stats.ui.HeadToHeadStatsTestTag
+import eywa.projectcodex.components.shootDetails.headToHead.stats.ui.HeadToHeadStatsTestTag
 import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
@@ -20,7 +20,7 @@ class HeadToHeadStatsRobot(
     val handicapAndClassificationRobot = HandicapAndClassificationSectionRobot(composeTestRule, screenTestTag)
 
     fun checkNoMatches() {
-        checkElementIsDisplayed(HeadToHeadStatsTestTag.NO_HEATS_TEXT)
+        checkElementIsDisplayed(HeadToHeadStatsTestTag.NO_MATCHES_TEXT)
     }
 
     fun checkDate(text: String) {

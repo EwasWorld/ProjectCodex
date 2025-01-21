@@ -2,14 +2,14 @@ package eywa.projectcodex.common.sharedUi.previewHelpers
 
 import eywa.projectcodex.common.utils.CodexPreviewHelperDsl
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadResult
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowDataPreviewHelper
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
+import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData
+import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowDataPreviewHelper
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
-import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
 import eywa.projectcodex.model.headToHead.FullHeadToHead
-import eywa.projectcodex.model.headToHead.FullHeadToHeadHeat
+import eywa.projectcodex.model.headToHead.FullHeadToHeadMatch
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 @CodexPreviewHelperDsl
@@ -22,26 +22,26 @@ class HeadToHeadPreviewHelperDsl(shootId: Int) {
             qualificationRank = null,
             totalArchers = null,
     )
-    private var heats = listOf<FullHeadToHeadHeat>()
+    private var matches = listOf<FullHeadToHeadMatch>()
 
-    fun addHeat(config: HeadToHeadHeatPreviewHelperDsl.() -> Unit) {
-        heats = heats + HeadToHeadHeatPreviewHelperDsl(
-                matchNumber = heats.size + 1,
+    fun addMatch(config: HeadToHeadMatchPreviewHelperDsl.() -> Unit) {
+        matches = matches + HeadToHeadMatchPreviewHelperDsl(
+                matchNumber = matches.size + 1,
                 shootId = headToHead.shootId,
                 teamSize = headToHead.teamSize,
                 isRecurveStyle = headToHead.isRecurveStyle,
                 isStandardFormat = headToHead.isStandardFormat,
-                heat = heats.mapNotNull { it.heat.heat }.minOrNull()?.minus(1) ?: 3,
+                heat = matches.mapNotNull { it.match.heat }.minOrNull()?.minus(1) ?: 3,
         ).apply(config).asFull()
 
-        require(heats.distinctBy { it.heat.heat }.size == heats.size) { "Duplicate heat" }
+        require(matches.distinctBy { it.match.heat }.size == matches.size) { "Duplicate heat" }
     }
 
-    fun asFull() = FullHeadToHead(headToHead = headToHead, heats = heats)
+    fun asFull() = FullHeadToHead(headToHead = headToHead, matches = matches)
 }
 
 @CodexPreviewHelperDsl
-class HeadToHeadHeatPreviewHelperDsl(
+class HeadToHeadMatchPreviewHelperDsl(
         shootId: Int,
         matchNumber: Int,
         val teamSize: Int,
@@ -49,7 +49,7 @@ class HeadToHeadHeatPreviewHelperDsl(
         val isStandardFormat: Boolean,
         heat: Int = 3,
 ) {
-    var heat = DatabaseHeadToHeadHeat(
+    var match = DatabaseHeadToHeadMatch(
             matchNumber = matchNumber,
             shootId = shootId,
             heat = heat,
@@ -66,12 +66,12 @@ class HeadToHeadHeatPreviewHelperDsl(
         val set = HeadToHeadSetPreviewHelperDsl(
                 setNumber = sets.size + 1,
                 teamSize = teamSize,
-                isShootOffWin = heat.isShootOffWin,
+                isShootOffWin = match.isShootOffWin,
                 isRecurveStyle = isRecurveStyle,
         ).apply(config).asFull()
 
         require(
-                !set.isShootOff || (set.result == HeadToHeadResult.WIN) == heat.isShootOffWin,
+                !set.isShootOff || (set.result == HeadToHeadResult.WIN) == match.isShootOffWin,
         ) { "isShootOffWin mismatch" }
         require(sets.distinctBy { it.setNumber }.size == sets.size) { "Duplicate setNumber" }
 
@@ -79,8 +79,8 @@ class HeadToHeadHeatPreviewHelperDsl(
     }
 
     fun asFull() =
-            FullHeadToHeadHeat(
-                    heat = heat,
+            FullHeadToHeadMatch(
+                    match = match,
                     sets = sets,
                     teamSize = teamSize,
                     isRecurveStyle = isRecurveStyle,

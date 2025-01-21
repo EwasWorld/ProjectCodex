@@ -1,30 +1,30 @@
 package eywa.projectcodex.model.headToHead
 
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.HeadToHeadArcherType
-import eywa.projectcodex.components.shootDetails.headToHeadEnd.grid.HeadToHeadGridRowData.*
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
+import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData.*
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
-import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadHeat
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
 import eywa.projectcodex.model.Arrow
 
 data class FullHeadToHead(
         val headToHead: DatabaseHeadToHead,
-        val heats: List<FullHeadToHeadHeat>,
+        val matches: List<FullHeadToHeadMatch>,
 ) {
     constructor(
             headToHead: DatabaseHeadToHead,
-            heats: List<DatabaseHeadToHeadHeat>,
+            matches: List<DatabaseHeadToHeadMatch>,
             details: List<DatabaseHeadToHeadDetail>,
             isEditable: Boolean,
     ) : this(
             headToHead = headToHead,
-            heats = details.groupBy { it.matchNumber }.let { grouped ->
-                heats.map { heat ->
+            matches = details.groupBy { it.matchNumber }.let { grouped ->
+                matches.map { match ->
                     val shootOffSet = HeadToHeadUseCase.shootOffSet(headToHead.teamSize)
-                    FullHeadToHeadHeat(
-                            heat = heat,
-                            sets = (grouped[heat.matchNumber] ?: emptyList())
+                    FullHeadToHeadMatch(
+                            match = match,
+                            sets = (grouped[match.matchNumber] ?: emptyList())
                                     .groupBy { it.setNumber }
                                     .map { (setNumber, details) ->
                                         FullHeadToHeadSet(
@@ -38,7 +38,7 @@ data class FullHeadToHead(
                                                         isEditable = isEditable,
                                                 ),
                                                 teamSize = headToHead.teamSize,
-                                                isShootOffWin = heat.isShootOffWin,
+                                                isShootOffWin = match.isShootOffWin,
                                                 isRecurveStyle = headToHead.isRecurveStyle,
                                         )
                                     },
@@ -51,14 +51,14 @@ data class FullHeadToHead(
     )
 
     val hasStarted: Boolean
-        get() = heats.any { it.hasStarted }
+        get() = matches.any { it.hasStarted }
 
     val arrowsShot: Int
-        get() = heats.sumOf { it.arrowsShot }
+        get() = matches.sumOf { it.arrowsShot }
 
     val isComplete: Boolean
-        get() = heats.all { heat ->
-            heat.result.isComplete
+        get() = matches.all { match ->
+            match.result.isComplete
         }
 
     val arrowsToIsSelf =
@@ -66,7 +66,7 @@ data class FullHeadToHead(
                     ?: getArrows(HeadToHeadArcherType.TEAM)?.let { it to false }
 
     fun getArrows(type: HeadToHeadArcherType) =
-            heats.fold<FullHeadToHeadHeat, RowArrows?>(RowArrows.Arrows(listOf())) { acc, set ->
+            matches.fold<FullHeadToHeadMatch, RowArrows?>(RowArrows.Arrows(listOf())) { acc, set ->
                 if (acc == null) null else set.getArrows(type)?.let { it + acc }
             }
 
