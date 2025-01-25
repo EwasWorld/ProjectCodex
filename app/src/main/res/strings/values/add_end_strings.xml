@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="input_end__title">Input End</string>
+    <string name="input_end__title">Add End</string>
     <string name="input_end__change_end_size_dialog_title">Change end size</string>
 
     <string name="input_end__arrow_button_accessibility">%s arrow input</string>

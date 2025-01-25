@@ -13,15 +13,13 @@ data class HeadToHeadAddMatchState(
         val roundInfo: HeadToHeadRoundInfo? = null,
         val previousMatch: PreviousMatch? = null,
         val editing: DatabaseHeadToHeadMatch? = null,
-
-        val extras: HeadToHeadAddMatchExtras = HeadToHeadAddMatchExtras(),
-        val matchNumber: Int = editing?.matchNumber ?: previousMatch?.matchNumber?.plus(1) ?: 1
+        val extras: HeadToHeadAddMatchExtras = HeadToHeadAddMatchExtras(matchNumber = 1),
 ) {
 
     fun asHeadToHeadMatch(shootId: Int) =
             DatabaseHeadToHeadMatch(
                     shootId = shootId,
-                    matchNumber = matchNumber,
+                    matchNumber = extras.matchNumber,
                     heat = extras.heat,
                     opponent = extras.opponent.takeIf { it.isNotBlank() },
                     opponentQualificationRank = extras.opponentQualiRank.parsed,
@@ -63,4 +61,5 @@ data class HeadToHeadAddMatchExtras(
                 ),
         ),
         val isBye: Boolean = false,
+        val matchNumber: Int = 1,
 )

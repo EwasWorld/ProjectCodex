@@ -20,7 +20,7 @@ enum class HeadToHeadBottomNavBarItem(
             navRoute = CodexNavRoute.HEAD_TO_HEAD_ADD_END,
             notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_outline),
             selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_filled),
-            label = ResOrActual.StringResource(R.string.input_end__title),
+            label = ResOrActual.StringResource(R.string.head_to_head_add_end__title),
     ) {
         override fun shouldShow(currentScreen: CodexNavRoute): Boolean =
                 currentScreen != CodexNavRoute.HEAD_TO_HEAD_ADD_MATCH
@@ -29,7 +29,7 @@ enum class HeadToHeadBottomNavBarItem(
             navRoute = CodexNavRoute.HEAD_TO_HEAD_ADD_MATCH,
             notSelectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_outline),
             selectedIcon = CodexIconInfo.PainterIcon(R.drawable.ic_add_box_filled),
-            label = ResOrActual.StringResource(R.string.input_end__title),
+            label = ResOrActual.StringResource(R.string.head_to_head_add_end__title),
     ) {
         override fun shouldShow(currentScreen: CodexNavRoute): Boolean =
                 currentScreen == CodexNavRoute.HEAD_TO_HEAD_ADD_MATCH

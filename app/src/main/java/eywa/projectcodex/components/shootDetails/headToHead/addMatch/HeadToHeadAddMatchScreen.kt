@@ -302,7 +302,7 @@ private fun MatchDetails(
                 verticalAlignment = Alignment.CenterVertically,
         ) {
             DataRow(
-                    title = stringResource(R.string.head_to_head_add_heat__heat, state.matchNumber),
+                    title = stringResource(R.string.head_to_head_add_heat__heat, state.extras.matchNumber),
                     text = state.extras.heat?.let { HeadToHeadUseCase.shortRoundName(it).get() }
                             ?: stringResource(R.string.head_to_head_add_heat__heat_null),
                     onClick = { listener(HeatClicked) },

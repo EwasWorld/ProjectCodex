@@ -95,7 +95,6 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
                 }
 
                 return HeadToHeadAddMatchState(
-                        matchNumber = editingMatchNumber,
                         roundInfo = roundInfo,
                         extras = extras ?: HeadToHeadAddMatchExtras(),
                         previousMatch = previous?.asPreviousMatch(),
@@ -107,6 +106,7 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
             if (extraState.value == null) {
                 extraState.update {
                     HeadToHeadAddMatchExtras(
+                            matchNumber = editingMatchNumber,
                             heat = previous?.match?.heat?.minus(1)?.coerceAtLeast(0) ?: estimatedHeat(),
                     )
                             .setMaxRank(previous)
@@ -115,7 +115,6 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
             }
 
             return HeadToHeadAddMatchState(
-                    matchNumber = editingMatchNumber,
                     roundInfo = roundInfo,
                     extras = (extras ?: HeadToHeadAddMatchExtras()),
                     previousMatch = previous?.asPreviousMatch(),
@@ -130,13 +129,15 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
 
             if (extraState.value == null) {
                 extraState.update {
-                    HeadToHeadAddMatchExtras(heat = estimatedHeat())
+                    HeadToHeadAddMatchExtras(
+                            matchNumber = 1,
+                            heat = estimatedHeat(),
+                    )
                             .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(1))
                 }
             }
 
             return HeadToHeadAddMatchState(
-                    matchNumber = 1,
                     roundInfo = roundInfo,
                     extras = extras ?: HeadToHeadAddMatchExtras(),
                     previousMatch = null,
@@ -151,14 +152,16 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
             // TODO Swap to a match number check
             if (extraState.value == null || latestMatch.match.heat == extraState.value?.heat) {
                 extraState.update {
-                    HeadToHeadAddMatchExtras(heat = latestMatch.match.heat?.minus(1)?.coerceAtLeast(0))
+                    HeadToHeadAddMatchExtras(
+                            matchNumber = previousMatch.matchNumber + 1,
+                            heat = latestMatch.match.heat?.minus(1)?.coerceAtLeast(0),
+                    )
                             .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(previousMatch.matchNumber + 1))
                             .setMaxRank(latestMatch)
                 }
             }
 
             return HeadToHeadAddMatchState(
-                    matchNumber = previousMatch.matchNumber + 1,
                     roundInfo = roundInfo,
                     extras = extras ?: HeadToHeadAddMatchExtras(),
                     previousMatch = previousMatch,
@@ -169,12 +172,14 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
         // Previous match not completed, jump to add end screen
         if (extras?.openAddEndScreenForMatch == null) {
             extraState.update {
-                (it ?: HeadToHeadAddMatchExtras()).copy(openAddEndScreenForMatch = DEFAULT_INT_NAV_ARG)
+                (it ?: HeadToHeadAddMatchExtras()).copy(
+                        openAddEndScreenForMatch = DEFAULT_INT_NAV_ARG,
+                        matchNumber = latestMatch.match.matchNumber,
+                )
             }
         }
 
         return HeadToHeadAddMatchState(
-                matchNumber = latestMatch.match.matchNumber,
                 roundInfo = roundInfo,
                 extras = (extras ?: HeadToHeadAddMatchExtras()).resetEditInfo(latestMatch.match),
                 previousMatch = null,
@@ -187,6 +192,7 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
             opponent = editing.opponent ?: "",
             opponentQualiRank = opponentQualiRank.copy(text = editing.opponentQualificationRank?.toString() ?: ""),
             isBye = editing.isBye,
+            matchNumber = editing.matchNumber,
     )
 
     private fun HeadToHeadAddMatchExtras.setMaxRank(previous: FullHeadToHeadMatch?): HeadToHeadAddMatchExtras {
