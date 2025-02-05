@@ -39,15 +39,21 @@ data class NewScoreState(
         val h2hFormatIsStandard: Boolean = true,
         val h2hTeamSize: NumberFieldState<Int> = NumberFieldState(
                 text = "1",
-                validators = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.InRange(1..5)),
+                validators = NumberValidatorGroup(
+                        TypeValidator.IntValidator,
+                        NumberValidator.InRange(1..5),
+                        NumberValidator.NotRequired,
+                ),
         ),
         val h2hQualificationRank: NumberFieldState<Int> = NumberFieldState(
                 TypeValidator.IntValidator,
                 NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
+                NumberValidator.NotRequired,
         ),
         val h2hTotalArchers: NumberFieldState<Int> = NumberFieldState(
                 TypeValidator.IntValidator,
                 NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
+                NumberValidator.NotRequired,
         ),
 
         /*

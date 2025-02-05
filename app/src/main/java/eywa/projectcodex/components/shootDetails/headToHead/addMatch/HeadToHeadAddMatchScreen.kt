@@ -1,5 +1,10 @@
 package eywa.projectcodex.components.shootDetails.headToHead.addMatch
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -95,6 +101,7 @@ fun HeadToHeadAddMatchScreen(
             data?.extras?.openAllSightMarks,
             data?.extras?.openEditSightMark,
             data?.extras?.openAddEndScreenForMatch,
+            data?.extras?.pressBack,
     ) {
         if (data != null) {
             if (data.extras.openAllSightMarks) {
@@ -126,6 +133,11 @@ fun HeadToHeadAddMatchScreen(
                 )
                 listener(OpenAddEndScreenHandled)
             }
+
+            if (data.extras.pressBack) {
+                navController.popBackStack()
+                listener(BackPressedHandled)
+            }
         }
     }
 }
@@ -147,7 +159,7 @@ fun HeadToHeadAddMatchScreen(
                         .padding(vertical = CodexTheme.dimens.screenPadding)
                         .testTag(HeadToHeadAddMatchTestTag.SCREEN)
         ) {
-            if (state.roundInfo != null) {
+            if (state.roundInfo != null && state.editing == null) {
                 SightMark(
                         distance = state.roundInfo.distance,
                         isMetric = state.roundInfo.isMetric,
@@ -159,7 +171,6 @@ fun HeadToHeadAddMatchScreen(
             }
 
             PreviousMatch(state)
-            EditingMatch(state)
 
             Surface(
                     shape = RoundedCornerShape(CodexTheme.dimens.cornerRounding),
@@ -240,21 +251,6 @@ private fun PreviousMatch(
     }
 }
 
-@Composable
-private fun EditingMatch(
-        state: HeadToHeadAddMatchState,
-        modifier: Modifier = Modifier,
-) {
-    if (state.editing != null) {
-        Text(
-                text = stringResource(
-                        R.string.head_to_head_add_heat__editing,
-                        state.editing.matchNumber,
-                ),
-        )
-    }
-}
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun MatchDetails(
@@ -316,6 +312,22 @@ private fun MatchDetails(
                     colours = ChipColours.Defaults.onPrimary(),
             )
         }
+        AnimatedVisibility(
+                visible = state.editingMatchWithSetsToBye,
+                enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
+                exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut(),
+        ) {
+            Text(
+                    text = stringResource(R.string.head_to_head_add_heat__bye_with_sets_warning),
+                    color = CodexTheme.colors.warningOnAppBackground,
+                    fontStyle = FontStyle.Italic,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                            .padding(bottom = 3.dp)
+                            .testTag(HeadToHeadAddMatchTestTag.BYE_WITH_SETS_WARNING_TEXT)
+            )
+        }
+
         DataRow(
                 title = stringResource(R.string.head_to_head_add_heat__opponent),
                 modifier = Modifier.padding(vertical = 10.dp)
@@ -462,6 +474,7 @@ enum class HeadToHeadAddMatchTestTag : CodexTestTag {
     MAX_RANK_INPUT,
     MAX_RANK_ERROR,
     IS_BYE_CHECKBOX,
+    BYE_WITH_SETS_WARNING_TEXT,
     HEAT_SELECTOR_DIALOG_ITEM,
     PREVIOUS_MATCH_INFO,
     PREVIOUS_MATCH_RESULT,
@@ -522,6 +535,7 @@ fun Editing_HeadToHeadAddMatchScreen_Preview() {
                                 opponent = "",
                                 isBye = false
                         ),
+                        editingMatchWithSetsToBye = true,
                 ),
         ) {}
     }

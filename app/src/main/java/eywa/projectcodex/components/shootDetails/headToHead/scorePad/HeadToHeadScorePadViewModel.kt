@@ -54,6 +54,7 @@ class HeadToHeadScorePadViewModel @Inject constructor(
             EditSightersHandled -> extraState.update { it.copy(openSightersForMatch = null) }
             is EditSet -> extraState.update { it.copy(openEditSetInfo = action.match to action.setNumber) }
             EditSetHandled -> extraState.update { it.copy(openEditSetInfo = null) }
+            is AddNewSet -> extraState.update { it.copy(openEditSetInfo = action.match to null) }
         }
     }
 }

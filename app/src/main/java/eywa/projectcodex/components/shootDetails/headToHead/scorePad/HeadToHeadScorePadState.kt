@@ -11,5 +11,5 @@ data class HeadToHeadScorePadExtras(
         val openAddMatch: Boolean = false,
         val openSightersForMatch: Int? = null,
         val openEditMatchInfo: Int? = null,
-        val openEditSetInfo: Pair<Int, Int>? = null,
+        val openEditSetInfo: Pair<Int, Int?>? = null,
 )

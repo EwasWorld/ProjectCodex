@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ProvideTextStyle
@@ -44,12 +46,10 @@ import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGrid
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowDataPreviewHelper
+import eywa.projectcodex.components.shootDetails.headToHead.scorePad.HeadToHeadScorePadMatchTestTag.*
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
 import eywa.projectcodex.model.headToHead.FullHeadToHeadMatch
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
-
-private fun Modifier.testTag(matchNumber: Int, testTag: HeadToHeadScorePadMatchTestTag) =
-        testTag(testTag.getTestTag(matchNumber))
 
 @Composable
 fun HeadToHeadScorePadScreen(
@@ -163,6 +163,10 @@ fun HeadToHeadScorePadScreen(
                         .testTag(HeadToHeadScorePadTestTag.SCREEN)
         ) {
             state.entries.forEach { entry ->
+
+                fun Modifier.testTag(testTag: HeadToHeadScorePadMatchTestTag) =
+                        testTag(testTag.getTestTag(entry.match.matchNumber))
+
                 Surface(
                         border = BorderStroke(1.dp, CodexTheme.colors.onAppBackground),
                         shape = RoundedCornerShape(CodexTheme.dimens.smallCornerRounding),
@@ -176,7 +180,9 @@ fun HeadToHeadScorePadScreen(
                                         contentDescription = stringResource(R.string.head_to_head_score_pad__edit_heat),
                                 ),
                                 onClick = { listener(HeadToHeadScorePadIntent.EditMatchInfo(entry.match.matchNumber)) },
-                                modifier = Modifier.align(Alignment.BottomEnd)
+                                modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .testTag(EDIT_MATCH_INFO_BUTTON.getTestTag(entry.match.matchNumber))
                         )
 
                         Column(
@@ -193,10 +199,7 @@ fun HeadToHeadScorePadScreen(
                                                 entry.match.matchNumber,
                                         ),
                                         text = HeadToHeadUseCase.roundName(entry.match.heat).get(),
-                                        modifier = Modifier.testTag(
-                                                entry.match.matchNumber,
-                                                HeadToHeadScorePadMatchTestTag.MATCH_TEXT,
-                                        )
+                                        modifier = Modifier.testTag(MATCH_TEXT)
                                 )
                             }
                             else {
@@ -205,10 +208,7 @@ fun HeadToHeadScorePadScreen(
                                                 R.string.head_to_head_add_heat__match_header,
                                                 entry.match.matchNumber,
                                         ),
-                                        modifier = Modifier.testTag(
-                                                entry.match.matchNumber,
-                                                HeadToHeadScorePadMatchTestTag.MATCH_TEXT,
-                                        )
+                                        modifier = Modifier.testTag(MATCH_TEXT)
                                 )
                             }
 
@@ -216,10 +216,7 @@ fun HeadToHeadScorePadScreen(
                                 if (!entry.match.opponent.isNullOrBlank()) {
                                     Text(
                                             text = opponent,
-                                            modifier = Modifier.testTag(
-                                                    entry.match.matchNumber,
-                                                    HeadToHeadScorePadMatchTestTag.OPPONENT_TEXT,
-                                            )
+                                            modifier = Modifier.testTag(OPPONENT_TEXT)
                                     )
                                 }
                             }
@@ -234,10 +231,7 @@ fun HeadToHeadScorePadScreen(
                                 DataRow(
                                         title = stringResource(R.string.head_to_head_add_heat__max_rank),
                                         text = maxRank,
-                                        modifier = Modifier.testTag(
-                                                entry.match.matchNumber,
-                                                HeadToHeadScorePadMatchTestTag.MAX_RANK,
-                                        )
+                                        modifier = Modifier.testTag(MAX_RANK)
                                 )
                             }
                             DataRow(
@@ -246,14 +240,12 @@ fun HeadToHeadScorePadScreen(
                                     onClick = {
                                         listener(HeadToHeadScorePadIntent.EditSighters(entry.match.matchNumber))
                                     },
-                                    modifier = Modifier.testTag(
-                                            entry.match.matchNumber,
-                                            HeadToHeadScorePadMatchTestTag.SIGHTERS,
-                                    )
+                                    modifier = Modifier.testTag(SIGHTERS)
                             )
                         }
                     }
                 }
+
                 if (entry.sets.isEmpty()) {
                     Text(
                             text = stringResource(
@@ -265,11 +257,8 @@ fun HeadToHeadScorePadScreen(
                             fontStyle = FontStyle.Italic,
                             modifier = Modifier
                                     .padding(horizontal = CodexTheme.dimens.screenPadding)
-                                    .padding(top = 5.dp, bottom = 30.dp)
-                                    .testTag(
-                                            entry.match.matchNumber,
-                                            HeadToHeadScorePadMatchTestTag.NO_ENDS,
-                                    )
+                                    .padding(top = 10.dp)
+                                    .testTag(NO_ENDS)
                     )
                 }
                 else {
@@ -284,13 +273,22 @@ fun HeadToHeadScorePadScreen(
                             editTypesClicked = {},
                             helpListener = helpListener,
                             modifier = Modifier
-                                    .padding(top = 10.dp, bottom = 40.dp)
-                                    .testTag(
-                                            entry.match.matchNumber,
-                                            HeadToHeadScorePadMatchTestTag.GRID,
-                                    )
+                                    .padding(top = 15.dp, bottom = 10.dp)
+                                    .testTag(GRID)
                     )
                 }
+
+                if (!entry.match.isBye && (!entry.result.isComplete || !entry.isStandardFormat)) {
+                    CodexButton(
+                            text = stringResource(R.string.head_to_head_score_pad__add_new_set_button),
+                            onClick = { listener(HeadToHeadScorePadIntent.AddNewSet(entry.match.matchNumber)) },
+                            modifier = Modifier
+                                    .padding(horizontal = CodexTheme.dimens.screenPadding)
+                                    .testTag(ADD_NEW_SET_BUTTON)
+                    )
+                }
+
+                Spacer(Modifier.height(30.dp))
             }
         }
     }
@@ -314,6 +312,8 @@ enum class HeadToHeadScorePadMatchTestTag {
     MAX_RANK,
     NO_ENDS,
     GRID,
+    EDIT_MATCH_INFO_BUTTON,
+    ADD_NEW_SET_BUTTON,
     ;
 
     fun getTestTag(matchNumber: Int) =
@@ -326,7 +326,7 @@ enum class HeadToHeadScorePadMatchTestTag {
 }
 
 @Preview(
-        heightDp = 1200,
+        heightDp = 1500,
 )
 @Composable
 fun HeadToHeadScorePadScreen_Preview() {
@@ -353,7 +353,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                                 ),
                                 FullHeadToHeadMatch(
                                         match = DatabaseHeadToHeadMatch(
-                                                matchNumber = 1,
+                                                matchNumber = 2,
                                                 heat = 1,
                                                 opponent = "Jessica Summ",
                                                 opponentQualificationRank = 1,
@@ -381,11 +381,18 @@ fun HeadToHeadScorePadScreen_Preview() {
                                                         setNumber = 2,
                                                         isRecurveStyle = true,
                                                 ),
+                                                FullHeadToHeadSet(
+                                                        data = HeadToHeadGridRowDataPreviewHelper.create(),
+                                                        teamSize = 1,
+                                                        isShootOffWin = false,
+                                                        setNumber = 3,
+                                                        isRecurveStyle = true,
+                                                ),
                                         ),
                                 ),
                                 FullHeadToHeadMatch(
                                         match = DatabaseHeadToHeadMatch(
-                                                matchNumber = 1,
+                                                matchNumber = 3,
                                                 heat = 1,
                                                 opponent = null,
                                                 opponentQualificationRank = null,

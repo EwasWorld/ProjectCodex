@@ -24,6 +24,11 @@ class HeadToHeadRepo(
     }
 
     @Transaction
+    suspend fun deleteSets(shootId: Int, matchNumber: Int) {
+        headToHeadDetailDao.delete(shootId = shootId, matchNumber = matchNumber)
+    }
+
+    @Transaction
     suspend fun delete(shootId: Int, matchNumber: Int, setNumber: Int) {
         headToHeadDetailDao.delete(shootId = shootId, matchNumber = matchNumber, setNumber = setNumber)
     }

@@ -43,12 +43,20 @@ class HeadToHeadAddMatchRobot(
         checkInputtedText(HeadToHeadAddMatchTestTag.OPPONENT_QUALI_RANK_INPUT, rank?.toString() ?: "")
     }
 
+    fun checkOpponent(opponent: String?) {
+        checkInputtedText(HeadToHeadAddMatchTestTag.OPPONENT_INPUT, opponent ?: "")
+    }
+
     fun checkOpponentRankIsError() {
         checkElementIsDisplayed(HeadToHeadAddMatchTestTag.OPPONENT_QUALI_RANK_ERROR)
     }
 
     fun setIsBye(newValue: Boolean) {
         setChip(HeadToHeadAddMatchTestTag.IS_BYE_CHECKBOX, newValue, !newValue)
+    }
+
+    fun checkByeWithSetsWarningShown(isShown: Boolean = true) {
+        checkElementIsDisplayedOrDoesNotExist(HeadToHeadAddMatchTestTag.BYE_WITH_SETS_WARNING_TEXT, isShown)
     }
 
     fun checkIsBye(isBye: Boolean) {
@@ -71,5 +79,13 @@ class HeadToHeadAddMatchRobot(
     fun clickStartMatch(block: HeadToHeadAddEndRobot.() -> Unit = {}) {
         clickElement(HeadToHeadAddMatchTestTag.SAVE_BUTTON)
         createRobot(HeadToHeadAddEndRobot::class, block)
+    }
+
+    fun clickResetEdit() {
+        clickElement(HeadToHeadAddMatchTestTag.RESET_BUTTON)
+    }
+
+    fun clickSaveEdit() {
+        clickElement(HeadToHeadAddMatchTestTag.SAVE_BUTTON)
     }
 }

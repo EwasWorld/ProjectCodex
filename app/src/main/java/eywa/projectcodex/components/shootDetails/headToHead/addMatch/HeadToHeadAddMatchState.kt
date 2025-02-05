@@ -13,6 +13,10 @@ data class HeadToHeadAddMatchState(
         val roundInfo: HeadToHeadRoundInfo? = null,
         val previousMatch: PreviousMatch? = null,
         val editing: DatabaseHeadToHeadMatch? = null,
+        /**
+         * Warn the user that changing a match with sets to a bye will delete the sets
+         */
+        val editingMatchWithSetsToBye: Boolean = false,
         val extras: HeadToHeadAddMatchExtras = HeadToHeadAddMatchExtras(matchNumber = 1),
 ) {
 
@@ -21,8 +25,8 @@ data class HeadToHeadAddMatchState(
                     shootId = shootId,
                     matchNumber = extras.matchNumber,
                     heat = extras.heat,
-                    opponent = extras.opponent.takeIf { it.isNotBlank() },
-                    opponentQualificationRank = extras.opponentQualiRank.parsed,
+                    opponent = extras.opponent.takeIf { it.isNotBlank() && !extras.isBye },
+                    opponentQualificationRank = extras.opponentQualiRank.parsed.takeIf { !extras.isBye },
                     isShootOffWin = false,
                     sightersCount = 0,
                     maxPossibleRank = extras.maxPossibleRank.parsed,
@@ -52,12 +56,14 @@ data class HeadToHeadAddMatchExtras(
         val opponentQualiRank: NumberFieldState<Int> = NumberFieldState(
                 TypeValidator.IntValidator,
                 NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
+                NumberValidator.NotRequired,
         ),
         val maxPossibleRank: NumberFieldState<Int> = NumberFieldState(
                 text = "1",
                 validators = NumberValidatorGroup(
                         TypeValidator.IntValidator,
                         NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
+                        NumberValidator.NotRequired,
                 ),
         ),
         val isBye: Boolean = false,

@@ -13,6 +13,7 @@ import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.dsl.TestActionDslSingleNode
 import eywa.projectcodex.instrumentedTests.robots.BaseRobot
 import eywa.projectcodex.instrumentedTests.robots.RobotDslMarker
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddCountRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsRobot
 
 class HeadToHeadScorePadRobot(
@@ -93,6 +94,21 @@ class HeadToHeadScorePadRobot(
         }
         checkDataRowValueText(HeadToHeadGridColumnTestTag.MATCH_RESULT.get(match, 1), result.asString())
         GridDsl(match, this).apply(config)
+    }
+
+    fun clickEditMatchInfo(match: Int, block: HeadToHeadAddMatchRobot.() -> Unit) {
+        clickElement(HeadToHeadScorePadMatchTestTag.EDIT_MATCH_INFO_BUTTON.getTestTag(match), scrollTo = true)
+        createRobot(HeadToHeadAddMatchRobot::class, block)
+    }
+
+    fun clickAddNewSet(match: Int, block: HeadToHeadAddEndRobot.() -> Unit) {
+        clickElement(HeadToHeadScorePadMatchTestTag.ADD_NEW_SET_BUTTON.getTestTag(match), scrollTo = true)
+        createRobot(HeadToHeadAddEndRobot::class, block)
+    }
+
+    fun clickSighters(match: Int, block: ShootDetailsAddCountRobot.() -> Unit) {
+        clickDataRowValue(HeadToHeadScorePadMatchTestTag.SIGHTERS.getTestTag(match))
+        createRobot(ShootDetailsAddCountRobot::class, block)
     }
 
     fun openEditEnd(match: Int, setNumber: Int, block: HeadToHeadAddEndRobot.() -> Unit) {

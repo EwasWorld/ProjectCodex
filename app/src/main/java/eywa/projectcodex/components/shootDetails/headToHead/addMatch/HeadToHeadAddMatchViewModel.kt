@@ -66,7 +66,7 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
                 sightMark = main.sightMark,
                 isMetric = shoot.fullRoundInfo?.round?.isMetric ?: shoot.shootDetail?.isDistanceInMeters,
         )
-        val editingMatch = fullH2hInfo.matches.find { it.match.matchNumber == editingMatchNumber }?.match
+        val editingMatch = fullH2hInfo.matches.find { it.match.matchNumber == editingMatchNumber }
 
         fun estimatedHeat(): Int? {
             val totalMatches = HeadToHeadUseCase.getOpponents(
@@ -91,14 +91,15 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
             // Edit match from database
             if (editingMatch != null) {
                 if (extraState.value == null) {
-                    extraState.update { (it ?: HeadToHeadAddMatchExtras()).resetEditInfo(editingMatch) }
+                    extraState.update { (it ?: HeadToHeadAddMatchExtras()).resetEditInfo(editingMatch.match) }
                 }
 
                 return HeadToHeadAddMatchState(
                         roundInfo = roundInfo,
                         extras = extras ?: HeadToHeadAddMatchExtras(),
                         previousMatch = previous?.asPreviousMatch(),
-                        editing = editingMatch,
+                        editing = editingMatch.match,
+                        editingMatchWithSetsToBye = editingMatch.sets.isNotEmpty() && extras?.isBye == true,
                 )
             }
 
@@ -264,7 +265,10 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
                 val newMatch = state.asHeadToHeadMatch(shootId)
                 viewModelScope.launch {
                     if (state.editing != null) {
-                        h2hRepo.update(newMatch)
+                        if (state.editingMatchWithSetsToBye) {
+                            h2hRepo.deleteSets(shootId = newMatch.shootId, matchNumber = newMatch.matchNumber)
+                        }
+                        h2hRepo.update(newMatch.copy(sightersCount = state.editing.sightersCount))
                         extraState.update { it!!.copy(pressBack = true) }
                     }
                     else {
@@ -284,6 +288,8 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
             ResetClicked -> updateState { s ->
                 state.value.getData()?.editing?.let { s.resetEditInfo(it) } ?: s
             }
+
+            BackPressedHandled -> extraState.update { it!!.copy(pressBack = false) }
         }
     }
 }

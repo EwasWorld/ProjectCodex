@@ -12,6 +12,7 @@ sealed class HeadToHeadScorePadIntent {
     data object EditSightersHandled : HeadToHeadScorePadIntent()
     data object EditMatchInfoHandled : HeadToHeadScorePadIntent()
     data object EditSetHandled : HeadToHeadScorePadIntent()
+    data class AddNewSet(val match: Int) : HeadToHeadScorePadIntent()
     data class ShootDetailsAction(val action: ShootDetailsIntent) : HeadToHeadScorePadIntent()
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : HeadToHeadScorePadIntent()
 }

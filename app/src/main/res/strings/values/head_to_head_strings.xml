@@ -60,6 +60,7 @@
     <string name="head_to_head_score_pad__is_bye">Bye</string>
     <string name="head_to_head_score_pad__no_heats_button">Add match</string>
     <string name="head_to_head_score_pad__edit_heat">Edit heat info</string>
+    <string name="head_to_head_score_pad__add_new_set_button">Enter sets</string>
 
     <string name="head_to_head_add_heat__title">Create match</string>
     <string name="head_to_head_add_heat__match_header_with_heat">Match %d: %s</string>
@@ -67,6 +68,7 @@
     <string name="head_to_head_add_heat__heat">Match %d:</string>
     <string name="head_to_head_add_heat__heat_match">Match:</string>
     <string name="head_to_head_add_heat__heat_null">Not selected</string>
+    <string name="head_to_head_add_heat__bye_with_sets_warning">This match has sets entered.\nChanging it to a bye\nwill delete the entered sets.</string>
     <string name="head_to_head_add_heat__opponent">Opponent:</string>
     <string name="head_to_head_add_heat__opponent_placeholder">John Doe</string>
     <string name="head_to_head_add_heat__opponent_quali_rank">Opponent rank:</string>

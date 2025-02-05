@@ -20,6 +20,7 @@ sealed class HeadToHeadAddMatchIntent {
     data object EditSightMarkClicked : HeadToHeadAddMatchIntent()
     data object ExpandSightMarkHandled : HeadToHeadAddMatchIntent()
     data object EditSightMarkHandled : HeadToHeadAddMatchIntent()
+    data object BackPressedHandled : HeadToHeadAddMatchIntent()
     data class ShootDetailsAction(val action: ShootDetailsIntent) : HeadToHeadAddMatchIntent()
     data class HelpShowcaseAction(val action: HelpShowcaseIntent) : HeadToHeadAddMatchIntent()
 }
