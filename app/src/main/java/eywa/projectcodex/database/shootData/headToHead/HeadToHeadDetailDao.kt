@@ -6,9 +6,21 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail.Companion.TABLE_NAME
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HeadToHeadDetailDao {
+    @Query(
+            """
+                SELECT COUNT(rowId)
+                FROM $TABLE_NAME
+                WHERE shootId = :shootId 
+                    AND matchNumber = :matchNumber 
+                    AND setNumber = :setNumber
+            """
+    )
+    fun getDetailsCount(shootId: Int, matchNumber: Int, setNumber: Int): Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(vararg shootDetail: DatabaseHeadToHeadDetail)
 
@@ -35,4 +47,13 @@ interface HeadToHeadDetailDao {
             """
     )
     suspend fun updateMatchNumber(shootId: Int, newMatchNumber: Int, oldMatchNumber: Int)
+
+    @Query(
+            """
+                UPDATE $TABLE_NAME
+                SET setNumber = setNumber + :increment
+                WHERE shootId = :shootId AND matchNumber = :matchNumber AND setNumber >= :setNumbersAboveAndIncluding
+            """
+    )
+    suspend fun incrementSetNumber(shootId: Int, matchNumber: Int, setNumbersAboveAndIncluding: Int, increment: Int)
 }

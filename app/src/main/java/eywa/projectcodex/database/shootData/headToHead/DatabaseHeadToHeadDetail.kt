@@ -2,6 +2,7 @@ package eywa.projectcodex.database.shootData.headToHead
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
 import eywa.projectcodex.database.shootData.DatabaseShoot
@@ -15,6 +16,9 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
                     childColumns = ["shootId"],
                     onDelete = ForeignKey.CASCADE,
             ),
+        ],
+        indices = [
+            Index("shootId", "matchNumber", "setNumber", "arrowNumber", "type", unique = true),
         ]
 )
 data class DatabaseHeadToHeadDetail(

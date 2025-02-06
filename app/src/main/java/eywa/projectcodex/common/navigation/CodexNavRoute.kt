@@ -179,6 +179,7 @@ enum class CodexNavRoute : ScreenNavRoute {
                     NavArgument.SHOOT_ID to true,
                     NavArgument.MATCH_NUMBER to false,
                     NavArgument.SET_NUMBER to false,
+                    NavArgument.IS_INSERT to false,
             )
 
         @Composable

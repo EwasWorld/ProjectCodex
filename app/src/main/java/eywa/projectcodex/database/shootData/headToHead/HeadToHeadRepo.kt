@@ -2,6 +2,7 @@ package eywa.projectcodex.database.shootData.headToHead
 
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 class HeadToHeadRepo(
         private val headToHeadDao: HeadToHeadDao,
@@ -23,7 +24,6 @@ class HeadToHeadRepo(
         headToHeadDetailDao.delete(shootId = shootId, matchNumber = matchNumber)
     }
 
-    @Transaction
     suspend fun deleteSets(shootId: Int, matchNumber: Int) {
         headToHeadDetailDao.delete(shootId = shootId, matchNumber = matchNumber)
     }
@@ -31,6 +31,7 @@ class HeadToHeadRepo(
     @Transaction
     suspend fun delete(shootId: Int, matchNumber: Int, setNumber: Int) {
         headToHeadDetailDao.delete(shootId = shootId, matchNumber = matchNumber, setNumber = setNumber)
+        headToHeadDetailDao.incrementSetNumber(shootId, matchNumber, setNumber, -1)
     }
 
     suspend fun insert(headToHead: DatabaseHeadToHead) {
@@ -41,7 +42,22 @@ class HeadToHeadRepo(
         headToHeadMatchDao.insert(match)
     }
 
+    @Transaction
     suspend fun insert(vararg details: DatabaseHeadToHeadDetail) {
+        check(details.isNotEmpty())
+        check(
+                details.distinctBy { "${it.shootId}-${it.matchNumber}-${it.setNumber}" }.size == 1,
+        ) { "Multiple set's data found" }
+
+        val firstItem = details[0]
+        val hasExistingSet = headToHeadDetailDao
+                .getDetailsCount(firstItem.shootId, firstItem.matchNumber, firstItem.setNumber)
+                .first()
+                .let { it != 0 }
+
+        if (hasExistingSet) {
+            headToHeadDetailDao.incrementSetNumber(firstItem.shootId, firstItem.matchNumber, firstItem.setNumber, 1)
+        }
         headToHeadDetailDao.insert(*details)
     }
 

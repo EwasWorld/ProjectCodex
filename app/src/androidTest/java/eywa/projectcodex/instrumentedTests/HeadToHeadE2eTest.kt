@@ -188,11 +188,7 @@ class HeadToHeadE2eTest {
                         checkOpponent("Claire Davids", 3)
                         checkSetResult(1, HeadToHeadResult.INCOMPLETE)
 
-                        checkRows(
-                                3,
-                                archerName to false,
-                                opponentName to true,
-                        )
+                        checkRows(3, archerName to false, opponentName to true)
 
                         checkRunningTotals(0, 0)
                         clickNextEnd()
@@ -331,11 +327,7 @@ class HeadToHeadE2eTest {
                     }
 
                     clickNavBarItem<HeadToHeadAddEndRobot> {
-                        checkRows(
-                                3,
-                                archerName to false,
-                                opponentName to true,
-                        )
+                        checkRows(3, archerName to false, opponentName to true)
 
                         clickEditRows {
                             checkEditRowsDialog(
@@ -351,11 +343,7 @@ class HeadToHeadE2eTest {
                             )
                             clickCancel()
                         }
-                        checkRows(
-                                3,
-                                archerName to false,
-                                opponentName to true,
-                        )
+                        checkRows(3, archerName to false, opponentName to true)
 
                         clickEditRows {
                             checkEditRowsDialog(
@@ -528,6 +516,42 @@ class HeadToHeadE2eTest {
                             clickSaveEdit()
                         }
                         checkMatchIsBye(2)
+
+                        checkCannotInsertEnd(3, 2)
+                        deleteEnd(3, 2)
+                        checkGrid(3, HeadToHeadResult.INCOMPLETE) {
+                            checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
+                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                            }
+                            checkEnd(2, HeadToHeadResult.WIN, "4-0", 2) {
+                                checkRow(0, archerName, Empty, 30, NoColumn, Value(2))
+                                checkResultsRow(1, "Win", Value(2))
+                            }
+                        }
+
+                        insertEnd(3, 2) {
+                            checkRows(3, archerName to false, opponentName to true)
+                            setArrowRow(0, archerName, listOf("8", "7", "6"), 21)
+                            setTotalRow(1, opponentName, 25)
+                            clickInsertEnd()
+                        }
+                        checkScreenIsShown()
+
+                        checkGrid(3, HeadToHeadResult.INCOMPLETE) {
+                            checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
+                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                            }
+                            checkEnd(2, HeadToHeadResult.LOSS, "2-2", 2) {
+                                checkRow(0, archerName, Value("8-7-6"), 21, NoColumn, Value(0))
+                                checkRow(1, opponentName, Empty, 25, NoColumn, Value(2))
+                            }
+                            checkEnd(3, HeadToHeadResult.WIN, "4-2", 2) {
+                                checkRow(0, archerName, Empty, 30, NoColumn, Value(2))
+                                checkResultsRow(1, "Win", Value(2))
+                            }
+                        }
                     }
                 }
             }
@@ -538,12 +562,17 @@ class HeadToHeadE2eTest {
     fun testTeamStandardFormatSetPointsNoRound() {
         // Set no heat
         // No total archers
-        // Insert/delete end
+        // Delete/insert match
         TODO()
     }
 
     @Test
     fun testIndividualCompound() {
+        TODO()
+    }
+
+    @Test
+    fun testTeamCompound() {
         TODO()
     }
 }

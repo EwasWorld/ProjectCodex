@@ -106,7 +106,7 @@ data class DatabaseFullShootInfo(
                 parentColumn = "shootId",
                 entityColumn = "shootId",
         )
-        val headToHeadHeats: List<DatabaseHeadToHeadMatch>? = null,
+        val headToHeadMatches: List<DatabaseHeadToHeadMatch>? = null,
 
         @Relation(
                 parentColumn = "shootId",

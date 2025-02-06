@@ -41,7 +41,8 @@ data class FullHeadToHead(
                                                 isShootOffWin = match.isShootOffWin,
                                                 isRecurveStyle = headToHead.isRecurveStyle,
                                         )
-                                    },
+                                    }
+                                    .sortedBy { it.setNumber },
                             teamSize = headToHead.teamSize,
                             isRecurveStyle = headToHead.isRecurveStyle,
                             isStandardFormat = headToHead.isStandardFormat,

@@ -219,8 +219,11 @@ fun HeadToHeadAddEndScreen(
             )
         }
         else {
-            if (state.editingSet == null) {
+            if (state.editingSet == null && !state.isInserting) {
                 MatchTransitiveInfo(state, listener)
+            }
+            else {
+                Sighters(state, listener)
             }
             SetInfo(state, listener)
             Buttons(state, listener)
@@ -461,6 +464,13 @@ private fun ColumnScope.SetInfo(
                         color = CodexTheme.colors.onAppBackground,
                 )
             }
+            else if (state.isInserting) {
+                Text(
+                        text = stringResource(R.string.head_to_head_add_end__inserting_set),
+                        style = CodexTypography.NORMAL_PLUS,
+                        color = CodexTheme.colors.onAppBackground,
+                )
+            }
             Text(
                     text = setText,
                     style = CodexTypography.NORMAL_PLUS,
@@ -489,7 +499,9 @@ private fun ColumnScope.SetInfo(
                 onTextValueChanged = { type, text -> listener(GridTextValueChanged(type, text)) },
                 editTypesClicked = { listener(EditTypesClicked) },
                 helpListener = helpListener,
-                modifier = Modifier.padding(vertical = 10.dp)
+                itemClickedListener = { _, _ -> },
+                closeDropdownMenuListener = {},
+                modifier = Modifier.padding(vertical = 10.dp),
         )
 
         if (state.extras.set.isShootOff && state.extras.set.teamEndScore == state.extras.set.opponentEndScore) {
@@ -539,9 +551,12 @@ private fun Buttons(
                     modifier = Modifier.testTag(HeadToHeadAddEndTestTag.CREATE_NEXT_MATCH_BUTTON)
             )
         }
-        if (state.editingSet == null) {
+        if (state.editingSet == null || state.isInserting) {
             CodexButton(
-                    text = stringResource(R.string.head_to_head_add_end__submit),
+                    text = stringResource(
+                            if (state.isInserting) R.string.head_to_head_add_end__insert_submit
+                            else R.string.head_to_head_add_end__submit,
+                    ),
                     onClick = { listener(SubmitClicked) },
                     modifier = Modifier.testTag(HeadToHeadAddEndTestTag.NEXT_END_BUTTON)
             )
@@ -668,6 +683,43 @@ fun HeadToHeadAddScreen_Preview() {
                         match = DatabaseHeadToHeadMatchPreviewHelper.data,
                         teamRunningTotal = 0,
                         opponentRunningTotal = 0,
+                ),
+        ) {}
+    }
+}
+
+@Preview
+@Composable
+fun Editing_HeadToHeadAddScreen_Preview() {
+    CodexTheme {
+        HeadToHeadAddEndScreen(
+                state = HeadToHeadAddEndState(
+                        match = DatabaseHeadToHeadMatchPreviewHelper.data,
+                        teamRunningTotal = 0,
+                        opponentRunningTotal = 0,
+                        editingSet = HeadToHeadSetPreviewHelperDsl(
+                                setNumber = 1,
+                                teamSize = 1,
+                                isShootOffWin = false,
+                                isRecurveStyle = true,
+                        ).apply {
+                            addRows()
+                        }.asFull(),
+                ),
+        ) {}
+    }
+}
+
+@Preview
+@Composable
+fun Inserting_HeadToHeadAddScreen_Preview() {
+    CodexTheme {
+        HeadToHeadAddEndScreen(
+                state = HeadToHeadAddEndState(
+                        match = DatabaseHeadToHeadMatchPreviewHelper.data,
+                        teamRunningTotal = 0,
+                        opponentRunningTotal = 0,
+                        isInserting = true,
                 ),
         ) {}
     }

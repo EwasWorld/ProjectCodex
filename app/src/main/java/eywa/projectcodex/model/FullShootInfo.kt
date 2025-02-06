@@ -58,10 +58,10 @@ data class FullShootInfo(
             shootDetail = full.shootDetail,
             arrowCounter = full.arrowCounter,
             bow = full.bow,
-            h2h = full.headToHead?.let {
+            h2h = full.headToHead?.let { h2h ->
                 FullHeadToHead(
-                        headToHead = it,
-                        matches = full.headToHeadHeats.orEmpty(),
+                        headToHead = h2h,
+                        matches = full.headToHeadMatches?.sortedBy { it.matchNumber }.orEmpty(),
                         details = full.headToHeadDetails.orEmpty(),
                         isEditable = false,
                 )

@@ -38,6 +38,7 @@ enum class NavArgument(val type: NavType<*>, val defaultValue: Any? = null) {
     IS_SIGHTERS(type = NavType.BoolType, defaultValue = false),
     MATCH_NUMBER(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     SET_NUMBER(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
+    IS_INSERT(type = NavType.BoolType, defaultValue = false),
     ;
 
     fun toArgName() = Regex("_[a-z]").replace(name.lowercase()) { it.value.drop(1).uppercase() }

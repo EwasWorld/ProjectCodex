@@ -7,10 +7,13 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.ProvideTextStyle
@@ -68,6 +71,8 @@ fun HeadToHeadGrid(
         rowClicked: (setNumber: Int, type: HeadToHeadArcherType) -> Unit,
         editTypesClicked: () -> Unit,
         onTextValueChanged: (type: HeadToHeadArcherType, text: String?) -> Unit,
+        itemClickedListener: (setNumber: Int, type: DropdownMenuItem) -> Unit,
+        closeDropdownMenuListener: (setNumber: Int) -> Unit,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val resources = LocalContext.current.resources
@@ -301,33 +306,44 @@ fun HeadToHeadGrid(
                             // Ignore set number column
                             horizontalSpan = columnMetadata.size - 1,
                     ) {
-                        Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                        .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
-                                        .wrapContentHeight(Alignment.CenterVertically)
-                        ) {
-                            DataRow(
-                                    title = stringResource(
-                                            R.string.head_to_head_add_end__set_result,
-                                            extraData.result.title.get(),
-                                    ),
-                                    text = extraData.result.title.get(),
+                        Box {
+                            Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
-                                            .padding(vertical = 5.dp, horizontal = 10.dp)
-                                            .testTag(SET_RESULT.get())
-                            )
-                            val runningTotals = state.runningTotals?.getOrNull(setIndex)?.left?.let {
-                                stringResource(R.string.head_to_head_add_end__score_text, it.first, it.second)
+                                            .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
+                                            .wrapContentHeight(Alignment.CenterVertically)
+                                            .fillMaxWidth()
+                            ) {
+                                DataRow(
+                                        title = stringResource(
+                                                R.string.head_to_head_add_end__set_result,
+                                                extraData.result.title.get(),
+                                        ),
+                                        text = extraData.result.title.get(),
+                                        modifier = Modifier
+                                                .padding(vertical = 5.dp, horizontal = 10.dp)
+                                                .testTag(SET_RESULT.get())
+                                )
+                                val runningTotals = state.runningTotals?.getOrNull(setIndex)?.left?.let {
+                                    stringResource(R.string.head_to_head_add_end__score_text, it.first, it.second)
+                                }
+                                DataRow(
+                                        title = stringResource(R.string.head_to_head_add_end__running_total),
+                                        text = runningTotals
+                                                ?: stringResource(R.string.score_pad__running_total_placeholder),
+                                        modifier = Modifier
+                                                .padding(vertical = 5.dp, horizontal = 10.dp)
+                                                .testTag(SET_RUNNING_TOTAL.get())
+                                )
                             }
-                            DataRow(
-                                    title = stringResource(R.string.head_to_head_add_end__running_total),
-                                    text = runningTotals
-                                            ?: stringResource(R.string.score_pad__running_total_placeholder),
-                                    modifier = Modifier
-                                            .padding(vertical = 5.dp, horizontal = 10.dp)
-                                            .testTag(SET_RUNNING_TOTAL.get())
+                            DropdownMenu(
+                                    menuItems = state.dropdownMenuExpandedFor?.third.orEmpty(),
+                                    expanded = state.dropdownMenuExpandedFor?.first == state.matchNumber
+                                            && state.dropdownMenuExpandedFor.second == set.setNumber,
+                                    itemClickedListener = { itemClickedListener(set.setNumber, it) },
+                                    dismissListener = { closeDropdownMenuListener(set.setNumber) },
+                                    testTag = DROPDOWN_MENU_ITEM.get(),
                             )
                         }
                     }
@@ -366,6 +382,32 @@ fun HeadToHeadGrid(
     }
 }
 
+@Composable
+private fun DropdownMenu(
+        menuItems: List<DropdownMenuItem> = emptyList(),
+        expanded: Boolean,
+        testTag: CodexTestTag,
+        itemClickedListener: (DropdownMenuItem) -> Unit,
+        dismissListener: () -> Unit,
+) {
+    DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = dismissListener,
+    ) {
+        menuItems.forEach { item ->
+            DropdownMenuItem(
+                    onClick = { itemClickedListener(item) },
+                    modifier = Modifier.testTag(testTag)
+            ) {
+                Text(
+                        text = item.title.get(),
+                        style = CodexTypography.NORMAL,
+                )
+            }
+        }
+    }
+}
+
 enum class HeadToHeadGridTestTag : CodexTestTag {
     SCREEN,
     EDIT_ROWS_BUTTON,
@@ -391,6 +433,7 @@ enum class HeadToHeadGridColumnTestTag {
     POINTS_CELL,
     SET_RESULT,
     SET_RUNNING_TOTAL,
+    DROPDOWN_MENU_ITEM,
     ;
 
     fun get(matchNumber: Int, setNumber: Int): CodexTestTag = object : CodexTestTag {
@@ -612,6 +655,8 @@ fun HeadToHeadGridPreviewHelper(
             onTextValueChanged = { _, _ -> },
             editTypesClicked = {},
             helpListener = {},
-            modifier = Modifier.padding(vertical = 20.dp)
+            itemClickedListener = { _: Int, _: DropdownMenuItem -> },
+            closeDropdownMenuListener = {},
+            modifier = Modifier.padding(vertical = 20.dp),
     )
 }

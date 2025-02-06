@@ -183,6 +183,11 @@ class HeadToHeadAddEndRobot(
         checkScreenIsShown()
     }
 
+    fun clickInsertEnd() {
+        clickElement(HeadToHeadAddEndTestTag.NEXT_END_BUTTON)
+        createRobot(HeadToHeadScorePadRobot::class) {}
+    }
+
     fun clickNextEnd(block: HeadToHeadAddMatchRobot.() -> Unit) {
         clickElement(HeadToHeadAddEndTestTag.NEXT_END_BUTTON)
         createRobot(HeadToHeadAddMatchRobot::class, block)

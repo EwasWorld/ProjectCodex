@@ -112,6 +112,53 @@ class HeadToHeadScorePadRobot(
     }
 
     fun openEditEnd(match: Int, setNumber: Int, block: HeadToHeadAddEndRobot.() -> Unit) {
+        clickSet(match, setNumber)
+        clickMenuItem(match, setNumber, "Edit")
+        createRobot(HeadToHeadAddEndRobot::class, block)
+    }
+
+    fun deleteEnd(match: Int, setNumber: Int) {
+        clickSet(match, setNumber)
+        clickMenuItem(match, setNumber, "Delete")
+        clickDialogOk("Delete set")
+    }
+
+    fun insertEnd(match: Int, setNumber: Int, block: HeadToHeadAddEndRobot.() -> Unit) {
+        clickSet(match, setNumber)
+        clickMenuItem(match, setNumber, "Insert set above")
+        createRobot(HeadToHeadAddEndRobot::class, block)
+    }
+
+    fun checkCannotInsertEnd(match: Int, setNumber: Int) {
+        clickSet(match, setNumber)
+        // Wait for menu to appear
+        performGroup {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.DROPDOWN_MENU_ITEM.get(match, setNumber))
+            +CodexNodeMatcher.HasText("Edit")
+            +CodexNodeMatcher.IsNotCached
+            // TODO Not sure why but subcompose in CodexGrid is still giving 2 versions of these
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+            }
+        }
+
+        performSingle {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.DROPDOWN_MENU_ITEM.get(match, setNumber))
+            +CodexNodeMatcher.HasText("Insert set above")
+            +CodexNodeMatcher.IsNotCached
+            +CodexNodeInteraction.AssertDoesNotExist()
+        }
+
+        // Dismiss dropdown
+        performGroup {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(match, setNumber))
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.PerformClick().waitFor()
+            }
+        }
+    }
+
+    private fun clickSet(match: Int, setNumber: Int) {
         performSingle {
             +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadTestTag.SCREEN)
             +CodexNodeInteraction.PerformScrollToNode(
@@ -124,7 +171,18 @@ class HeadToHeadScorePadRobot(
                 +CodexNodeInteraction.PerformClick()
             }
         }
-        createRobot(HeadToHeadAddEndRobot::class, block)
+    }
+
+    private fun clickMenuItem(match: Int, setNumber: Int, text: String) {
+        performGroup {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.DROPDOWN_MENU_ITEM.get(match, setNumber))
+            +CodexNodeMatcher.HasText(text)
+            +CodexNodeMatcher.IsNotCached
+            // TODO Not sure why but subcompose in CodexGrid is still giving 2 versions of these
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.PerformClick().waitFor()
+            }
+        }
     }
 }
 

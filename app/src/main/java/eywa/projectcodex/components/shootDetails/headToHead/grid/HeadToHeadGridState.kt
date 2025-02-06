@@ -1,5 +1,7 @@
 package eywa.projectcodex.components.shootDetails.headToHead.grid
 
+import eywa.projectcodex.R
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.model.Either
@@ -35,8 +37,19 @@ sealed class HeadToHeadGridState {
             override val enteredArrows: List<FullHeadToHeadSet>,
             val runningTotals: List<Either<Pair<Int, Int>, HeadToHeadNoResult>>?,
             val finalResult: HeadToHeadResult?,
+
+            /**
+             * <matchNumber, setNumber, dropdownMenuItems>
+             */
+            val dropdownMenuExpandedFor: Triple<Int, Int, List<DropdownMenuItem>>? = null,
     ) : HeadToHeadGridState()
 
     val showExtraTotalColumn
         get() = enteredArrows.any { it.showExtraColumnTotal() }
+}
+
+enum class DropdownMenuItem(val title: ResOrActual<String>) {
+    INSERT(title = ResOrActual.StringResource(R.string.head_to_head_grid__dropdown_insert)),
+    EDIT(title = ResOrActual.StringResource(R.string.head_to_head_grid__dropdown_edit)),
+    DELETE(title = ResOrActual.StringResource(R.string.head_to_head_grid__dropdown_delete)),
 }

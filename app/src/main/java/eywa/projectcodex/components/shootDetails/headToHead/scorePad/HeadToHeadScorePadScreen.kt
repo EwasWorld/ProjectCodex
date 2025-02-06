@@ -32,10 +32,13 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
+import eywa.projectcodex.common.sharedUi.ButtonState
 import eywa.projectcodex.common.sharedUi.CodexButton
 import eywa.projectcodex.common.sharedUi.CodexIconButton
 import eywa.projectcodex.common.sharedUi.CodexIconInfo
 import eywa.projectcodex.common.sharedUi.DataRow
+import eywa.projectcodex.common.sharedUi.SimpleDialog
+import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.testTag
@@ -44,8 +47,10 @@ import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.getData
+import eywa.projectcodex.components.shootDetails.headToHead.grid.DropdownMenuItem
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGrid
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowDataPreviewHelper
+import eywa.projectcodex.components.shootDetails.headToHead.scorePad.HeadToHeadScorePadIntent.*
 import eywa.projectcodex.components.shootDetails.headToHead.scorePad.HeadToHeadScorePadMatchTestTag.*
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
 import eywa.projectcodex.model.headToHead.FullHeadToHeadMatch
@@ -62,21 +67,21 @@ fun HeadToHeadScorePadScreen(
     ShootDetailsMainScreen(
             currentScreen = CodexNavRoute.HEAD_TO_HEAD_SCORE_PAD,
             state = state,
-            listener = { listener(HeadToHeadScorePadIntent.ShootDetailsAction(it)) },
+            listener = { listener(ShootDetailsAction(it)) },
     ) { it, modifier -> HeadToHeadScorePadScreen(it, modifier, listener) }
 
     HandleMainEffects(
             navController = navController,
             state = state,
-            listener = { listener(HeadToHeadScorePadIntent.ShootDetailsAction(it)) },
+            listener = { listener(ShootDetailsAction(it)) },
     )
 
     val data = state.getData()
     LaunchedEffect(
             data?.extras?.openAddMatch,
-            data?.extras?.openSightersForMatch,
+            data?.extras?.openEditSightersForMatch,
             data?.extras?.openEditMatchInfo,
-            data?.extras?.openEditSetInfo,
+            data?.extras?.menuActionClicked,
     ) {
         if (data?.extras?.openAddMatch == true) {
             CodexNavRoute.HEAD_TO_HEAD_ADD_MATCH.navigate(
@@ -84,19 +89,19 @@ fun HeadToHeadScorePadScreen(
                     mapOf(NavArgument.SHOOT_ID to viewModel.shootId.toString()),
                     popCurrentRoute = true,
             )
-            listener(HeadToHeadScorePadIntent.GoToAddEndHandled)
+            listener(GoToAddEndHandled)
         }
 
-        if (data?.extras?.openSightersForMatch != null) {
+        if (data?.extras?.openEditSightersForMatch != null) {
             CodexNavRoute.SHOOT_DETAILS_ADD_COUNT.navigate(
                     navController,
                     mapOf(
                             NavArgument.SHOOT_ID to viewModel.shootId.toString(),
-                            NavArgument.MATCH_NUMBER to data.extras.openSightersForMatch.toString(),
+                            NavArgument.MATCH_NUMBER to data.extras.openEditSightersForMatch.toString(),
                             NavArgument.IS_SIGHTERS to true.toString(),
                     ),
             )
-            listener(HeadToHeadScorePadIntent.EditSightersHandled)
+            listener(EditSightersHandled)
         }
 
         if (data?.extras?.openEditMatchInfo != null) {
@@ -107,19 +112,52 @@ fun HeadToHeadScorePadScreen(
                             NavArgument.MATCH_NUMBER to data.extras.openEditMatchInfo.toString(),
                     ),
             )
-            listener(HeadToHeadScorePadIntent.EditMatchInfoHandled)
+            listener(EditMatchInfoHandled)
         }
 
-        data?.extras?.openEditSetInfo?.let { (match, set) ->
-            CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
-                    navController,
-                    mapOf(
-                            NavArgument.SHOOT_ID to viewModel.shootId.toString(),
-                            NavArgument.MATCH_NUMBER to match.toString(),
-                            NavArgument.SET_NUMBER to set.toString(),
-                    ),
-            )
-            listener(HeadToHeadScorePadIntent.EditSetHandled)
+        data?.extras?.menuOpenForSet?.let { (match, set) ->
+            when (data.extras.menuActionClicked) {
+                MenuAction.EDIT -> {
+                    check(set > 0) { "Invalid set number" }
+                    CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
+                            navController,
+                            mapOf(
+                                    NavArgument.SHOOT_ID to viewModel.shootId.toString(),
+                                    NavArgument.MATCH_NUMBER to match.toString(),
+                                    NavArgument.SET_NUMBER to set.toString(),
+                            ),
+                    )
+                    listener(OptionsMenuActionHandled)
+                }
+
+                MenuAction.INSERT -> {
+                    check(set > 0) { "Invalid set number" }
+                    CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
+                            navController,
+                            mapOf(
+                                    NavArgument.SHOOT_ID to viewModel.shootId.toString(),
+                                    NavArgument.MATCH_NUMBER to match.toString(),
+                                    NavArgument.SET_NUMBER to set.toString(),
+                                    NavArgument.IS_INSERT to true.toString(),
+                            ),
+                    )
+                    listener(OptionsMenuActionHandled)
+                }
+
+                MenuAction.NEW_SET -> {
+                    CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
+                            navController,
+                            mapOf(
+                                    NavArgument.SHOOT_ID to viewModel.shootId.toString(),
+                                    NavArgument.MATCH_NUMBER to match.toString(),
+                            ),
+                    )
+                    listener(OptionsMenuActionHandled)
+                }
+
+                MenuAction.DELETE -> Unit
+                null -> Unit
+            }
         }
     }
 }
@@ -130,7 +168,27 @@ fun HeadToHeadScorePadScreen(
         modifier: Modifier = Modifier,
         listener: (HeadToHeadScorePadIntent) -> Unit,
 ) {
-    val helpListener = { it: HelpShowcaseIntent -> listener(HeadToHeadScorePadIntent.HelpShowcaseAction(it)) }
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+
+    SimpleDialog(
+            isShown = state.extras.menuOpenForSet != null && state.extras.menuActionClicked == MenuAction.DELETE,
+            onDismissListener = { listener(OptionsMenuActionHandled) },
+    ) {
+        if (state.extras.menuOpenForSet == null) return@SimpleDialog
+        val (match, set) = state.extras.menuOpenForSet
+        SimpleDialogContent(
+                title = stringResource(R.string.head_to_head_score_pad__delete_dialog_title),
+                message = stringResource(R.string.head_to_head_score_pad__delete_dialog_body, match, set),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.general_delete),
+                        onClick = { listener(DeleteConfirmationOkClicked) },
+                ),
+                negativeButton = ButtonState(
+                        text = stringResource(R.string.general_cancel),
+                        onClick = { listener(DeleteConfirmationCancelClicked) },
+                ),
+        )
+    }
 
     ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
         if (state.entries.isEmpty()) {
@@ -147,7 +205,7 @@ fun HeadToHeadScorePadScreen(
                 )
                 CodexButton(
                         text = stringResource(R.string.head_to_head_score_pad__no_heats_button),
-                        onClick = { listener(HeadToHeadScorePadIntent.GoToAddEnd) },
+                        onClick = { listener(GoToAddEnd) },
                         modifier = Modifier.testTag(HeadToHeadScorePadTestTag.ADD_MATCH_BUTTON)
                 )
             }
@@ -179,7 +237,7 @@ fun HeadToHeadScorePadScreen(
                                         imageVector = Icons.Default.Edit,
                                         contentDescription = stringResource(R.string.head_to_head_score_pad__edit_heat),
                                 ),
-                                onClick = { listener(HeadToHeadScorePadIntent.EditMatchInfo(entry.match.matchNumber)) },
+                                onClick = { listener(EditMatchInfo(entry.match.matchNumber)) },
                                 modifier = Modifier
                                         .align(Alignment.BottomEnd)
                                         .testTag(EDIT_MATCH_INFO_BUTTON.getTestTag(entry.match.matchNumber))
@@ -238,7 +296,7 @@ fun HeadToHeadScorePadScreen(
                                     title = stringResource(R.string.add_count__sighters),
                                     text = entry.match.sightersCount.toString(),
                                     onClick = {
-                                        listener(HeadToHeadScorePadIntent.EditSighters(entry.match.matchNumber))
+                                        listener(EditSighters(entry.match.matchNumber))
                                     },
                                     modifier = Modifier.testTag(SIGHTERS)
                             )
@@ -264,24 +322,33 @@ fun HeadToHeadScorePadScreen(
                 else {
                     check(!entry.match.isBye) { "Cannot have entries and be a bye" }
                     HeadToHeadGrid(
-                            state = entry.toGridState(),
+                            state = entry.toGridState(
+                                    dropdownMenuExpandedFor = state.dropdownMenuExpandedFor
+                                            .takeIf { entry.match.matchNumber == state.dropdownMenuExpandedFor?.first },
+                            ),
                             errorOnIncompleteRows = false,
                             rowClicked = { setNumber, _ ->
-                                listener(HeadToHeadScorePadIntent.EditSet(entry.match.matchNumber, setNumber))
+                                listener(SetClicked(entry.match.matchNumber, setNumber))
                             },
                             onTextValueChanged = { _, _ -> },
                             editTypesClicked = {},
                             helpListener = helpListener,
                             modifier = Modifier
                                     .padding(top = 15.dp, bottom = 10.dp)
-                                    .testTag(GRID)
+                                    .testTag(GRID),
+                            itemClickedListener = { setNumber: Int, dropdownMenuItem: DropdownMenuItem ->
+                                listener(OptionsMenuClicked(entry.match.matchNumber, setNumber, dropdownMenuItem))
+                            },
+                            closeDropdownMenuListener = {
+                                listener(CloseSetOptionsMenu(entry.match.matchNumber, it))
+                            }
                     )
                 }
 
                 if (!entry.match.isBye && (!entry.result.isComplete || !entry.isStandardFormat)) {
                     CodexButton(
                             text = stringResource(R.string.head_to_head_score_pad__add_new_set_button),
-                            onClick = { listener(HeadToHeadScorePadIntent.AddNewSet(entry.match.matchNumber)) },
+                            onClick = { listener(AddNewSet(entry.match.matchNumber)) },
                             modifier = Modifier
                                     .padding(horizontal = CodexTheme.dimens.screenPadding)
                                     .testTag(ADD_NEW_SET_BUTTON)

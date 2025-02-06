@@ -173,7 +173,7 @@ fun FullShootInfo.asDatabaseFullShootInfo() = DatabaseFullShootInfo(
         shootDetail = shootDetail,
         bow = bow,
         headToHead = h2h?.headToHead,
-        headToHeadHeats = h2h?.matches?.map { it.match },
+        headToHeadMatches = h2h?.matches?.map { it.match },
         headToHeadDetails = h2h?.matches?.flatMap { heat ->
             heat.sets.flatMap { it.asDatabaseDetails(h2h.headToHead.shootId, heat.match.matchNumber) }
         },

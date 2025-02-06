@@ -10,10 +10,12 @@
     <string name="head_to_head_add_end__score">Score:</string>
     <string name="head_to_head_add_end__score_text">%1$d-%2$d</string> <!-- 6-0 -->
     <string name="head_to_head_add_end__set">Set %1$d: %2$s</string> <!-- Set 1: Win -->
-    <string name="head_to_head_add_end__editing_set">Editing</string> <!-- Set 1: Win -->
+    <string name="head_to_head_add_end__editing_set">Editing</string>
+    <string name="head_to_head_add_end__inserting_set">Inserting</string>
     <string name="head_to_head_add_end__shoot_off">Shoot off: %s</string> <!-- Shoot off: Win -->
     <string name="head_to_head_add_end__shoot_off_win">Win</string>
     <string name="head_to_head_add_end__submit">Next set</string>
+    <string name="head_to_head_add_end__insert_submit">Insert set</string>
     <string name="head_to_head_add_end__next_match">Create next match</string>
     <string name="head_to_head_add_end__set_result">Set:</string> <!-- Set: Win -->
     <string name="head_to_head_add_end__final_result">Match result:</string> <!-- Match result: Win -->
@@ -48,6 +50,10 @@
     <string name="head_to_head_grid__column_team_total">T</string>
     <string name="head_to_head_grid__column_points">P</string>
 
+    <string name="head_to_head_grid__dropdown_insert">Insert set above</string>
+    <string name="head_to_head_grid__dropdown_delete">Delete</string>
+    <string name="head_to_head_grid__dropdown_edit">Edit</string>
+
     <string name="head_to_head_add_end__result_win">Win</string>
     <string name="head_to_head_add_end__result_loss">Loss</string>
     <string name="head_to_head_add_end__result_tie">Tie</string>
@@ -61,6 +67,8 @@
     <string name="head_to_head_score_pad__no_heats_button">Add match</string>
     <string name="head_to_head_score_pad__edit_heat">Edit heat info</string>
     <string name="head_to_head_score_pad__add_new_set_button">Enter sets</string>
+    <string name="head_to_head_score_pad__delete_dialog_title">Delete set</string>
+    <string name="head_to_head_score_pad__delete_dialog_body">Are you sure you want to delete match %1$d set %2$d?</string> <!-- match 1 set 4 -->
 
     <string name="head_to_head_add_heat__title">Create match</string>
     <string name="head_to_head_add_heat__match_header_with_heat">Match %d: %s</string>

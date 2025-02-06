@@ -47,6 +47,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
     val shootId = savedStateHandle.get<Int>(NavArgument.SHOOT_ID)!!
     private val editingMatchNumber = savedStateHandle.get<Int>(NavArgument.MATCH_NUMBER)
     private val editingSetNumber = savedStateHandle.get<Int>(NavArgument.SET_NUMBER)
+    private val isInserting = savedStateHandle.get<Boolean>(NavArgument.IS_INSERT) ?: false
 
     private fun stateConverter(
             main: ShootDetailsState,
@@ -83,7 +84,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 }
 
         // Editing
-        if (editingSet != null) {
+        if (editingSet != null && !isInserting) {
 
             if (extras == null || extras.set.setNumber != editingSetNumber) {
                 extraState.update { HeadToHeadAddEndExtras().resetEditInfo(editingSet) }
@@ -118,7 +119,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 val data = generateEmptyDataRows(
                         endSize = HeadToHeadUseCase.endSize(teamSize, isShootOff),
                         teamSize = teamSize,
-                        previous = editingMatch.sets.find { it.setNumber == editingSetNumber - 1 }?.data
+                        previous = editingMatch.sets.find { it.setNumber == editingSetNumber - 1 }?.data,
                 )
 
                 extraState.update {
@@ -144,9 +145,11 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     // Default to zeros on the first set only
                     opponentRunningTotal = scores?.second ?: 0.takeIf { editingSetNumber == 1 },
                     editingSet = null,
+                    isInserting = isInserting,
             )
         }
 
+        check(!isInserting) { "Must provide a set number when inserting" }
         val match = editingMatch ?: fullH2hInfo.matches.maxByOrNull { it.match.matchNumber }
 
         // Invalid match
@@ -315,10 +318,10 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     return
                 }
                 viewModelScope.launch {
-                    if (state.editingSet == null) h2hRepo.insert(*state.setToDbDetails().toTypedArray())
+                    if (state.editingSet == null || isInserting) h2hRepo.insert(*state.setToDbDetails().toTypedArray())
                     else h2hRepo.update(newDetails = state.setToDbDetails(), oldDetails = state.editingToDbDetails()!!)
 
-                    if (state.editingSet != null) {
+                    if (state.editingSet != null || isInserting) {
                         extraState.update { it!!.copy(pressBack = true) }
                     }
                 }

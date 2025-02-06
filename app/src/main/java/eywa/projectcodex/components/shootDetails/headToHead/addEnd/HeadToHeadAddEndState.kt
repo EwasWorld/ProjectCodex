@@ -20,6 +20,7 @@ data class HeadToHeadAddEndState(
         val isRecurveStyle: Boolean = true,
         val match: DatabaseHeadToHeadMatch = DatabaseHeadToHeadMatchPreviewHelper.data,
         val editingSet: FullHeadToHeadSet? = null,
+        val isInserting: Boolean = false,
 ) {
     init {
         if (editingSet != null) {
