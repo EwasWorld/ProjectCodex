@@ -2,6 +2,7 @@ package eywa.projectcodex.components.shootDetails.headToHead.scorePad
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,11 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,9 +50,9 @@ import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.getData
-import eywa.projectcodex.components.shootDetails.headToHead.grid.DropdownMenuItem
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGrid
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowDataPreviewHelper
+import eywa.projectcodex.components.shootDetails.headToHead.grid.SetDropdownMenuItem
 import eywa.projectcodex.components.shootDetails.headToHead.scorePad.HeadToHeadScorePadIntent.*
 import eywa.projectcodex.components.shootDetails.headToHead.scorePad.HeadToHeadScorePadMatchTestTag.*
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
@@ -77,12 +80,7 @@ fun HeadToHeadScorePadScreen(
     )
 
     val data = state.getData()
-    LaunchedEffect(
-            data?.extras?.openAddMatch,
-            data?.extras?.openEditSightersForMatch,
-            data?.extras?.openEditMatchInfo,
-            data?.extras?.menuActionClicked,
-    ) {
+    LaunchedEffect(data?.extras) {
         if (data?.extras?.openAddMatch == true) {
             CodexNavRoute.HEAD_TO_HEAD_ADD_MATCH.navigate(
                     navController,
@@ -104,19 +102,49 @@ fun HeadToHeadScorePadScreen(
             listener(EditSightersHandled)
         }
 
-        if (data?.extras?.openEditMatchInfo != null) {
-            CodexNavRoute.HEAD_TO_HEAD_ADD_MATCH.navigate(
-                    navController,
-                    mapOf(
-                            NavArgument.SHOOT_ID to viewModel.shootId.toString(),
-                            NavArgument.MATCH_NUMBER to data.extras.openEditMatchInfo.toString(),
-                    ),
-            )
-            listener(EditMatchInfoHandled)
+        data?.extras?.menuOpenForMatchNumber?.let { match ->
+            when (data.extras.matchMenuActionClicked) {
+                MenuAction.EDIT -> {
+                    CodexNavRoute.HEAD_TO_HEAD_ADD_MATCH.navigate(
+                            navController,
+                            mapOf(
+                                    NavArgument.SHOOT_ID to viewModel.shootId.toString(),
+                                    NavArgument.MATCH_NUMBER to match.toString(),
+                            ),
+                    )
+                    listener(MatchOptionsMenuActionHandled)
+                }
+
+                MenuAction.INSERT -> {
+                    CodexNavRoute.HEAD_TO_HEAD_ADD_MATCH.navigate(
+                            navController,
+                            mapOf(
+                                    NavArgument.SHOOT_ID to viewModel.shootId.toString(),
+                                    NavArgument.MATCH_NUMBER to match.toString(),
+                                    NavArgument.IS_INSERT to true.toString(),
+                            ),
+                    )
+                    listener(MatchOptionsMenuActionHandled)
+                }
+
+                MenuAction.NEW_SET -> {
+                    CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
+                            navController,
+                            mapOf(
+                                    NavArgument.SHOOT_ID to viewModel.shootId.toString(),
+                                    NavArgument.MATCH_NUMBER to match.toString(),
+                            ),
+                    )
+                    listener(SetOptionsMenuActionHandled)
+                }
+
+                MenuAction.DELETE -> Unit
+                null -> Unit
+            }
         }
 
         data?.extras?.menuOpenForSet?.let { (match, set) ->
-            when (data.extras.menuActionClicked) {
+            when (data.extras.setMenuActionClicked) {
                 MenuAction.EDIT -> {
                     check(set > 0) { "Invalid set number" }
                     CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
@@ -127,7 +155,7 @@ fun HeadToHeadScorePadScreen(
                                     NavArgument.SET_NUMBER to set.toString(),
                             ),
                     )
-                    listener(OptionsMenuActionHandled)
+                    listener(SetOptionsMenuActionHandled)
                 }
 
                 MenuAction.INSERT -> {
@@ -141,20 +169,11 @@ fun HeadToHeadScorePadScreen(
                                     NavArgument.IS_INSERT to true.toString(),
                             ),
                     )
-                    listener(OptionsMenuActionHandled)
+                    listener(SetOptionsMenuActionHandled)
                 }
 
-                MenuAction.NEW_SET -> {
-                    CodexNavRoute.HEAD_TO_HEAD_ADD_END.navigate(
-                            navController,
-                            mapOf(
-                                    NavArgument.SHOOT_ID to viewModel.shootId.toString(),
-                                    NavArgument.MATCH_NUMBER to match.toString(),
-                            ),
-                    )
-                    listener(OptionsMenuActionHandled)
-                }
 
+                MenuAction.NEW_SET -> throw IllegalStateException()
                 MenuAction.DELETE -> Unit
                 null -> Unit
             }
@@ -170,15 +189,31 @@ fun HeadToHeadScorePadScreen(
 ) {
     val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
 
-    SimpleDialog(
-            isShown = state.extras.menuOpenForSet != null && state.extras.menuActionClicked == MenuAction.DELETE,
-            onDismissListener = { listener(OptionsMenuActionHandled) },
-    ) {
-        if (state.extras.menuOpenForSet == null) return@SimpleDialog
+    val deleteDialogTitle: String?
+    val deleteDialogMessage: String?
+
+    if (state.extras.menuOpenForSet != null && state.extras.setMenuActionClicked == MenuAction.DELETE) {
         val (match, set) = state.extras.menuOpenForSet
+        deleteDialogTitle = stringResource(R.string.head_to_head_score_pad__delete_dialog_title)
+        deleteDialogMessage = stringResource(R.string.head_to_head_score_pad__delete_dialog_body, match, set)
+    }
+    else if (state.extras.menuOpenForMatchNumber != null && state.extras.matchMenuActionClicked == MenuAction.DELETE) {
+        deleteDialogTitle = stringResource(R.string.head_to_head_add_heat__delete_dialog_title)
+        deleteDialogMessage =
+                stringResource(R.string.head_to_head_add_heat__delete_dialog_body, state.extras.menuOpenForMatchNumber)
+    }
+    else {
+        deleteDialogTitle = null
+        deleteDialogMessage = null
+    }
+
+    SimpleDialog(
+            isShown = deleteDialogTitle != null,
+            onDismissListener = { listener(SetOptionsMenuActionHandled) },
+    ) {
         SimpleDialogContent(
-                title = stringResource(R.string.head_to_head_score_pad__delete_dialog_title),
-                message = stringResource(R.string.head_to_head_score_pad__delete_dialog_body, match, set),
+                title = deleteDialogTitle ?: "",
+                message = deleteDialogMessage ?: "",
                 positiveButton = ButtonState(
                         text = stringResource(R.string.general_delete),
                         onClick = { listener(DeleteConfirmationOkClicked) },
@@ -232,22 +267,36 @@ fun HeadToHeadScorePadScreen(
                         modifier = Modifier.padding(horizontal = CodexTheme.dimens.screenPadding)
                 ) {
                     Box {
-                        CodexIconButton(
-                                icon = CodexIconInfo.VectorIcon(
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = stringResource(R.string.head_to_head_score_pad__edit_heat),
-                                ),
-                                onClick = { listener(EditMatchInfo(entry.match.matchNumber)) },
-                                modifier = Modifier
-                                        .align(Alignment.BottomEnd)
-                                        .testTag(EDIT_MATCH_INFO_BUTTON.getTestTag(entry.match.matchNumber))
-                        )
+                        Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                            CodexIconButton(
+                                    icon = CodexIconInfo.VectorIcon(imageVector = Icons.Default.MoreHoriz),
+                                    captionBelow = stringResource(R.string.head_to_head_score_pad__edit_match),
+                                    onClick = { listener(OpenMatchOptionsClicked(entry.match.matchNumber)) },
+                                    modifier = Modifier
+                                            .testTag(EDIT_MATCH_INFO_BUTTON.getTestTag(entry.match.matchNumber))
+                                            .border(
+                                                    shape = RoundedCornerShape(30, 0),
+                                                    width = 1.dp,
+                                                    color = Color.White
+                                            )
+                                            .padding(end = 1.dp)
+                            )
+                            DropdownMenu(
+                                    allowNewEndsToBeAdded = entry.allowNewEndsToBeAdded(),
+                                    expanded = state.extras.menuOpenForMatchNumber == entry.match.matchNumber,
+                                    testTag = MATCH_DROPDOWN_MENU_ITEM.getTestTag(entry.match.matchNumber),
+                                    itemClickedListener = {
+                                        listener(MatchOptionsMenuClicked(entry.match.matchNumber, it))
+                                    },
+                                    dismissListener = { listener(CloseMatchOptionsMenu(entry.match.matchNumber)) },
+                            )
+                        }
 
                         Column(
                                 verticalArrangement = Arrangement.spacedBy(5.dp),
                                 horizontalAlignment = Alignment.Start,
                                 modifier = Modifier
-                                        .padding(horizontal = 15.dp, vertical = 10.dp)
+                                        .padding(horizontal = 15.dp, vertical = 15.dp)
                                         .fillMaxWidth()
                         ) {
                             if (entry.match.heat != null) {
@@ -278,6 +327,7 @@ fun HeadToHeadScorePadScreen(
                                     )
                                 }
                             }
+                            Spacer(modifier = Modifier.height(18.dp))
                             entry.match.maxPossibleRank?.let {
                                 check(it >= 1)
                                 val maxRank = when (it) {
@@ -323,8 +373,8 @@ fun HeadToHeadScorePadScreen(
                     check(!entry.match.isBye) { "Cannot have entries and be a bye" }
                     HeadToHeadGrid(
                             state = entry.toGridState(
-                                    dropdownMenuExpandedFor = state.dropdownMenuExpandedFor
-                                            .takeIf { entry.match.matchNumber == state.dropdownMenuExpandedFor?.first },
+                                    dropdownMenuExpandedFor = state.setDropdownMenuExpandedFor
+                                            .takeIf { entry.match.matchNumber == state.setDropdownMenuExpandedFor?.first },
                             ),
                             errorOnIncompleteRows = false,
                             rowClicked = { setNumber, _ ->
@@ -336,8 +386,8 @@ fun HeadToHeadScorePadScreen(
                             modifier = Modifier
                                     .padding(top = 15.dp, bottom = 10.dp)
                                     .testTag(GRID),
-                            itemClickedListener = { setNumber: Int, dropdownMenuItem: DropdownMenuItem ->
-                                listener(OptionsMenuClicked(entry.match.matchNumber, setNumber, dropdownMenuItem))
+                            itemClickedListener = { setNumber: Int, dropdownMenuItem: SetDropdownMenuItem ->
+                                listener(SetOptionsMenuClicked(entry.match.matchNumber, setNumber, dropdownMenuItem))
                             },
                             closeDropdownMenuListener = {
                                 listener(CloseSetOptionsMenu(entry.match.matchNumber, it))
@@ -345,17 +395,35 @@ fun HeadToHeadScorePadScreen(
                     )
                 }
 
-                if (!entry.match.isBye && (!entry.result.isComplete || !entry.isStandardFormat)) {
-                    CodexButton(
-                            text = stringResource(R.string.head_to_head_score_pad__add_new_set_button),
-                            onClick = { listener(AddNewSet(entry.match.matchNumber)) },
-                            modifier = Modifier
-                                    .padding(horizontal = CodexTheme.dimens.screenPadding)
-                                    .testTag(ADD_NEW_SET_BUTTON)
-                    )
-                }
-
                 Spacer(Modifier.height(30.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun DropdownMenu(
+        allowNewEndsToBeAdded: Boolean,
+        expanded: Boolean,
+        testTag: CodexTestTag,
+        itemClickedListener: (MatchDropdownMenuItem) -> Unit,
+        dismissListener: () -> Unit,
+) {
+    DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = dismissListener,
+    ) {
+        MatchDropdownMenuItem.entries.forEach { item ->
+            if (!allowNewEndsToBeAdded && item == MatchDropdownMenuItem.CONTINUE) return@forEach
+
+            DropdownMenuItem(
+                    onClick = { itemClickedListener(item) },
+                    modifier = Modifier.testTag(testTag)
+            ) {
+                Text(
+                        text = item.title.get(),
+                        style = CodexTypography.NORMAL,
+                )
             }
         }
     }
@@ -381,6 +449,7 @@ enum class HeadToHeadScorePadMatchTestTag {
     GRID,
     EDIT_MATCH_INFO_BUTTON,
     ADD_NEW_SET_BUTTON,
+    MATCH_DROPDOWN_MENU_ITEM,
     ;
 
     fun getTestTag(matchNumber: Int) =

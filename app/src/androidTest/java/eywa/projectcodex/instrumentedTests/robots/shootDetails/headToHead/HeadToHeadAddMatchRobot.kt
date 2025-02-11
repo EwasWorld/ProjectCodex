@@ -88,4 +88,9 @@ class HeadToHeadAddMatchRobot(
     fun clickSaveEdit() {
         clickElement(HeadToHeadAddMatchTestTag.SAVE_BUTTON)
     }
+
+    fun clickDelete() {
+        clickElement(HeadToHeadAddMatchTestTag.DELETE_BUTTON)
+        clickDialogOk("Delete match")
+    }
 }

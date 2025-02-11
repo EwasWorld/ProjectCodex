@@ -16,30 +16,31 @@ sealed class CodexNodeGroupInteraction {
      * One List<CodexNodeInteraction> per expected node. Each node can have multiple [CodexNodeInteraction].
      */
     data class ForEach(val actions: List<List<CodexNodeInteraction>>) : CodexNodeGroupInteraction() {
-        override fun performInternal(nodes: SemanticsNodeInteractionCollection) {
+        override fun performInternal(nodes: SemanticsNodeInteractionCollection, description: String?) {
             actions.forEachIndexed { index, nodeActions ->
                 nodeActions.forEach {
-                    it.perform(nodes[index])
+                    it.perform(nodes[index], description)
                 }
             }
         }
     }
 
     data class AssertCount(val count: Int) : CodexNodeGroupInteraction() {
-        override fun performInternal(nodes: SemanticsNodeInteractionCollection) {
+        override fun performInternal(nodes: SemanticsNodeInteractionCollection, description: String?) {
             nodes.assertCountEquals(count)
         }
     }
 
     data class AssertAll(val matcher: CodexNodeMatcher) : CodexNodeGroupInteraction() {
-        override fun performInternal(nodes: SemanticsNodeInteractionCollection) {
+        override fun performInternal(nodes: SemanticsNodeInteractionCollection, description: String?) {
             nodes.assertAll(matcher.getMatcher())
         }
     }
 
-    abstract fun performInternal(nodes: SemanticsNodeInteractionCollection)
-    fun perform(nodes: SemanticsNodeInteractionCollection) {
-        waitForWrapper(waitFor) { performInternal(nodes) }
+    abstract fun performInternal(nodes: SemanticsNodeInteractionCollection, description: String?)
+
+    fun perform(nodes: SemanticsNodeInteractionCollection, description: String) {
+        waitForWrapper(waitFor, description) { performInternal(nodes, description) }
     }
 
     fun waitFor(): CodexNodeGroupInteraction {

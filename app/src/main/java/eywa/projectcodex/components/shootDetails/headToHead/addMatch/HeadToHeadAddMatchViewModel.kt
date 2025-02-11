@@ -51,6 +51,8 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
     val shootId = savedStateHandle.get<Int>(NavArgument.SHOOT_ID)!!
     private val editingMatchNumber = savedStateHandle.get<Int>(NavArgument.MATCH_NUMBER)
 
+    private val isInserting = savedStateHandle.get<Boolean>(NavArgument.IS_INSERT) ?: false
+
     private fun stateConverter(
             main: ShootDetailsState,
             extras: HeadToHeadAddMatchExtras?,
@@ -89,8 +91,8 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
             val previous = fullH2hInfo.matches.find { it.match.matchNumber == editingMatchNumber - 1 }
 
             // Edit match from database
-            if (editingMatch != null) {
-                if (extraState.value == null) {
+            if (editingMatch != null && !isInserting) {
+                if (extraState.value == null || extraState.value?.matchNumber != editingMatchNumber) {
                     extraState.update { (it ?: HeadToHeadAddMatchExtras()).resetEditInfo(editingMatch.match) }
                 }
 
@@ -104,14 +106,19 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
             }
 
             // Create new match with fixed match number
-            if (extraState.value == null) {
+            if (extraState.value == null || extraState.value?.matchNumber != editingMatchNumber) {
                 extraState.update {
-                    HeadToHeadAddMatchExtras(
-                            matchNumber = editingMatchNumber,
-                            heat = previous?.match?.heat?.minus(1)?.coerceAtLeast(0) ?: estimatedHeat(),
-                    )
-                            .setMaxRank(previous)
-                            .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(editingMatchNumber))
+                    if (isInserting) {
+                        HeadToHeadAddMatchExtras(matchNumber = editingMatchNumber)
+                    }
+                    else {
+                        HeadToHeadAddMatchExtras(
+                                matchNumber = editingMatchNumber,
+                                heat = previous?.match?.heat?.minus(1)?.coerceAtLeast(0) ?: estimatedHeat(),
+                        )
+                                .setMaxRank(previous)
+                                .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(editingMatchNumber))
+                    }
                 }
             }
 
@@ -120,15 +127,17 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
                     extras = (extras ?: HeadToHeadAddMatchExtras()),
                     previousMatch = previous?.asPreviousMatch(),
                     editing = null,
+                    isInserting = isInserting,
             )
         }
 
+        check(!isInserting) { "Must provide a match number when inserting" }
         val latestMatch = fullH2hInfo.matches.maxByOrNull { it.match.matchNumber }
 
         // Create first match
         if (latestMatch == null) {
 
-            if (extraState.value == null) {
+            if (extraState.value == null || extraState.value?.matchNumber != 1) {
                 extraState.update {
                     HeadToHeadAddMatchExtras(
                             matchNumber = 1,
@@ -149,15 +158,15 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
         // Create next new match
         if (latestMatch.isComplete && !latestMatch.match.isBye) {
             val previousMatch = latestMatch.asPreviousMatch()
+            val newMatchNumber = previousMatch.matchNumber + 1
 
-            // TODO Swap to a match number check
-            if (extraState.value == null || latestMatch.match.heat == extraState.value?.heat) {
+            if (extraState.value == null || extraState.value?.matchNumber != newMatchNumber) {
                 extraState.update {
                     HeadToHeadAddMatchExtras(
-                            matchNumber = previousMatch.matchNumber + 1,
+                            matchNumber = newMatchNumber,
                             heat = latestMatch.match.heat?.minus(1)?.coerceAtLeast(0),
                     )
-                            .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(previousMatch.matchNumber + 1))
+                            .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(newMatchNumber))
                             .setMaxRank(latestMatch)
                 }
             }
@@ -273,7 +282,12 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
                     }
                     else {
                         h2hRepo.insert(newMatch)
-                        extraState.update { it!!.copy(openAddEndScreenForMatch = newMatch.matchNumber) }
+                        if (isInserting) {
+                            extraState.update { it!!.copy(pressBack = true) }
+                        }
+                        else {
+                            extraState.update { it!!.copy(openAddEndScreenForMatch = newMatch.matchNumber) }
+                        }
                     }
                 }
             }
@@ -282,6 +296,7 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
                 if (state.editing == null) return
                 viewModelScope.launch {
                     h2hRepo.delete(shootId = state.editing.shootId, matchNumber = state.editing.matchNumber)
+                    extraState.update { it!!.copy(pressBack = true) }
                 }
             }
 

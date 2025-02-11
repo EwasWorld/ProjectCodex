@@ -84,8 +84,11 @@ fun HeadToHeadAddMatchScreen(
     val state by viewModel.state.collectAsState()
     val listener = { it: HeadToHeadAddMatchIntent -> viewModel.handle(it) }
 
+    val data = state.getData()
+
     ShootDetailsMainScreen(
-            currentScreen = CodexNavRoute.HEAD_TO_HEAD_ADD_MATCH,
+            currentScreen = CodexNavRoute.HEAD_TO_HEAD_ADD_MATCH
+                    .takeIf { data?.editing == null && data?.isInserting != true },
             state = state,
             listener = { listener(ShootDetailsAction(it)) },
     ) { it, modifier -> HeadToHeadAddMatchScreen(it, modifier, listener) }
@@ -96,7 +99,6 @@ fun HeadToHeadAddMatchScreen(
             listener = { listener(ShootDetailsAction(it)) },
     )
 
-    val data = state.getData()
     LaunchedEffect(
             data?.extras?.openAllSightMarks,
             data?.extras?.openEditSightMark,
@@ -159,7 +161,7 @@ fun HeadToHeadAddMatchScreen(
                         .padding(vertical = CodexTheme.dimens.screenPadding)
                         .testTag(HeadToHeadAddMatchTestTag.SCREEN)
         ) {
-            if (state.roundInfo != null && state.editing == null) {
+            if (state.roundInfo != null && state.editing == null && !state.isInserting) {
                 SightMark(
                         distance = state.roundInfo.distance,
                         isMetric = state.roundInfo.isMetric,
@@ -362,7 +364,10 @@ private fun MatchDetails(
 
         if (state.editing == null)
             CodexButton(
-                    text = stringResource(R.string.head_to_head_add_heat__submit),
+                    text = stringResource(
+                            if (state.isInserting) R.string.head_to_head_add_heat__submit_insert
+                            else R.string.head_to_head_add_heat__submit
+                    ),
                     onClick = { listener(SubmitClicked) },
                     helpState = null,
                     modifier = Modifier
@@ -505,6 +510,21 @@ fun HeadToHeadAddMatchScreen_Preview() {
                         roundInfo = SightMark(SightMarksPreviewHelper.sightMarks[0]).let {
                             HeadToHeadRoundInfo(sightMark = it, distance = it.distance, isMetric = it.isMetric)
                         },
+                ),
+        ) {}
+    }
+}
+
+@Preview
+@Composable
+fun Insert_HeadToHeadAddMatchScreen_Preview() {
+    CodexTheme {
+        HeadToHeadAddMatchScreen(
+                state = HeadToHeadAddMatchState(
+                        roundInfo = SightMark(SightMarksPreviewHelper.sightMarks[0]).let {
+                            HeadToHeadRoundInfo(sightMark = it, distance = it.distance, isMetric = it.isMetric)
+                        },
+                        isInserting = true,
                 ),
         ) {}
     }

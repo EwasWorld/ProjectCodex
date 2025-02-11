@@ -196,6 +196,7 @@ enum class CodexNavRoute : ScreenNavRoute {
             get() = mapOf(
                     NavArgument.SHOOT_ID to true,
                     NavArgument.MATCH_NUMBER to false,
+                    NavArgument.IS_INSERT to false,
             )
 
         @Composable

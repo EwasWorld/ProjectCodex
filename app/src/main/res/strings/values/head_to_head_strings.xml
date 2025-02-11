@@ -51,8 +51,8 @@
     <string name="head_to_head_grid__column_points">P</string>
 
     <string name="head_to_head_grid__dropdown_insert">Insert set above</string>
-    <string name="head_to_head_grid__dropdown_delete">Delete</string>
-    <string name="head_to_head_grid__dropdown_edit">Edit</string>
+    <string name="head_to_head_grid__dropdown_delete">Delete set</string>
+    <string name="head_to_head_grid__dropdown_edit">Edit set</string>
 
     <string name="head_to_head_add_end__result_win">Win</string>
     <string name="head_to_head_add_end__result_loss">Loss</string>
@@ -65,10 +65,13 @@
     <string name="head_to_head_score_pad__no_heats">No matches entered</string>
     <string name="head_to_head_score_pad__is_bye">Bye</string>
     <string name="head_to_head_score_pad__no_heats_button">Add match</string>
-    <string name="head_to_head_score_pad__edit_heat">Edit heat info</string>
-    <string name="head_to_head_score_pad__add_new_set_button">Enter sets</string>
+    <string name="head_to_head_score_pad__edit_match">Options</string>
     <string name="head_to_head_score_pad__delete_dialog_title">Delete set</string>
     <string name="head_to_head_score_pad__delete_dialog_body">Are you sure you want to delete match %1$d set %2$d?</string> <!-- match 1 set 4 -->
+    <string name="head_to_head_score_pad__dropdown_continue">Add set</string>
+    <string name="head_to_head_score_pad__dropdown_insert">Insert match above</string>
+    <string name="head_to_head_score_pad__dropdown_delete">Delete match</string>
+    <string name="head_to_head_score_pad__dropdown_edit">Edit match</string>
 
     <string name="head_to_head_add_heat__title">Create match</string>
     <string name="head_to_head_add_heat__match_header_with_heat">Match %d: %s</string>
@@ -88,6 +91,7 @@
     <string name="head_to_head_add_heat__max_rank_bronze">Bronze</string>
     <string name="head_to_head_add_heat__bye">Bye:</string>
     <string name="head_to_head_add_heat__submit">Start match</string>
+    <string name="head_to_head_add_heat__submit_insert">Insert match</string>
     <string name="head_to_head_add_heat__submit_edit">Update match info</string>
     <string name="head_to_head_add_heat__result">Result:</string>
     <string name="head_to_head_add_heat__editing">Editing %d match</string>

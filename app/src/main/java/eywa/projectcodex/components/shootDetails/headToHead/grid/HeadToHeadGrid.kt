@@ -71,7 +71,7 @@ fun HeadToHeadGrid(
         rowClicked: (setNumber: Int, type: HeadToHeadArcherType) -> Unit,
         editTypesClicked: () -> Unit,
         onTextValueChanged: (type: HeadToHeadArcherType, text: String?) -> Unit,
-        itemClickedListener: (setNumber: Int, type: DropdownMenuItem) -> Unit,
+        itemClickedListener: (setNumber: Int, type: SetDropdownMenuItem) -> Unit,
         closeDropdownMenuListener: (setNumber: Int) -> Unit,
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
@@ -343,7 +343,7 @@ fun HeadToHeadGrid(
                                             && state.dropdownMenuExpandedFor.second == set.setNumber,
                                     itemClickedListener = { itemClickedListener(set.setNumber, it) },
                                     dismissListener = { closeDropdownMenuListener(set.setNumber) },
-                                    testTag = DROPDOWN_MENU_ITEM.get(),
+                                    testTag = SET_DROPDOWN_MENU_ITEM.get(),
                             )
                         }
                     }
@@ -384,10 +384,10 @@ fun HeadToHeadGrid(
 
 @Composable
 private fun DropdownMenu(
-        menuItems: List<DropdownMenuItem> = emptyList(),
+        menuItems: List<SetDropdownMenuItem> = emptyList(),
         expanded: Boolean,
         testTag: CodexTestTag,
-        itemClickedListener: (DropdownMenuItem) -> Unit,
+        itemClickedListener: (SetDropdownMenuItem) -> Unit,
         dismissListener: () -> Unit,
 ) {
     DropdownMenu(
@@ -433,7 +433,7 @@ enum class HeadToHeadGridColumnTestTag {
     POINTS_CELL,
     SET_RESULT,
     SET_RUNNING_TOTAL,
-    DROPDOWN_MENU_ITEM,
+    SET_DROPDOWN_MENU_ITEM,
     ;
 
     fun get(matchNumber: Int, setNumber: Int): CodexTestTag = object : CodexTestTag {
@@ -655,7 +655,7 @@ fun HeadToHeadGridPreviewHelper(
             onTextValueChanged = { _, _ -> },
             editTypesClicked = {},
             helpListener = {},
-            itemClickedListener = { _: Int, _: DropdownMenuItem -> },
+            itemClickedListener = { _: Int, _: SetDropdownMenuItem -> },
             closeDropdownMenuListener = {},
             modifier = Modifier.padding(vertical = 20.dp),
     )

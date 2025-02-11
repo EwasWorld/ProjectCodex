@@ -18,6 +18,7 @@ data class HeadToHeadAddMatchState(
          */
         val editingMatchWithSetsToBye: Boolean = false,
         val extras: HeadToHeadAddMatchExtras = HeadToHeadAddMatchExtras(matchNumber = 1),
+        val isInserting: Boolean = false,
 ) {
 
     fun asHeadToHeadMatch(shootId: Int) =

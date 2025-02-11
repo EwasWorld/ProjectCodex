@@ -60,6 +60,8 @@ abstract class TestActionDslNode {
     abstract val root: TestActionDslRoot
     var isComplete = false
 
+    abstract val description: String
+
     fun checkIsValidSetupCall() {
         if (isComplete) throw IllegalStateException("Scope no longer valid")
     }
@@ -87,6 +89,9 @@ open class TestActionDslSingleNode internal constructor(
 ) : TestActionDslNode() {
     protected val actions = mutableListOf<CodexNodeInteraction>()
 
+    override val description: String
+        get() = "Actions: " + actions.joinToString { it.toString() } + "\nCreation: " + creation.toString()
+
     operator fun CodexNodeInteraction.unaryPlus() {
         checkIsValidSetupCall()
         actions += this
@@ -105,8 +110,8 @@ open class TestActionDslSingleNode internal constructor(
             else -> throw UnsupportedOperationException()
         }
 
-        actions.forEach { it.perform(node) }
-        return TestActionDslPreviousNode.Single(node)
+        actions.forEach { it.perform(node, "$description (${previous.description})") }
+        return TestActionDslPreviousNode.Single(node, description)
     }
 
     @TestActionDslMarker
@@ -114,6 +119,9 @@ open class TestActionDslSingleNode internal constructor(
         private val matchers = mutableListOf<CodexNodeMatcher>()
         private var useUnmergedTree = false
         private var scrollToParentIndex: Int? = null
+
+        override val description: String
+            get() = "Matchers" + matchers.joinToString { it.toString() } + "\n" + super.description
 
         fun useUnmergedTree(value: Boolean = true) {
             useUnmergedTree = value
@@ -151,9 +159,9 @@ open class TestActionDslSingleNode internal constructor(
                                     .onNode(parentMatchers.getMatcher(), useUnmergedTree)
                                     .performScrollToIndex(index)
                         }
-                        actions.forEach { it.perform(this) }
+                        actions.forEach { it.perform(this, description) }
                     }
-                    .let { TestActionDslPreviousNode.Single(it) }
+                    .let { TestActionDslPreviousNode.Single(it, description) }
         }
     }
 
@@ -161,7 +169,7 @@ open class TestActionDslSingleNode internal constructor(
      * How a [TestActionDslSingleNode] was created from the previous [TestActionDslNode]
      */
     internal sealed class Creation {
-        class FromGroup(val groupToOne: CodexNodeGroupToOne) : Creation()
+        data class FromGroup(val groupToOne: CodexNodeGroupToOne) : Creation()
     }
 }
 
@@ -170,6 +178,9 @@ open class TestActionDslGroupNode internal constructor(
         override val root: TestActionDslRoot,
 ) : TestActionDslNode() {
     protected val actions = mutableListOf<CodexNodeGroupInteraction>()
+
+    override val description: String
+        get() = "Actions: " + actions.joinToString { it.toString() }
 
     operator fun CodexNodeGroupInteraction.unaryPlus() {
         checkIsValidSetupCall()
@@ -197,6 +208,9 @@ open class TestActionDslGroupNode internal constructor(
         private val matchers = mutableListOf<CodexNodeMatcher>()
         private var useUnmergedTree = false
 
+        override val description: String
+            get() = "Matchers" + matchers.joinToString { it.toString() } + "\n" + super.description
+
         fun useUnmergedTree(value: Boolean = true) {
             useUnmergedTree = value
         }
@@ -212,13 +226,22 @@ open class TestActionDslGroupNode internal constructor(
         ): TestActionDslPreviousNode {
             if (previous != null) throw IllegalStateException()
             val node = composeTestRule.onAllNodes(matchers.getMatcher(), useUnmergedTree)
-            actions.forEach { it.perform(node) }
-            return TestActionDslPreviousNode.Group(node)
+            actions.forEach { it.perform(node, description) }
+            return TestActionDslPreviousNode.Group(node, description)
         }
     }
 }
 
 internal sealed class TestActionDslPreviousNode {
-    data class Single(val node: SemanticsNodeInteraction) : TestActionDslPreviousNode()
-    data class Group(val node: SemanticsNodeInteractionCollection) : TestActionDslPreviousNode()
+    abstract val description: String
+
+    data class Single(
+            val node: SemanticsNodeInteraction,
+            override val description: String,
+    ) : TestActionDslPreviousNode()
+
+    data class Group(
+            val node: SemanticsNodeInteractionCollection,
+            override val description: String,
+    ) : TestActionDslPreviousNode()
 }

@@ -42,7 +42,7 @@ class HeadToHeadE2eTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(120)
+    val testTimeout: Timeout = Timeout.seconds(180)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -517,7 +517,7 @@ class HeadToHeadE2eTest {
                         }
                         checkMatchIsBye(2)
 
-                        checkCannotInsertEnd(3, 2)
+                        checkCannotAddOrInsertEnd(3, 2)
                         deleteEnd(3, 2)
                         checkGrid(3, HeadToHeadResult.INCOMPLETE) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
@@ -552,6 +552,40 @@ class HeadToHeadE2eTest {
                                 checkResultsRow(1, "Win", Value(2))
                             }
                         }
+
+                        clickEditMatchInfo(2) {
+                            clickDelete()
+                        }
+                        checkScreenIsShown()
+
+                        checkGrid(2, HeadToHeadResult.INCOMPLETE) {
+                            checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
+                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                            }
+                            checkEnd(2, HeadToHeadResult.LOSS, "2-2", 2) {
+                                checkRow(0, archerName, Value("8-7-6"), 21, NoColumn, Value(0))
+                                checkRow(1, opponentName, Empty, 25, NoColumn, Value(2))
+                            }
+                            checkEnd(3, HeadToHeadResult.WIN, "4-2", 2) {
+                                checkRow(0, archerName, Empty, 30, NoColumn, Value(2))
+                                checkResultsRow(1, "Win", Value(2))
+                            }
+                        }
+
+                        checkMatchDetails(1, "1/8", 18, "Amy Baker", 5)
+                        checkMatchCount(2)
+                        clickDeleteMatch(2)
+                        checkMatchCount(1)
+                        checkMatchDetails(1, "1/8", 18, "Amy Baker", 5)
+
+                        clickInsertMatch(1) {
+                            setOpponent("Test Opponent", 13)
+                            clickSaveEdit()
+                        }
+                        checkScreenIsShown()
+                        checkMatchDetails(1, null, 0, "Test Opponent", 13)
+                        checkMatchDetails(2, "1/8", 18, "Amy Baker", 5)
                     }
                 }
             }
@@ -562,7 +596,6 @@ class HeadToHeadE2eTest {
     fun testTeamStandardFormatSetPointsNoRound() {
         // Set no heat
         // No total archers
-        // Delete/insert match
         TODO()
     }
 

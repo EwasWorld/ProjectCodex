@@ -41,14 +41,14 @@ sealed class HeadToHeadGridState {
             /**
              * <matchNumber, setNumber, dropdownMenuItems>
              */
-            val dropdownMenuExpandedFor: Triple<Int, Int, List<DropdownMenuItem>>? = null,
+            val dropdownMenuExpandedFor: Triple<Int, Int, List<SetDropdownMenuItem>>? = null,
     ) : HeadToHeadGridState()
 
     val showExtraTotalColumn
         get() = enteredArrows.any { it.showExtraColumnTotal() }
 }
 
-enum class DropdownMenuItem(val title: ResOrActual<String>) {
+enum class SetDropdownMenuItem(val title: ResOrActual<String>) {
     INSERT(title = ResOrActual.StringResource(R.string.head_to_head_grid__dropdown_insert)),
     EDIT(title = ResOrActual.StringResource(R.string.head_to_head_grid__dropdown_edit)),
     DELETE(title = ResOrActual.StringResource(R.string.head_to_head_grid__dropdown_delete)),

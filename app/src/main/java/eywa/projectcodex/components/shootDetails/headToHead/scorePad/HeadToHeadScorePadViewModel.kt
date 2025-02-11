@@ -11,7 +11,7 @@ import eywa.projectcodex.common.navigation.get
 import eywa.projectcodex.components.shootDetails.ShootDetailsError
 import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
-import eywa.projectcodex.components.shootDetails.headToHead.grid.DropdownMenuItem
+import eywa.projectcodex.components.shootDetails.headToHead.grid.SetDropdownMenuItem
 import eywa.projectcodex.components.shootDetails.headToHead.scorePad.HeadToHeadScorePadIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,46 +49,82 @@ class HeadToHeadScorePadViewModel @Inject constructor(
             is ShootDetailsAction -> repo.handle(action.action, screen)
             GoToAddEnd -> extraState.update { it.copy(openAddMatch = true) }
             GoToAddEndHandled -> extraState.update { it.copy(openAddMatch = false) }
-            is EditMatchInfo -> extraState.update { it.copy(openEditMatchInfo = action.match) }
             is EditSighters -> extraState.update { it.copy(openEditSightersForMatch = action.match) }
-            EditMatchInfoHandled -> extraState.update { it.copy(openEditMatchInfo = null) }
             EditSightersHandled -> extraState.update { it.copy(openEditSightersForMatch = null) }
-            is AddNewSet -> extraState.update {
-                it.copy(menuOpenForSet = action.match to -1, menuActionClicked = MenuAction.NEW_SET)
-            }
 
             is SetClicked -> extraState.update { it.copy(menuOpenForSet = action.match to action.setNumber) }
             is CloseSetOptionsMenu -> extraState.update {
                 if (it.menuOpenForSet != action.match to action.setNumber) it
-                else it.copy(menuOpenForSet = null, menuActionClicked = null)
+                else it.copy(menuOpenForSet = null, setMenuActionClicked = null)
             }
 
-            OptionsMenuActionHandled -> extraState.update { it.copy(menuOpenForSet = null, menuActionClicked = null) }
-            is OptionsMenuClicked -> extraState.update {
+            SetOptionsMenuActionHandled -> extraState.update {
+                it.copy(menuOpenForSet = null, setMenuActionClicked = null)
+            }
+
+            is SetOptionsMenuClicked -> extraState.update {
                 if (it.menuOpenForSet != action.match to action.setNumber) it
-                else it.copy(menuActionClicked = action.dropdownItem.asAction())
+                else it.copy(setMenuActionClicked = action.dropdownItem.asAction())
             }
 
             DeleteConfirmationCancelClicked -> extraState.update {
-                if (it.menuOpenForSet == null) it
-                else it.copy(menuActionClicked = null)
+                if (it.menuOpenForSet != null) it.copy(setMenuActionClicked = null)
+                else if (it.menuOpenForMatchNumber != null) it.copy(matchMenuActionClicked = null)
+                else it
             }
 
             DeleteConfirmationOkClicked -> extraState.update {
-                if (it.menuOpenForSet == null || it.menuActionClicked != MenuAction.DELETE) return@update it
 
-                viewModelScope.launch {
-                    db.h2hRepo().delete(shootId, it.menuOpenForSet.first, it.menuOpenForSet.second)
+                if (it.menuOpenForSet != null && it.setMenuActionClicked == MenuAction.DELETE) {
+                    viewModelScope.launch {
+                        db.h2hRepo().delete(
+                                shootId = shootId,
+                                matchNumber = it.menuOpenForSet.first,
+                                setNumber = it.menuOpenForSet.second,
+                        )
+                    }
+                    it.copy(menuOpenForSet = null, setMenuActionClicked = null)
+
                 }
-                it.copy(menuOpenForSet = null, menuActionClicked = null)
+                else if (it.menuOpenForMatchNumber != null && it.matchMenuActionClicked == MenuAction.DELETE) {
+                    viewModelScope.launch {
+                        db.h2hRepo().delete(shootId = shootId, matchNumber = it.menuOpenForMatchNumber)
+                    }
+                    it.copy(menuOpenForMatchNumber = null, matchMenuActionClicked = null)
+
+                }
+                else {
+                    it
+                }
             }
 
+            is CloseMatchOptionsMenu -> extraState.update {
+                if (it.menuOpenForMatchNumber != action.match) it
+                else it.copy(menuOpenForMatchNumber = null, matchMenuActionClicked = null)
+            }
+
+            MatchOptionsMenuActionHandled ->
+                extraState.update { it.copy(menuOpenForMatchNumber = null, matchMenuActionClicked = null) }
+
+            is MatchOptionsMenuClicked -> extraState.update {
+                if (it.menuOpenForMatchNumber != action.match) it
+                else it.copy(matchMenuActionClicked = action.dropdownItem.asAction())
+            }
+
+            is OpenMatchOptionsClicked -> extraState.update { it.copy(menuOpenForMatchNumber = action.match) }
         }
     }
 
-    private fun DropdownMenuItem.asAction() = when (this) {
-        DropdownMenuItem.EDIT -> MenuAction.EDIT
-        DropdownMenuItem.DELETE -> MenuAction.DELETE
-        DropdownMenuItem.INSERT -> MenuAction.INSERT
+    private fun SetDropdownMenuItem.asAction() = when (this) {
+        SetDropdownMenuItem.EDIT -> MenuAction.EDIT
+        SetDropdownMenuItem.DELETE -> MenuAction.DELETE
+        SetDropdownMenuItem.INSERT -> MenuAction.INSERT
+    }
+
+    private fun MatchDropdownMenuItem.asAction() = when (this) {
+        MatchDropdownMenuItem.EDIT -> MenuAction.EDIT
+        MatchDropdownMenuItem.DELETE -> MenuAction.DELETE
+        MatchDropdownMenuItem.INSERT -> MenuAction.INSERT
+        MatchDropdownMenuItem.CONTINUE -> MenuAction.NEW_SET
     }
 }

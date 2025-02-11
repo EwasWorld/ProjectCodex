@@ -81,6 +81,10 @@ sealed class CodexNodeMatcher {
                         ?: false
             }
         }
+
+        override fun toString(): String {
+            return "HasTestTag(${testTag.screenName}_${testTag.getElement()}, substring: $substring)"
+        }
     }
 
     /**

@@ -30,7 +30,7 @@ import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadBottomNavB
 
 @Composable
 fun <T : Any> ShootDetailsMainScreen(
-        currentScreen: CodexNavRoute,
+        currentScreen: CodexNavRoute?,
         state: ShootDetailsResponse<T>,
         listener: (ShootDetailsIntent) -> Unit,
         content: @Composable (T, Modifier) -> Unit,
@@ -96,7 +96,7 @@ fun <T : Any> HandleMainEffects(
 
 @Composable
 private fun <T> ShootDetailsMainScreen(
-        currentScreen: CodexNavRoute,
+        currentScreen: CodexNavRoute?,
         state: T,
         listener: (ShootDetailsIntent) -> Unit,
         content: @Composable (T, Modifier) -> Unit,
@@ -109,7 +109,10 @@ private fun <T> ShootDetailsMainScreen(
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
         )
-        if (StandardBottomNavBarItem.isItem(currentScreen)) {
+        if (currentScreen == null) {
+            // Don't show bottom nav bar
+        }
+        else if (StandardBottomNavBarItem.isItem(currentScreen)) {
             ShootDetailsBottomNavBar(
                     currentScreen = currentScreen,
                     items = StandardBottomNavBarItem.entries,

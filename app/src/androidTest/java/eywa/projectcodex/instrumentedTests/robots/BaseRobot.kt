@@ -137,10 +137,13 @@ abstract class BaseRobot(
         }
     }
 
-    fun checkElementIsDisplayed(testTag: CodexTestTag, useUnmergedTree: Boolean = false) {
+    fun checkElementIsDisplayed(testTag: CodexTestTag, useUnmergedTree: Boolean = false, scrollTo: Boolean = false) {
         performSingle {
             useUnmergedTree(useUnmergedTree)
             +CodexNodeMatcher.HasTestTag(testTag)
+            if (scrollTo) {
+                +CodexNodeInteraction.PerformScrollTo()
+            }
             +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
     }

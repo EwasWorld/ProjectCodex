@@ -42,18 +42,18 @@ interface HeadToHeadDetailDao {
     @Query(
             """
                 UPDATE $TABLE_NAME
-                SET matchNumber = :newMatchNumber
-                WHERE shootId = :shootId AND matchNumber = :oldMatchNumber
-            """
-    )
-    suspend fun updateMatchNumber(shootId: Int, newMatchNumber: Int, oldMatchNumber: Int)
-
-    @Query(
-            """
-                UPDATE $TABLE_NAME
                 SET setNumber = setNumber + :increment
                 WHERE shootId = :shootId AND matchNumber = :matchNumber AND setNumber >= :setNumbersAboveAndIncluding
             """
     )
     suspend fun incrementSetNumber(shootId: Int, matchNumber: Int, setNumbersAboveAndIncluding: Int, increment: Int)
+
+    @Query(
+            """
+                UPDATE $TABLE_NAME
+                SET matchNumber = matchNumber + :increment
+                WHERE shootId = :shootId AND matchNumber >= :matchNumbersAboveAndIncluding
+            """
+    )
+    suspend fun incrementMatchNumber(shootId: Int, matchNumbersAboveAndIncluding: Int, increment: Int)
 }

@@ -28,9 +28,9 @@ import androidx.compose.ui.test.swipeUp
 import eywa.projectcodex.common.CustomConditionWaiter
 
 
-fun waitForWrapper(waitFor: Boolean, block: () -> Unit) =
+fun waitForWrapper(waitFor: Boolean, description: String?, block: () -> Unit) =
         if (!waitFor) block()
-        else CustomConditionWaiter.waitForComposeCondition { block() }
+        else CustomConditionWaiter.waitForComposeCondition(description) { block() }
 
 fun assertTextEqualsOrDoesntExist(text: String?) =
         if (text != null) CodexNodeInteraction.AssertTextEquals(text)
@@ -199,8 +199,8 @@ sealed class CodexNodeInteraction {
     }
 
     protected abstract fun performInternal(node: SemanticsNodeInteraction)
-    fun perform(node: SemanticsNodeInteraction) {
-        waitForWrapper(waitFor) { performInternal(node) }
+    fun perform(node: SemanticsNodeInteraction, description: String?) {
+        waitForWrapper(waitFor, description) { performInternal(node) }
     }
 
     fun waitFor(): CodexNodeInteraction {

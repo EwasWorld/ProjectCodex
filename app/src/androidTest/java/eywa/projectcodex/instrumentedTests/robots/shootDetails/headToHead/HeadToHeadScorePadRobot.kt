@@ -16,6 +16,8 @@ import eywa.projectcodex.instrumentedTests.robots.RobotDslMarker
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddCountRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsRobot
 
+// TODO Not sure why but subcompose in CodexGrid is still giving 2 versions of options menu dropdown items
+//  Locations: TODO_OPTIONS_MENU_ISSUE
 class HeadToHeadScorePadRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, HeadToHeadScorePadTestTag.SCREEN) {
@@ -96,16 +98,6 @@ class HeadToHeadScorePadRobot(
         GridDsl(match, this).apply(config)
     }
 
-    fun clickEditMatchInfo(match: Int, block: HeadToHeadAddMatchRobot.() -> Unit) {
-        clickElement(HeadToHeadScorePadMatchTestTag.EDIT_MATCH_INFO_BUTTON.getTestTag(match), scrollTo = true)
-        createRobot(HeadToHeadAddMatchRobot::class, block)
-    }
-
-    fun clickAddNewSet(match: Int, block: HeadToHeadAddEndRobot.() -> Unit) {
-        clickElement(HeadToHeadScorePadMatchTestTag.ADD_NEW_SET_BUTTON.getTestTag(match), scrollTo = true)
-        createRobot(HeadToHeadAddEndRobot::class, block)
-    }
-
     fun clickSighters(match: Int, block: ShootDetailsAddCountRobot.() -> Unit) {
         clickDataRowValue(HeadToHeadScorePadMatchTestTag.SIGHTERS.getTestTag(match))
         createRobot(ShootDetailsAddCountRobot::class, block)
@@ -113,37 +105,68 @@ class HeadToHeadScorePadRobot(
 
     fun openEditEnd(match: Int, setNumber: Int, block: HeadToHeadAddEndRobot.() -> Unit) {
         clickSet(match, setNumber)
-        clickMenuItem(match, setNumber, "Edit")
+        clickSetMenuItem(match, setNumber, "Edit set")
         createRobot(HeadToHeadAddEndRobot::class, block)
     }
 
     fun deleteEnd(match: Int, setNumber: Int) {
         clickSet(match, setNumber)
-        clickMenuItem(match, setNumber, "Delete")
+        clickSetMenuItem(match, setNumber, "Delete set")
         clickDialogOk("Delete set")
     }
 
     fun insertEnd(match: Int, setNumber: Int, block: HeadToHeadAddEndRobot.() -> Unit) {
         clickSet(match, setNumber)
-        clickMenuItem(match, setNumber, "Insert set above")
+        clickSetMenuItem(match, setNumber, "Insert set above")
         createRobot(HeadToHeadAddEndRobot::class, block)
     }
 
-    fun checkCannotInsertEnd(match: Int, setNumber: Int) {
-        clickSet(match, setNumber)
+    fun checkCannotAddOrInsertEnd(match: Int, setNumber: Int) {
+        checkCannotAddEnd(match)
+        checkCannotInsertEnd(match, setNumber)
+    }
+
+    private fun checkCannotAddEnd(match: Int) {
+        clickMatchEditButton(match)
+
         // Wait for menu to appear
         performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.DROPDOWN_MENU_ITEM.get(match, setNumber))
-            +CodexNodeMatcher.HasText("Edit")
+            +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadMatchTestTag.MATCH_DROPDOWN_MENU_ITEM.getTestTag(match))
+            +CodexNodeMatcher.HasText("Edit match")
             +CodexNodeMatcher.IsNotCached
-            // TODO Not sure why but subcompose in CodexGrid is still giving 2 versions of these
+            // TODO_OPTIONS_MENU_ISSUE
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.AssertIsDisplayed().waitFor()
             }
         }
 
         performSingle {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.DROPDOWN_MENU_ITEM.get(match, setNumber))
+            +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadMatchTestTag.MATCH_DROPDOWN_MENU_ITEM.getTestTag(match))
+            +CodexNodeMatcher.HasText("Add set")
+            +CodexNodeMatcher.IsNotCached
+            +CodexNodeInteraction.AssertDoesNotExist()
+        }
+
+        // Dismiss dropdown
+        clickMatchEditButton(match)
+    }
+
+    private fun checkCannotInsertEnd(match: Int, setNumber: Int) {
+        clickSet(match, setNumber)
+
+        // Wait for menu to appear
+        performGroup {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.SET_DROPDOWN_MENU_ITEM.get(match, setNumber))
+            +CodexNodeMatcher.HasText("Edit set")
+            +CodexNodeMatcher.IsNotCached
+            // TODO_OPTIONS_MENU_ISSUE
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+            }
+        }
+
+        performSingle {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.SET_DROPDOWN_MENU_ITEM.get(match, setNumber))
             +CodexNodeMatcher.HasText("Insert set above")
             +CodexNodeMatcher.IsNotCached
             +CodexNodeInteraction.AssertDoesNotExist()
@@ -173,16 +196,80 @@ class HeadToHeadScorePadRobot(
         }
     }
 
-    private fun clickMenuItem(match: Int, setNumber: Int, text: String) {
+    private fun clickSetMenuItem(match: Int, setNumber: Int, text: String) {
         performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.DROPDOWN_MENU_ITEM.get(match, setNumber))
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.SET_DROPDOWN_MENU_ITEM.get(match, setNumber))
             +CodexNodeMatcher.HasText(text)
             +CodexNodeMatcher.IsNotCached
-            // TODO Not sure why but subcompose in CodexGrid is still giving 2 versions of these
+            // TODO_OPTIONS_MENU_ISSUE
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.PerformClick().waitFor()
             }
         }
+    }
+
+    private fun clickMatchEditButton(match: Int) {
+        clickElement(HeadToHeadScorePadMatchTestTag.EDIT_MATCH_INFO_BUTTON.getTestTag(match), scrollTo = true)
+    }
+
+    private fun clickMatchMenuItem(match: Int, text: String) {
+        performGroup {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadMatchTestTag.MATCH_DROPDOWN_MENU_ITEM.getTestTag(match))
+            +CodexNodeMatcher.HasText(text)
+            +CodexNodeMatcher.IsNotCached
+            // TODO_OPTIONS_MENU_ISSUE
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.PerformClick().waitFor()
+            }
+        }
+    }
+
+    fun checkMatchMenuNotShown(match: Int) {
+        performSingle {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadMatchTestTag.MATCH_DROPDOWN_MENU_ITEM.getTestTag(match))
+            +CodexNodeInteraction.AssertDoesNotExist().waitFor()
+        }
+    }
+
+    fun checkSetMenuNotShown(match: Int, setNumber: Int) {
+        performSingle {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.SET_DROPDOWN_MENU_ITEM.get(match, setNumber))
+            +CodexNodeInteraction.AssertDoesNotExist().waitFor()
+        }
+    }
+
+    fun clickEditMatchInfo(match: Int, block: HeadToHeadAddMatchRobot.() -> Unit) {
+        clickMatchEditButton(match)
+        clickMatchMenuItem(match, "Edit match")
+        createRobot(HeadToHeadAddMatchRobot::class, block)
+    }
+
+    fun clickAddNewSet(match: Int, block: HeadToHeadAddEndRobot.() -> Unit) {
+        clickMatchEditButton(match)
+        clickMatchMenuItem(match, "Add set")
+        createRobot(HeadToHeadAddEndRobot::class, block)
+    }
+
+    fun clickInsertMatch(match: Int, block: HeadToHeadAddMatchRobot.() -> Unit) {
+        clickMatchEditButton(match)
+        clickMatchMenuItem(match, "Insert match above")
+        createRobot(HeadToHeadAddMatchRobot::class, block)
+    }
+
+    fun clickDeleteMatch(match: Int) {
+        clickMatchEditButton(match)
+        clickMatchMenuItem(match, "Delete match")
+        clickDialogOk("Delete match")
+    }
+
+    fun checkMatchCount(count: Int) {
+        repeat(count) { match ->
+            checkElementIsDisplayed(
+                    testTag = HeadToHeadScorePadMatchTestTag.MATCH_TEXT.getTestTag(match + 1),
+                    scrollTo = true,
+            )
+        }
+        checkElementDoesNotExist(HeadToHeadScorePadMatchTestTag.MATCH_TEXT.getTestTag(count + 1))
     }
 }
 

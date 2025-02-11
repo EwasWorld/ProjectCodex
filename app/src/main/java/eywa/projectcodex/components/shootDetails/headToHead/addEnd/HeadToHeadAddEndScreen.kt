@@ -85,8 +85,11 @@ fun HeadToHeadAddEndScreen(
     val state by viewModel.state.collectAsState()
     val listener = { it: HeadToHeadAddEndIntent -> viewModel.handle(it) }
 
+    val data = state.getData()
+
     ShootDetailsMainScreen(
-            currentScreen = CodexNavRoute.HEAD_TO_HEAD_ADD_END,
+            currentScreen = CodexNavRoute.HEAD_TO_HEAD_ADD_END
+                    .takeIf { data?.editingSet == null && data?.isInserting != true },
             state = state,
             listener = { listener(ShootDetailsAction(it)) },
     ) { it, modifier -> HeadToHeadAddEndScreen(it, modifier, listener) }
@@ -98,7 +101,6 @@ fun HeadToHeadAddEndScreen(
     )
 
     val context = LocalContext.current
-    val data = state.getData()
     LaunchedEffect(data?.extras) {
         if (data != null) {
             data.extras.arrowInputsError.forEach {

@@ -3,8 +3,8 @@ package eywa.projectcodex.model.headToHead
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
-import eywa.projectcodex.components.shootDetails.headToHead.grid.DropdownMenuItem
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridState
+import eywa.projectcodex.components.shootDetails.headToHead.grid.SetDropdownMenuItem
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
 import eywa.projectcodex.model.Either
 
@@ -129,7 +129,7 @@ data class FullHeadToHeadMatch(
         return if (scores.first > scores.second) HeadToHeadResult.WIN else HeadToHeadResult.LOSS
     }
 
-    fun toGridState(dropdownMenuExpandedFor: Triple<Int, Int, List<DropdownMenuItem>>?) =
+    fun toGridState(dropdownMenuExpandedFor: Triple<Int, Int, List<SetDropdownMenuItem>>?) =
             HeadToHeadGridState.NonEditable(
                     matchNumber = match.matchNumber,
                     enteredArrows = sets,

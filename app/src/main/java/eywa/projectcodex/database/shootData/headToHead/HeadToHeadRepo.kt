@@ -22,6 +22,16 @@ class HeadToHeadRepo(
     suspend fun delete(shootId: Int, matchNumber: Int) {
         headToHeadMatchDao.delete(shootId = shootId, matchNumber = matchNumber)
         headToHeadDetailDao.delete(shootId = shootId, matchNumber = matchNumber)
+        headToHeadMatchDao.incrementMatchNumber(
+                shootId = shootId,
+                matchNumbersAboveAndIncluding = matchNumber,
+                increment = -1,
+        )
+        headToHeadDetailDao.incrementMatchNumber(
+                shootId = shootId,
+                matchNumbersAboveAndIncluding = matchNumber,
+                increment = -1,
+        )
     }
 
     suspend fun deleteSets(shootId: Int, matchNumber: Int) {
@@ -31,7 +41,12 @@ class HeadToHeadRepo(
     @Transaction
     suspend fun delete(shootId: Int, matchNumber: Int, setNumber: Int) {
         headToHeadDetailDao.delete(shootId = shootId, matchNumber = matchNumber, setNumber = setNumber)
-        headToHeadDetailDao.incrementSetNumber(shootId, matchNumber, setNumber, -1)
+        headToHeadDetailDao.incrementSetNumber(
+                shootId = shootId,
+                matchNumber = matchNumber,
+                setNumbersAboveAndIncluding = setNumber,
+                increment = -1,
+        )
     }
 
     suspend fun insert(headToHead: DatabaseHeadToHead) {
@@ -39,6 +54,23 @@ class HeadToHeadRepo(
     }
 
     suspend fun insert(match: DatabaseHeadToHeadMatch) {
+        val hasExistingSet = headToHeadMatchDao
+                .getMatchCount(shootId = match.shootId, matchNumber = match.matchNumber)
+                .first()
+                .let { it != 0 }
+        if (hasExistingSet) {
+            headToHeadMatchDao.incrementMatchNumber(
+                    shootId = match.shootId,
+                    matchNumbersAboveAndIncluding = match.matchNumber,
+                    increment = 1,
+            )
+            headToHeadDetailDao.incrementMatchNumber(
+                    shootId = match.shootId,
+                    matchNumbersAboveAndIncluding = match.matchNumber,
+                    increment = 1,
+            )
+        }
+
         headToHeadMatchDao.insert(match)
     }
 
@@ -51,12 +83,21 @@ class HeadToHeadRepo(
 
         val firstItem = details[0]
         val hasExistingSet = headToHeadDetailDao
-                .getDetailsCount(firstItem.shootId, firstItem.matchNumber, firstItem.setNumber)
+                .getDetailsCount(
+                        shootId = firstItem.shootId,
+                        matchNumber = firstItem.matchNumber,
+                        setNumber = firstItem.setNumber,
+                )
                 .first()
                 .let { it != 0 }
 
         if (hasExistingSet) {
-            headToHeadDetailDao.incrementSetNumber(firstItem.shootId, firstItem.matchNumber, firstItem.setNumber, 1)
+            headToHeadDetailDao.incrementSetNumber(
+                    shootId = firstItem.shootId,
+                    matchNumber = firstItem.matchNumber,
+                    setNumbersAboveAndIncluding = firstItem.setNumber,
+                    increment = 1,
+            )
         }
         headToHeadDetailDao.insert(*details)
     }
