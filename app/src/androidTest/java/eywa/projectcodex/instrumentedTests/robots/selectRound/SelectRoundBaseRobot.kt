@@ -31,11 +31,11 @@ class SelectRoundBaseRobot(val perform: PerformFn) {
         SelectRoundRobot(perform).apply(block)
     }
 
-    fun checkSelectedRound(displayName: String) {
+    fun checkSelectedRound(displayName: String?) {
         perform {
             singleNode {
                 matchDataRowValue(SelectRoundDialogTestTag.SELECTED_ROUND_ROW)
-                +CodexNodeInteraction.AssertTextEquals(displayName)
+                +CodexNodeInteraction.AssertTextEquals(displayName ?: "No Round")
             }
         }
     }

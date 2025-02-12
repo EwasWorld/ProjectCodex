@@ -52,11 +52,11 @@ data class FullHeadToHeadMatch(
             val isShootOff = set.isShootOff
             val result = set.result
             previous =
-                    if (previous == HeadToHeadNoResult.UNKNOWN || result == HeadToHeadResult.UNKNOWN) {
-                        HeadToHeadNoResult.UNKNOWN
+                    if (previous == HeadToHeadNoResult.Unknown || result == HeadToHeadResult.UNKNOWN) {
+                        HeadToHeadNoResult.Unknown
                     }
-                    else if (previous == HeadToHeadNoResult.INCOMPLETE || result == HeadToHeadResult.INCOMPLETE) {
-                        HeadToHeadNoResult.INCOMPLETE
+                    else if (previous == HeadToHeadNoResult.Incomplete || result == HeadToHeadResult.INCOMPLETE) {
+                        HeadToHeadNoResult.Incomplete
                     }
                     else {
                         null
@@ -89,8 +89,9 @@ data class FullHeadToHeadMatch(
         if (runningTotals.isEmpty()) return HeadToHeadResult.INCOMPLETE
         runningTotals.last().right?.let {
             when (it) {
-                HeadToHeadNoResult.UNKNOWN -> return HeadToHeadResult.UNKNOWN
-                HeadToHeadNoResult.INCOMPLETE -> return HeadToHeadResult.INCOMPLETE
+                is HeadToHeadNoResult.Partial -> return HeadToHeadResult.UNKNOWN
+                HeadToHeadNoResult.Unknown -> return HeadToHeadResult.UNKNOWN
+                HeadToHeadNoResult.Incomplete -> return HeadToHeadResult.INCOMPLETE
             }
         }
 

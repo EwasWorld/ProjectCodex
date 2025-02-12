@@ -166,9 +166,20 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             val isShootOff = isStandardFormat && HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
             val endSize = HeadToHeadUseCase.endSize(teamSize, isShootOff)
 
+            fun getPreviousMatchFinalSetData() = fullH2hInfo
+                    .matches
+                    .find { it.match.matchNumber == match.match.matchNumber - 1 }
+                    ?.sets
+                    ?.maxByOrNull { it.setNumber }
+                    ?.data
+
             val set = blankSet.copy(
                     setNumber = setNumber,
-                    data = generateEmptyDataRows(endSize = endSize, teamSize = teamSize, previous = lastSet?.data),
+                    data = generateEmptyDataRows(
+                            endSize = endSize,
+                            teamSize = teamSize,
+                            previous = lastSet?.data ?: getPreviousMatchFinalSetData(),
+                    ),
             )
 
             if (extras == null || extras.set.setNumber != set.setNumber) {

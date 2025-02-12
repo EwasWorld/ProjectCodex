@@ -42,7 +42,7 @@ class HeadToHeadE2eTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(180)
+    val testTimeout: Timeout = Timeout.seconds(120)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -84,7 +84,7 @@ class HeadToHeadE2eTest {
     }
 
     @Test
-    fun testIndividualStandardFormatSetPointsWithRound() {
+    fun testIndividualSetPointsWithRound() {
         setup()
 
         composeTestRule.mainMenuRobot {
@@ -592,20 +592,97 @@ class HeadToHeadE2eTest {
         }
     }
 
+    /**
+     * Team - total score - no round
+     * No total archers
+     * Remove heat from match 2 (shouldn't be auto set for match 3)
+     * Check row change is carried through to next set and match
+     */
     @Test
-    fun testTeamStandardFormatSetPointsNoRound() {
-        // Set no heat
-        // No total archers
-        TODO()
+    fun testTeamTotalScoreNoRound() {
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                val date = "10/11/2020 10:15".parseDate()
+                val archerName = GridSetDsl.DEFAULT_ARCHER_NAME
+                val teamName = GridSetDsl.DEFAULT_TEAM_MATE_NAME
+                val opponentName = GridSetDsl.DEFAULT_OPPONENT_NAME
+
+                selectRoundsRobot.checkSelectedRound("No Round")
+                setDate(date)
+                setTime(date)
+                clickType(NewScoreRobot.Type.COUNT)
+                clickType(NewScoreRobot.Type.HEAD_TO_HEAD)
+
+                clickH2hSetPoints(false)
+                checkIsH2hStandardFormat(true)
+                setHeadToHeadFields(2, 2, null)
+
+                clickSubmitNewScoreHeadToHead {
+                    clickNavBarItem<HeadToHeadScorePadRobot> {
+                        clickEmptyScreenAddMatchButton()
+                    }
+                    checkScreenIsShown()
+
+                    clickNavBarItem<HeadToHeadStatsRobot> {
+                        checkDate("10 Nov 20 10:15")
+                        checkRound("Head to head")
+                        checkH2hInfo("Teams of 2, Total score, Rank 2")
+                        checkFaces("Full")
+
+                        checkNoMatches()
+                        checkNumbersBreakdownNotShown()
+
+                        clickNavBarItem<HeadToHeadAddMatchRobot> {}
+                    }
+                    checkScreenIsShown()
+
+                    checkIsBye(false)
+                    checkHeat(null)
+                    checkOpponent(null)
+                    checkOpponentRank(null)
+
+                    setHeat("1/8")
+                    clickStartMatch {
+                        clickEditRows {
+                            checkEditRowsDialog(
+                                    GridSetDsl.DEFAULT_ARCHER_NAME to "Arrows",
+                                    GridSetDsl.DEFAULT_TEAM_MATE_NAME to "Off",
+                                    GridSetDsl.DEFAULT_TEAM_NAME to "Total",
+                                    GridSetDsl.DEFAULT_OPPONENT_NAME to "Total",
+                            )
+                            clickEditRowsDialogRow(GridSetDsl.DEFAULT_TEAM_NAME)
+                            clickEditRowsDialogRow(GridSetDsl.DEFAULT_TEAM_MATE_NAME)
+                            clickEditRowsDialogRow(GridSetDsl.DEFAULT_TEAM_MATE_NAME)
+                            checkEditRowsDialog(
+                                    GridSetDsl.DEFAULT_ARCHER_NAME to "Arrows",
+                                    GridSetDsl.DEFAULT_TEAM_MATE_NAME to "Total",
+                                    GridSetDsl.DEFAULT_TEAM_NAME to "Auto",
+                                    GridSetDsl.DEFAULT_OPPONENT_NAME to "Total",
+                            )
+                            clickOk()
+                        }
+                        checkRows(2, archerName to false, teamName to true, opponentName to true)
+
+                        setArrowRow(0, archerName, listOf("10", "10"), 20, Value(20))
+                        setTotalRow(1, teamName, 59, Empty, NoColumn)
+                        // Team total should have updated
+                        checkArrowRow(0, archerName, listOf("10", "10"), 20, Value(59))
+
+                        setTotalRow(2, opponentName, 50, Value(50), Value(1))
+                        checkSetResult(1, HeadToHeadResult.WIN)
+                        clickNextEnd()
+                    }
+
+                    TODO("End of test")
+                }
+            }
+        }
     }
 
     @Test
-    fun testIndividualCompound() {
-        TODO()
-    }
-
-    @Test
-    fun testTeamCompound() {
+    fun testIndividualNonStandardFormat() {
         TODO()
     }
 }

@@ -28,7 +28,7 @@ class HeadToHeadStatsRobot(
     }
 
     fun checkRound(text: String) {
-        checkElementText(StatsTestTag.ROUND_TEXT, text, true)
+        checkElementText(StatsTestTag.ROUND_TEXT, text ?: "N/A", true)
     }
 
     fun checkH2hInfo(text: String) {

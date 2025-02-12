@@ -91,10 +91,26 @@ class HeadToHeadScorePadRobot(
         performSingle {
             +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadTestTag.SCREEN)
             +CodexNodeInteraction.PerformScrollToNode(
-                    listOf(CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(match, 1)))
+                    listOf(
+                            CodexNodeMatcher.HasTestTag(
+                                    testTag = HeadToHeadGridColumnTestTag.TYPE_CELL.get(match, 1),
+                                    substring = true
+                            )
+                    )
             )
         }
-        checkDataRowValueText(HeadToHeadGridColumnTestTag.MATCH_RESULT.get(match, 1), result.asString())
+        performGroup {
+            useUnmergedTree()
+            +CodexNodeMatcher.HasAnyAncestor(
+                    CodexNodeMatcher.HasTestTag(
+                            testTag = HeadToHeadGridColumnTestTag.MATCH_RESULT.get(match, 1),
+                            substring = true,
+                    ),
+            )
+            toSingle(CodexNodeGroupToOne.Index(1)) {
+                +CodexNodeInteraction.AssertTextEquals(result.asString()).waitFor()
+            }
+        }
         GridDsl(match, this).apply(config)
     }
 
@@ -174,7 +190,7 @@ class HeadToHeadScorePadRobot(
 
         // Dismiss dropdown
         performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(match, setNumber))
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(match, setNumber), substring = true)
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.PerformClick().waitFor()
             }
@@ -185,11 +201,16 @@ class HeadToHeadScorePadRobot(
         performSingle {
             +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadTestTag.SCREEN)
             +CodexNodeInteraction.PerformScrollToNode(
-                    listOf(CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(match, setNumber)))
+                    listOf(
+                            CodexNodeMatcher.HasTestTag(
+                                    testTag = HeadToHeadGridColumnTestTag.TYPE_CELL.get(match, setNumber),
+                                    substring = true,
+                            )
+                    )
             )
         }
         performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(match, setNumber))
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(match, setNumber), substring = true)
             toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.PerformClick()
             }
@@ -288,7 +309,10 @@ class GridDsl(
         robot.checkDataRowValueText(HeadToHeadGridColumnTestTag.SET_RESULT.get(match, setNumber), result.asString())
         robot.checkDataRowValueText(HeadToHeadGridColumnTestTag.SET_RUNNING_TOTAL.get(match, setNumber), runningTotal)
         robot.performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(match, setNumber))
+            +CodexNodeMatcher.HasTestTag(
+                    testTag = HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(match, setNumber),
+                    substring = true,
+            )
             +CodexNodeMatcher.IsNotCached
             +CodexNodeGroupInteraction.AssertCount(rowCount).waitFor()
         }
@@ -303,28 +327,35 @@ class GridSetDsl(
         private val robot: BaseRobot,
 ) {
     private fun performOn(
-            rowIndex: Int,
+            type: String,
             testTag: HeadToHeadGridColumnTestTag,
             config: TestActionDslSingleNode.() -> Unit
     ) {
-        robot.performGroup {
-            +CodexNodeMatcher.HasTestTag(testTag.get(match, setNumber))
+        robot.performSingle {
+            +CodexNodeMatcher.HasTestTag(testTag.get(match, setNumber, type), substring = true)
             +CodexNodeMatcher.IsNotCached
-            toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
-                config()
-            }
+            config()
         }
     }
 
-    private fun checkCell(rowIndex: Int, testTag: HeadToHeadGridColumnTestTag, content: CellValue) {
+    private fun checkCell(
+            type: String,
+            testTag: HeadToHeadGridColumnTestTag,
+            content: CellValue,
+    ) {
         if (content is CellValue.NoColumn) {
             robot.performSingle {
                 +CodexNodeMatcher.HasTestTag(testTag.get(match, setNumber))
                 +CodexNodeInteraction.AssertDoesNotExist()
             }
         }
+        else if (content is CellValue.NoCell) {
+            performOn(type, testTag) {
+                +CodexNodeInteraction.AssertDoesNotExist()
+            }
+        }
         else {
-            performOn(rowIndex, testTag) {
+            performOn(type, testTag) {
                 +CodexNodeInteraction.AssertTextEquals(if (content is CellValue.Value) content.value else "-")
             }
         }
@@ -339,35 +370,36 @@ class GridSetDsl(
             points: CellValue = CellValue.NoColumn,
             isEditable: Boolean = false,
     ) {
-        performOn(rowIndex, HeadToHeadGridColumnTestTag.TYPE_CELL) {
+        performOn(type, HeadToHeadGridColumnTestTag.TYPE_CELL) {
             +CodexNodeInteraction.AssertTextEquals(type)
         }
 
-        robot.performGroup {
-            val matcher = CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(match, setNumber))
+        robot.performSingle {
+            val matcher = CodexNodeMatcher.HasTestTag(
+                    HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(match, setNumber, type),
+            )
             if (isEditable) +CodexNodeMatcher.HasAnyAncestor(matcher) else +matcher
-            toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
-                +CodexNodeInteraction.AssertTextEquals(score.toString()).waitFor()
-            }
+            +CodexNodeInteraction.AssertTextEquals(score.toString()).waitFor()
         }
 
-        checkCell(rowIndex, HeadToHeadGridColumnTestTag.ARROW_CELL, arrows)
-        checkCell(rowIndex, HeadToHeadGridColumnTestTag.TEAM_TOTAL_CELL, teamScore)
-        checkCell(rowIndex, HeadToHeadGridColumnTestTag.POINTS_CELL, points)
+        checkCell(type, HeadToHeadGridColumnTestTag.ARROW_CELL, arrows)
+        checkCell(type, HeadToHeadGridColumnTestTag.TEAM_TOTAL_CELL, teamScore)
+        checkCell(type, HeadToHeadGridColumnTestTag.POINTS_CELL, points)
     }
 
     fun checkResultsRow(rowIndex: Int, result: String, points: CellValue) {
-        performOn(rowIndex, HeadToHeadGridColumnTestTag.TYPE_CELL) {
+        performOn("Result", HeadToHeadGridColumnTestTag.TYPE_CELL) {
             +CodexNodeInteraction.AssertTextEquals("Result")
         }
-        performOn(rowIndex, HeadToHeadGridColumnTestTag.END_TOTAL_CELL) {
+        performOn("Result", HeadToHeadGridColumnTestTag.END_TOTAL_CELL) {
             +CodexNodeInteraction.AssertTextEquals(result)
         }
-        checkCell(rowIndex, HeadToHeadGridColumnTestTag.POINTS_CELL, points)
+        checkCell("Result", HeadToHeadGridColumnTestTag.POINTS_CELL, points)
     }
 
     sealed class CellValue {
         data object NoColumn : CellValue()
+        data object NoCell : CellValue()
         data object Empty : CellValue()
         data class Value(val value: String) : CellValue() {
             constructor(value: Int) : this(value.toString())
@@ -377,5 +409,7 @@ class GridSetDsl(
     companion object {
         const val DEFAULT_ARCHER_NAME = "Self"
         const val DEFAULT_OPPONENT_NAME = "Opponent"
+        const val DEFAULT_TEAM_NAME = "Team"
+        const val DEFAULT_TEAM_MATE_NAME = "Team mate(s)"
     }
 }

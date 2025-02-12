@@ -154,9 +154,11 @@ fun HeadToHeadGrid(
 
             val selectedShape = RoundedCornerShape(10.dp)
             state.enteredArrows.forEachIndexed { setIndex, set ->
-                fun HeadToHeadGridColumnTestTag.get() =
-                        if (state is HeadToHeadGridState.SingleEditable) get(1, 1)
-                        else get(state.matchNumber, set.setNumber)
+                fun HeadToHeadGridColumnTestTag.get(type: HeadToHeadArcherType? = null): CodexTestTag {
+                    val rowTitle = type?.text?.get(resources)
+                    return if (state is HeadToHeadGridState.SingleEditable) get(1, 1, rowTitle)
+                    else get(state.matchNumber, set.setNumber, rowTitle)
+                }
 
                 val extraData = HeadToHeadSetData(
                         isShootOff = set.isShootOff,
@@ -166,7 +168,7 @@ fun HeadToHeadGrid(
                         teamTotalColumnSpan = setOf(
                                 HeadToHeadArcherType.SELF,
                                 HeadToHeadArcherType.TEAM_MATE,
-                                HeadToHeadArcherType.TEAM
+                                HeadToHeadArcherType.TEAM,
                         ).intersect(set.data.map { it.type }.toSet()).size,
                         resultColumnSpan = setOf(
                                 HeadToHeadGridColumn.ARROWS,
@@ -228,7 +230,7 @@ fun HeadToHeadGrid(
                                 CodexNumberField(
                                         contentDescription = row.type.text.get(),
                                         currentValue = row.text.text,
-                                        testTag = column.testTag.get(),
+                                        testTag = column.testTag.get(row.type),
                                         placeholder = stringResource(R.string.head_to_head_add_end__total_text_placeholder),
                                         errorMessage = row.text.error
                                                 ?: incompleteErrorText?.takeIf { !row.isComplete },
@@ -274,7 +276,7 @@ fun HeadToHeadGrid(
                                         text = value,
                                         textAlign = TextAlign.Center,
                                         modifier = Modifier
-                                                .testTag(column.testTag.get())
+                                                .testTag(column.testTag.get(row.type))
                                                 .modifierIf(
                                                         isSelectable,
                                                         Modifier.border(2.dp, borderColor, selectedShape),
@@ -436,11 +438,11 @@ enum class HeadToHeadGridColumnTestTag {
     SET_DROPDOWN_MENU_ITEM,
     ;
 
-    fun get(matchNumber: Int, setNumber: Int): CodexTestTag = object : CodexTestTag {
+    fun get(matchNumber: Int, setNumber: Int, type: String? = null): CodexTestTag = object : CodexTestTag {
         override val screenName: String
             get() = HeadToHeadGridTestTag.SCREEN_NAME
 
-        override fun getElement(): String = "${name}_${matchNumber}_$setNumber"
+        override fun getElement(): String = "${name}_${matchNumber}_$setNumber" + (type?.let { "_$it" } ?: "")
     }
 }
 
@@ -449,7 +451,7 @@ enum class HeadToHeadGridColumnTestTag {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun Input_HeadToHeadGrid_Preview() {
+fun Editable_HeadToHeadGrid_Preview() {
     CodexTheme {
         HeadToHeadGridPreviewHelper(
                 state = HeadToHeadGridState.SingleEditable(
@@ -460,7 +462,7 @@ fun Input_HeadToHeadGrid_Preview() {
                                         isShootOffWin = false,
                                         setNumber = 1,
                                         isRecurveStyle = true,
-                                )
+                                ),
                         ),
                         selected = null,
                 ),
@@ -474,7 +476,7 @@ fun Input_HeadToHeadGrid_Preview() {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun InputTeam_HeadToHeadGrid_Preview() {
+fun EditableTeam_HeadToHeadGrid_Preview() {
     CodexTheme {
         HeadToHeadGridPreviewHelper(
                 state = HeadToHeadGridState.SingleEditable(
@@ -489,6 +491,44 @@ fun InputTeam_HeadToHeadGrid_Preview() {
                                                         HeadToHeadArcherType.RESULT to true,
                                                 ),
                                                 isEditable = true,
+                                        ),
+                                        teamSize = 2,
+                                        isShootOffWin = false,
+                                        setNumber = 1,
+                                        isRecurveStyle = true,
+                                ),
+                        ),
+                        selected = null,
+                ),
+        )
+    }
+}
+
+@Preview(
+        widthDp = 500,
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
+)
+@Composable
+fun EditablePartialTeam_HeadToHeadGrid_Preview() {
+    CodexTheme {
+        HeadToHeadGridPreviewHelper(
+                state = HeadToHeadGridState.SingleEditable(
+                        enteredArrows = listOf(
+                                FullHeadToHeadSet(
+                                        data = HeadToHeadGridRowDataPreviewHelper.create(
+                                                teamSize = 2,
+                                                typesToIsTotal = mapOf(
+                                                        HeadToHeadArcherType.SELF to false,
+                                                        HeadToHeadArcherType.OPPONENT to true,
+                                                        HeadToHeadArcherType.RESULT to true,
+                                                ),
+                                                isEditable = true,
+                                        ).plus(
+                                                HeadToHeadGridRowData.EditableTotal(
+                                                        type = HeadToHeadArcherType.TEAM_MATE,
+                                                        expectedArrowCount = 3,
+                                                ),
                                         ),
                                         teamSize = 2,
                                         isShootOffWin = false,
@@ -549,7 +589,7 @@ fun ScorePad_HeadToHeadGrid_Preview() {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun AllTypesTotals_HeadToHeadGrid_Preview() {
+fun AllTypesTotals_ScorePad_HeadToHeadGrid_Preview() {
     CodexTheme {
         HeadToHeadGridPreviewHelper(
                 state = HeadToHeadGridState.NonEditable(
@@ -570,7 +610,7 @@ fun AllTypesTotals_HeadToHeadGrid_Preview() {
                                         isShootOffWin = false,
                                         setNumber = 1,
                                         isRecurveStyle = true,
-                                )
+                                ),
                         ),
                         runningTotals = null,
                         finalResult = null,
@@ -586,7 +626,7 @@ fun AllTypesTotals_HeadToHeadGrid_Preview() {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun AllTypesArrows_HeadToHeadGrid_Preview() {
+fun AllTypesArrows_ScorePad_HeadToHeadGrid_Preview() {
     CodexTheme {
         HeadToHeadGridPreviewHelper(
                 state = HeadToHeadGridState.NonEditable(
@@ -606,7 +646,7 @@ fun AllTypesArrows_HeadToHeadGrid_Preview() {
                                         isShootOffWin = false,
                                         setNumber = 1,
                                         isRecurveStyle = true,
-                                )
+                                ),
                         ),
                         runningTotals = null,
                         finalResult = null,
@@ -621,7 +661,7 @@ fun AllTypesArrows_HeadToHeadGrid_Preview() {
         backgroundColor = CodexColors.Raw.COLOR_PRIMARY,
 )
 @Composable
-fun Error_HeadToHeadGrid_Preview() {
+fun Editable_Error_HeadToHeadGrid_Preview() {
     CodexTheme {
         HeadToHeadGridPreviewHelper(
                 state = HeadToHeadGridState.NonEditable(
@@ -633,7 +673,7 @@ fun Error_HeadToHeadGrid_Preview() {
                                         isShootOffWin = false,
                                         setNumber = 1,
                                         isRecurveStyle = true,
-                                )
+                                ),
                         ),
                         runningTotals = null,
                         finalResult = null,
@@ -657,6 +697,6 @@ fun HeadToHeadGridPreviewHelper(
             helpListener = {},
             itemClickedListener = { _: Int, _: SetDropdownMenuItem -> },
             closeDropdownMenuListener = {},
-            modifier = Modifier.padding(vertical = 20.dp),
+            modifier = Modifier.padding(vertical = 20.dp)
     )
 }

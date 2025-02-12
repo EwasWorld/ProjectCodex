@@ -30,10 +30,10 @@ class FullHeadToHeadMatchUnitTest {
                             addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
                             addSet { addRows(result = HeadToHeadResult.WIN) }
                         } to listOf(
-                                Either.Right(HeadToHeadNoResult.INCOMPLETE),
-                                Either.Right(HeadToHeadNoResult.INCOMPLETE),
-                                Either.Right(HeadToHeadNoResult.UNKNOWN),
-                                Either.Right(HeadToHeadNoResult.UNKNOWN),
+                                Either.Right(HeadToHeadNoResult.Incomplete),
+                                Either.Right(HeadToHeadNoResult.Incomplete),
+                                Either.Right(HeadToHeadNoResult.Unknown),
+                                Either.Right(HeadToHeadNoResult.Unknown),
                         ),
                         // Shoot off
                         dsl(teamSize).apply {
@@ -105,10 +105,10 @@ class FullHeadToHeadMatchUnitTest {
                             addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
                             addSet { addRows(result = HeadToHeadResult.WIN) }
                         } to listOf(
-                                Either.Right(HeadToHeadNoResult.INCOMPLETE),
-                                Either.Right(HeadToHeadNoResult.INCOMPLETE),
-                                Either.Right(HeadToHeadNoResult.UNKNOWN),
-                                Either.Right(HeadToHeadNoResult.UNKNOWN),
+                                Either.Right(HeadToHeadNoResult.Incomplete),
+                                Either.Right(HeadToHeadNoResult.Incomplete),
+                                Either.Right(HeadToHeadNoResult.Unknown),
+                                Either.Right(HeadToHeadNoResult.Unknown),
                         ),
                         // Shoot off
                         dsl(teamSize).apply {

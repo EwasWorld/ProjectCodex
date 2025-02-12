@@ -9,7 +9,6 @@ import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridT
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDialogCancel
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDialogOk
-import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.matchTextBox
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
@@ -40,7 +39,7 @@ class HeadToHeadAddEndRobot(
      */
     fun checkRows(endSize: Int, vararg rowsToIsTotal: Pair<String, Boolean>) {
         performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(1, 1))
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.TYPE_CELL.get(1, 1), substring = true)
             +CodexNodeMatcher.IsNotCached
             +CodexNodeGroupInteraction.AssertCount(rowsToIsTotal.size).waitFor()
             +CodexNodeGroupInteraction.ForEach(
@@ -51,7 +50,7 @@ class HeadToHeadAddEndRobot(
         val hasAnyArrowRow = rowsToIsTotal.any { !it.second }
         if (hasAnyArrowRow) {
             performGroup {
-                +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1))
+                +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1), substring = true)
                 +CodexNodeMatcher.IsNotCached
                 +CodexNodeGroupInteraction.AssertCount(rowsToIsTotal.size).waitFor()
                 +CodexNodeGroupInteraction.ForEach(
@@ -71,14 +70,14 @@ class HeadToHeadAddEndRobot(
         }
         else {
             performSingle {
-                +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1))
+                +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1), substring = true)
                 +CodexNodeMatcher.IsNotCached
                 +CodexNodeInteraction.AssertDoesNotExist()
             }
         }
 
         performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1))
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1), substring = true)
             +CodexNodeMatcher.IsNotCached
             +CodexNodeGroupInteraction.AssertCount(rowsToIsTotal.size).waitFor()
             +CodexNodeGroupInteraction.ForEach(
@@ -114,7 +113,7 @@ class HeadToHeadAddEndRobot(
             points: CellValue = CellValue.NoColumn,
     ) {
         performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1))
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1), substring = true)
             toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
                 +CodexNodeInteraction.PerformClick()
             }
@@ -123,6 +122,17 @@ class HeadToHeadAddEndRobot(
             clickScoreButton(it)
         }
 
+        checkArrowRow(rowIndex, type, arrows, score, teamScore, points)
+    }
+
+    fun checkArrowRow(
+            rowIndex: Int,
+            type: String,
+            arrows: List<String>,
+            score: Int,
+            teamScore: CellValue = CellValue.NoColumn,
+            points: CellValue = CellValue.NoColumn,
+    ) {
         gridSetDsl.checkRow(
                 rowIndex = rowIndex,
                 type = type,
@@ -143,12 +153,29 @@ class HeadToHeadAddEndRobot(
     ) {
         performGroup {
             useUnmergedTree()
-            matchTextBox(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1))
+            +CodexNodeMatcher.HasAnyAncestor(
+                    CodexNodeMatcher.HasTestTag(
+                            testTag = HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1),
+                            substring = true,
+                    ),
+            )
+            +CodexNodeMatcher.HasSetTextAction
             toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
                 +CodexNodeInteraction.SetText(score.toString()).waitFor()
             }
         }
 
+        checkTotalRow(rowIndex, type, score, arrows, teamScore, points)
+    }
+
+    fun checkTotalRow(
+            rowIndex: Int,
+            type: String,
+            score: Int,
+            arrows: CellValue = CellValue.Empty,
+            teamScore: CellValue = CellValue.NoColumn,
+            points: CellValue = CellValue.NoColumn,
+    ) {
         gridSetDsl.checkRow(
                 rowIndex = rowIndex,
                 type = type,
@@ -162,7 +189,7 @@ class HeadToHeadAddEndRobot(
 
     fun clickResultRow(rowIndex: Int, newValue: HeadToHeadResult, points: CellValue = CellValue.NoColumn) {
         performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1))
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1), substring = true)
             +CodexNodeMatcher.IsNotCached
             toSingle(CodexNodeGroupToOne.Index(1)) {
                 +CodexNodeInteraction.PerformClick().waitFor()
@@ -195,7 +222,7 @@ class HeadToHeadAddEndRobot(
 
     fun checkArrowRowError(rowIndex: Int, error: String?) {
         performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1))
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1), substring = true)
             toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
                 +CodexNodeInteraction.AssertHasError(error)
             }
@@ -206,10 +233,8 @@ class HeadToHeadAddEndRobot(
         performGroup {
             +CodexNodeMatcher.HasAnyAncestor(
                     CodexNodeMatcher.HasTestTag(
-                            HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(
-                                    1,
-                                    1
-                            )
+                            testTag = HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1),
+                            substring = true,
                     )
             )
             toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
@@ -293,6 +318,7 @@ class HeadToHeadAddEndRobot(
             performFn {
                 allNodes {
                     +CodexNodeMatcher.HasTestTag(HeadToHeadAddEndTestTag.EDIT_ROW_TYPES_DIALOG_ITEM)
+                    +CodexNodeGroupInteraction.AssertCount(rowsToValue.size)
                     +CodexNodeGroupInteraction.ForEach(
                             rowsToValue.map { (title, text) ->
                                 listOf(CodexNodeInteraction.AssertContentDescriptionEquals("$text $title:"))

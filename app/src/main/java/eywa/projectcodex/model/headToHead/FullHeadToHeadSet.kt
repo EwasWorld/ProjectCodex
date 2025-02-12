@@ -10,7 +10,11 @@ import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.Either
 
-enum class HeadToHeadNoResult { INCOMPLETE, UNKNOWN }
+sealed class HeadToHeadNoResult {
+    data object Incomplete : HeadToHeadNoResult()
+    data object Unknown : HeadToHeadNoResult()
+    data class Partial(val score: Int) : HeadToHeadNoResult()
+}
 
 sealed class RowArrows {
     abstract val total: Int
@@ -56,7 +60,7 @@ data class FullHeadToHeadSet(
     val opponentEndScore
         get() = opponent.left
     val teamEndScore
-        get() = team.left
+        get() = team.left ?: team.right?.let { (it as? HeadToHeadNoResult.Partial)?.score }
     val result = result()
 
     fun arrowsShot(type: HeadToHeadArcherType) =
@@ -93,8 +97,8 @@ data class FullHeadToHeadSet(
         get() {
             if (result != HeadToHeadResult.UNKNOWN) return null
 
-            val opponentRequired = opponent.right == HeadToHeadNoResult.UNKNOWN
-            return if (team.right != HeadToHeadNoResult.UNKNOWN) {
+            val opponentRequired = opponent.right == HeadToHeadNoResult.Unknown
+            return if (team.right != HeadToHeadNoResult.Unknown) {
                 ResOrActual.StringResource(R.string.head_to_head_add_end__unknown_result_warning_opponent)
             }
             else {
@@ -134,7 +138,7 @@ data class FullHeadToHeadSet(
             return finalResult
         }
 
-        if (team.right == HeadToHeadNoResult.UNKNOWN || opponent.right == HeadToHeadNoResult.UNKNOWN) {
+        if (team.right == HeadToHeadNoResult.Unknown || opponent.right == HeadToHeadNoResult.Unknown) {
             return HeadToHeadResult.UNKNOWN
         }
         if (opponent.left == null || team.left == null) return HeadToHeadResult.INCOMPLETE
@@ -157,21 +161,26 @@ data class FullHeadToHeadSet(
 
         val team = all.find { it.type == HeadToHeadArcherType.TEAM }
         if (team != null) {
-            if (!team.isComplete) return Either.Right(HeadToHeadNoResult.INCOMPLETE)
-            return Either.Left(team.totalScore)
+            return if (teamSize == 1) throw IllegalStateException()
+            else if (!team.isComplete) Either.Right(HeadToHeadNoResult.Incomplete)
+            else Either.Left(team.totalScore)
         }
 
         val self = all.find { it.type == HeadToHeadArcherType.SELF }
         if (teamSize == 1) {
-            if (self == null) return Either.Right(HeadToHeadNoResult.UNKNOWN)
-            if (!self.isComplete) return Either.Right(HeadToHeadNoResult.INCOMPLETE)
-            return Either.Left(self.totalScore)
+            return if (self == null) Either.Right(HeadToHeadNoResult.Unknown)
+            else if (!self.isComplete) Either.Right(HeadToHeadNoResult.Incomplete)
+            else Either.Left(self.totalScore)
         }
 
         val teamMate = all.find { it.type == HeadToHeadArcherType.TEAM_MATE }
-        if (self == null || teamMate == null) return Either.Right(HeadToHeadNoResult.UNKNOWN)
-        if (!self.isComplete || !teamMate.isComplete) return Either.Right(HeadToHeadNoResult.INCOMPLETE)
-        return Either.Left(self.totalScore + teamMate.totalScore)
+        return if (self == null || teamMate == null) Either.Right(HeadToHeadNoResult.Unknown)
+        else if (!self.isComplete || !teamMate.isComplete) {
+            if (!self.isComplete && !teamMate.isComplete) Either.Right(HeadToHeadNoResult.Incomplete)
+            else if (self.isComplete) Either.Right(HeadToHeadNoResult.Partial(self.totalScore))
+            else Either.Right(HeadToHeadNoResult.Partial(teamMate.totalScore))
+        }
+        else Either.Left(self.totalScore + teamMate.totalScore)
     }
 
     /**
@@ -179,8 +188,8 @@ data class FullHeadToHeadSet(
      */
     private fun getOpponentTotal(): Either<Int, HeadToHeadNoResult> {
         val opponent = data.find { it.type == HeadToHeadArcherType.OPPONENT }
-                ?: return Either.Right(HeadToHeadNoResult.UNKNOWN)
-        if (!opponent.isComplete) return Either.Right(HeadToHeadNoResult.INCOMPLETE)
+                ?: return Either.Right(HeadToHeadNoResult.Unknown)
+        if (!opponent.isComplete) return Either.Right(HeadToHeadNoResult.Incomplete)
         return Either.Left(opponent.totalScore)
     }
 
@@ -223,7 +232,7 @@ data class FullHeadToHeadSet(
                                                 arrowNumber = 1,
                                                 score = null,
                                                 isX = false,
-                                        )
+                                        ),
                                 )
                             }
                         }
@@ -235,7 +244,7 @@ data class FullHeadToHeadSet(
                                             arrowNumber = 1,
                                             score = rowData.total,
                                             isX = false,
-                                    )
+                                    ),
                             )
 
                         is HeadToHeadGridRowData.EditableTotal ->
@@ -245,7 +254,7 @@ data class FullHeadToHeadSet(
                                             arrowNumber = 1,
                                             score = rowData.total,
                                             isX = false,
-                                    )
+                                    ),
                             )
                     }
                 }
