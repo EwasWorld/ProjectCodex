@@ -192,17 +192,17 @@ class HeadToHeadE2eTest {
 
                         checkRunningTotals(0, 0)
                         clickNextEnd()
-                        checkArrowRowError(0, "Required")
-                        checkTotalRowError(1, "Required")
+                        checkArrowRowError(0, "Required", archerName)
+                        checkTotalRowError(1, "Required", opponentName)
 
                         setArrowRow(0, archerName, listOf("10", "10", "10"), 30)
                         setTotalRow(1, opponentName, 29)
-                        checkArrowRowError(0, null)
-                        checkTotalRowError(1, null)
+                        checkArrowRowError(0, null, archerName)
+                        checkTotalRowError(1, null, opponentName)
                         setTotalRow(1, opponentName, 31)
-                        checkTotalRowError(1, "Must be between 0 and 30 (inclusive)")
+                        checkTotalRowError(1, "Must be between 0 and 30 (inclusive)", opponentName)
                         setTotalRow(1, opponentName, 29)
-                        checkTotalRowError(1, null)
+                        checkTotalRowError(1, null, opponentName)
 
                         checkSetResult(1, HeadToHeadResult.WIN)
                         clickNextEnd()
@@ -666,11 +666,11 @@ class HeadToHeadE2eTest {
                         checkRows(2, archerName to false, teamName to true, opponentName to true)
 
                         setArrowRow(0, archerName, listOf("10", "10"), 20, Value(20))
-                        setTotalRow(1, teamName, 59, Empty, NoColumn)
+                        setTotalRow(1, teamName, 19, Empty, NoColumn)
                         // Team total should have updated
-                        checkArrowRow(0, archerName, listOf("10", "10"), 20, Value(59))
+                        checkArrowRow(0, archerName, listOf("10", "10"), 20, Value(39))
 
-                        setTotalRow(2, opponentName, 50, Value(50), Value(1))
+                        setTotalRow(2, opponentName, 30, Empty, Value(30))
                         checkSetResult(1, HeadToHeadResult.WIN)
                         clickNextEnd()
                     }

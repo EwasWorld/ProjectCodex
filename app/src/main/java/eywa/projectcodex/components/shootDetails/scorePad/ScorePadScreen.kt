@@ -1,11 +1,9 @@
 package eywa.projectcodex.components.shootDetails.scorePad
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.DropdownMenu
@@ -184,7 +182,13 @@ private fun ScorePadScreen(
     ) {
         state.scorePadData.data.forEach { row ->
             columnMetadata.forEach { column ->
-                item(fillBox = true) {
+                item(
+                        backgroundColor = {
+                            val isHeader = row !is ScorePadRow.End || column is ScorePadColumn.Header
+                            if (isHeader) CodexTheme.colors.listAccentRowItemOnAppBackground
+                            else CodexTheme.colors.listItemOnAppBackground
+                        },
+                ) {
                     val endNumber = (row as? ScorePadRow.End)?.endNumber
 
                     Box {
@@ -221,10 +225,6 @@ private fun Cell(
         listener: (ScorePadIntent) -> Unit,
 ) {
     val isHeader = rowData !is ScorePadRow.End || scorePadColumn is ScorePadColumn.Header
-    val backgroundModifier = Modifier.background(
-            if (isHeader) CodexTheme.colors.listAccentRowItemOnAppBackground
-            else CodexTheme.colors.listItemOnAppBackground,
-    )
 
     val clickModifier = if (rowData !is ScorePadRow.End) Modifier
     else Modifier.pointerInput(rowData) {
@@ -259,8 +259,6 @@ private fun Cell(
             fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
             color = CodexTheme.colors.onListItemAppOnBackground,
             modifier = modifier
-                    .fillMaxWidth()
-                    .then(backgroundModifier)
                     .padding(vertical = 5.dp, horizontal = 10.dp)
                     .then(clickModifier)
                     .then(semanticsModifier)

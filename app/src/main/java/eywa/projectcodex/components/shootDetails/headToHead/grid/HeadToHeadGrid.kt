@@ -1,13 +1,11 @@
 package eywa.projectcodex.components.shootDetails.headToHead.grid
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
@@ -76,6 +74,7 @@ fun HeadToHeadGrid(
         helpListener: (HelpShowcaseIntent) -> Unit,
 ) {
     val resources = LocalContext.current.resources
+    val colors = CodexTheme.colors
 
     val focusRequesters = remember(
             state is HeadToHeadGridState.SingleEditable,
@@ -115,17 +114,20 @@ fun HeadToHeadGrid(
                         .padding(horizontal = CodexTheme.dimens.screenPadding)
         ) {
             columnMetadata.forEach {
-                item(fillBox = true) {
-                    if (it.primaryTitle == null) {
+                if (it.primaryTitle == null) {
+                    item {
                         Box {}
                     }
-                    else {
+                }
+                else {
+                    item(
+                            backgroundColor = { CodexTheme.colors.listAccentRowItemOnAppBackground },
+                    ) {
                         val clickable = it == HeadToHeadGridColumn.TYPE && state is HeadToHeadGridState.SingleEditable
                         Row(
                                 horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
-                                        .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
                                         .padding(vertical = 5.dp, horizontal = 10.dp)
                                         .wrapContentHeight(Alignment.CenterVertically)
                                         .modifierIf(
@@ -180,7 +182,7 @@ fun HeadToHeadGrid(
 
                 if (state is HeadToHeadGridState.NonEditable) {
                     item(
-                            fillBox = true,
+                            backgroundColor = { CodexTheme.colors.listAccentRowItemOnAppBackground },
                             // + 1 for total row
                             verticalSpan = set.data.size + 1,
                     ) {
@@ -188,7 +190,6 @@ fun HeadToHeadGrid(
                                 text = (setIndex + 1).toString(),
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
-                                        .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
                                         .padding(vertical = 5.dp, horizontal = 10.dp)
                                         .wrapContentHeight(Alignment.CenterVertically)
                         )
@@ -214,6 +215,17 @@ fun HeadToHeadGrid(
                                 && row.type == (state as HeadToHeadGridState.SingleEditable).selected
                         val showIncompleteError = isSelectable && incompleteErrorText != null && !row.isComplete
 
+                        val backgroundColor =
+                                if (isSelected) Color.White
+                                else if (isSelectable) colors.listAccentRowItemOnAppBackground
+                                else colors.listItemOnAppBackground
+
+                        val borderColor =
+                                if (isSelected) CodexColors.COLOR_PRIMARY_DARK
+                                else if (showIncompleteError) colors.errorOnAppBackground
+                                else if (isSelectable) CodexColors.COLOR_ON_PRIMARY_LIGHT
+                                else colors.listItemOnAppBackground
+
                         if (value == null) {
                             // No cell
                         }
@@ -222,10 +234,20 @@ fun HeadToHeadGrid(
                             && row is HeadToHeadGridRowData.EditableTotal
                             && row.type != HeadToHeadArcherType.RESULT
                         ) {
+                            val finalBorderColor =
+                                    if (row.text.error == null) borderColor
+                                    else colors.errorOnAppBackground
+
                             item(
-                                    fillBox = true,
                                     verticalSpan = column.cellVerticalSpan(row, extraData),
                                     horizontalSpan = column.cellHorizontalSpan(row, extraData),
+                                    backgroundColor = { backgroundColor },
+                                    backgroundShape = selectedShape,
+                                    modifier = Modifier
+                                            .modifierIf(
+                                                    isSelectable,
+                                                    Modifier.border(2.dp, finalBorderColor, selectedShape),
+                                            )
                             ) {
                                 CodexNumberField(
                                         contentDescription = row.type.text.get(),
@@ -236,12 +258,10 @@ fun HeadToHeadGrid(
                                                 ?: incompleteErrorText?.takeIf { !row.isComplete },
                                         onValueChanged = { onTextValueChanged(row.type, it) },
                                         colors = CodexTextField.transparentOutlinedTextFieldColors(
-                                                focussedColor = CodexColors.COLOR_PRIMARY_DARK,
-                                                unfocussedColor = CodexColors.COLOR_ON_PRIMARY_LIGHT,
-                                                backgroundColor = (
-                                                        if (isSelected) Color.White
-                                                        else CodexTheme.colors.listAccentRowItemOnAppBackground
-                                                        ),
+                                                focussedColor = Color.Transparent,
+                                                unfocussedColor = Color.Transparent,
+                                                backgroundColor = Color.Transparent,
+                                                errorColor = Color.Transparent,
                                         ),
                                         modifier = Modifier
                                                 .modifierIfNotNull(focusRequesters?.get(row.type)) {
@@ -255,21 +275,16 @@ fun HeadToHeadGrid(
                         }
                         else {
                             item(
-                                    fillBox = true,
+                                    backgroundColor = { backgroundColor },
+                                    backgroundShape = if (isSelectable) selectedShape else RectangleShape,
                                     verticalSpan = column.cellVerticalSpan(row, extraData),
                                     horizontalSpan = column.cellHorizontalSpan(row, extraData),
+                                    modifier = Modifier
+                                            .modifierIf(
+                                                    isSelectable,
+                                                    Modifier.border(2.dp, borderColor, selectedShape),
+                                            )
                             ) {
-                                val background =
-                                        if (isSelected) Color.White
-                                        else if (isSelectable) CodexTheme.colors.listAccentRowItemOnAppBackground
-                                        else CodexTheme.colors.listItemOnAppBackground
-                                val backgroundShape = if (isSelectable) selectedShape else RectangleShape
-                                val borderColor =
-                                        if (isSelected) CodexColors.COLOR_PRIMARY_DARK
-                                        else if (showIncompleteError) CodexTheme.colors.errorOnAppBackground
-                                        else if (isSelectable) CodexColors.COLOR_ON_PRIMARY_LIGHT
-                                        else CodexTheme.colors.listItemOnAppBackground
-
                                 val horizontalPadding = if (column == HeadToHeadGridColumn.TYPE) 8.dp else 15.dp
 
                                 Text(
@@ -277,11 +292,6 @@ fun HeadToHeadGrid(
                                         textAlign = TextAlign.Center,
                                         modifier = Modifier
                                                 .testTag(column.testTag.get(row.type))
-                                                .modifierIf(
-                                                        isSelectable,
-                                                        Modifier.border(2.dp, borderColor, selectedShape),
-                                                )
-                                                .background(background, backgroundShape)
                                                 .padding(horizontal = horizontalPadding, vertical = 3.dp)
                                                 .wrapContentHeight(Alignment.CenterVertically)
                                                 .clickable(onClick = onClick)
@@ -304,41 +314,22 @@ fun HeadToHeadGrid(
 
                 if (state is HeadToHeadGridState.NonEditable) {
                     item(
-                            fillBox = true,
+                            itemCount = 2,
+                            backgroundColor = { CodexTheme.colors.listAccentRowItemOnAppBackground },
                             // Ignore set number column
                             horizontalSpan = columnMetadata.size - 1,
                     ) {
                         Box {
-                            Row(
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
+                            DataRow(
+                                    title = stringResource(
+                                            R.string.head_to_head_add_end__set_result,
+                                            extraData.result.title.get(),
+                                    ),
+                                    text = extraData.result.title.get(),
                                     modifier = Modifier
-                                            .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
-                                            .wrapContentHeight(Alignment.CenterVertically)
-                                            .fillMaxWidth()
-                            ) {
-                                DataRow(
-                                        title = stringResource(
-                                                R.string.head_to_head_add_end__set_result,
-                                                extraData.result.title.get(),
-                                        ),
-                                        text = extraData.result.title.get(),
-                                        modifier = Modifier
-                                                .padding(vertical = 5.dp, horizontal = 10.dp)
-                                                .testTag(SET_RESULT.get())
-                                )
-                                val runningTotals = state.runningTotals?.getOrNull(setIndex)?.left?.let {
-                                    stringResource(R.string.head_to_head_add_end__score_text, it.first, it.second)
-                                }
-                                DataRow(
-                                        title = stringResource(R.string.head_to_head_add_end__running_total),
-                                        text = runningTotals
-                                                ?: stringResource(R.string.score_pad__running_total_placeholder),
-                                        modifier = Modifier
-                                                .padding(vertical = 5.dp, horizontal = 10.dp)
-                                                .testTag(SET_RUNNING_TOTAL.get())
-                                )
-                            }
+                                            .padding(vertical = 5.dp, horizontal = 10.dp)
+                                            .testTag(SET_RESULT.get())
+                            )
                             DropdownMenu(
                                     menuItems = state.dropdownMenuExpandedFor?.third.orEmpty(),
                                     expanded = state.dropdownMenuExpandedFor?.first == state.matchNumber
@@ -348,13 +339,24 @@ fun HeadToHeadGrid(
                                     testTag = SET_DROPDOWN_MENU_ITEM.get(),
                             )
                         }
+                        val runningTotals = state.runningTotals?.getOrNull(setIndex)?.left?.let {
+                            stringResource(R.string.head_to_head_add_end__score_text, it.first, it.second)
+                        }
+                        DataRow(
+                                title = stringResource(R.string.head_to_head_add_end__running_total),
+                                text = runningTotals
+                                        ?: stringResource(R.string.score_pad__running_total_placeholder),
+                                modifier = Modifier
+                                        .padding(vertical = 5.dp, horizontal = 10.dp)
+                                        .testTag(SET_RUNNING_TOTAL.get())
+                        )
                     }
                 }
             }
 
             if (state is HeadToHeadGridState.NonEditable && state.finalResult != null) {
                 item(
-                        fillBox = true,
+                        backgroundColor = { CodexTheme.colors.listAccentRowItemOnAppBackground },
                         horizontalSpan = columnMetadata.size,
                 ) {
                     DataRow(
@@ -362,7 +364,6 @@ fun HeadToHeadGrid(
                             text = state.finalResult.title.get(),
                             textStyle = LocalTextStyle.current.copy(fontWeight = FontWeight.Bold),
                             modifier = Modifier
-                                    .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
                                     .padding(vertical = 5.dp, horizontal = 10.dp)
                                     .wrapContentHeight(Alignment.CenterVertically)
                                     .testTag(MATCH_RESULT.get(state.matchNumber, 1))
@@ -664,8 +665,7 @@ fun AllTypesArrows_ScorePad_HeadToHeadGrid_Preview() {
 fun Editable_Error_HeadToHeadGrid_Preview() {
     CodexTheme {
         HeadToHeadGridPreviewHelper(
-                state = HeadToHeadGridState.NonEditable(
-                        matchNumber = 1,
+                state = HeadToHeadGridState.SingleEditable(
                         enteredArrows = listOf(
                                 FullHeadToHeadSet(
                                         data = HeadToHeadGridRowDataPreviewHelper.createEmptyRows(isEditable = true),
@@ -675,8 +675,6 @@ fun Editable_Error_HeadToHeadGrid_Preview() {
                                         isRecurveStyle = true,
                                 ),
                         ),
-                        runningTotals = null,
-                        finalResult = null,
                 ),
                 errorOnIncompleteRows = true,
         )

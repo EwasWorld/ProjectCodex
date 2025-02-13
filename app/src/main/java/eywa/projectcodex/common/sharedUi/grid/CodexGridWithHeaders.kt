@@ -1,7 +1,6 @@
 package eywa.projectcodex.common.sharedUi.grid
 
 import android.content.res.Resources
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -51,17 +50,20 @@ fun <RowData : CodexGridRowMetadata, ExtraData> CodexGridWithHeaders(
                 val cellModifier = column.testTag?.let { Modifier.testTag(it) } ?: Modifier
                 val value = column.mapping(row).get(resource)
 
-                item(fillBox = true) {
-                    val weight =
-                            if (row.useBoldText() || column.useBoldText()) FontWeight.Bold
-                            else FontWeight.Normal
-                    val background =
+                item(
+                        backgroundColor = {
                             if (row.useAccentColor() || column.useAccentColor()) {
                                 CodexTheme.colors.listAccentRowItemOnAppBackground
                             }
                             else {
                                 CodexTheme.colors.listItemOnAppBackground
                             }
+                        },
+                        padding = column.padding(),
+                ) {
+                    val weight =
+                            if (row.useBoldText() || column.useBoldText()) FontWeight.Bold
+                            else FontWeight.Normal
 
                     Text(
                             text = value,
@@ -69,8 +71,6 @@ fun <RowData : CodexGridRowMetadata, ExtraData> CodexGridWithHeaders(
                             color = column.textColour(row) ?: CodexTheme.colors.onListItemAppOnBackground,
                             textAlign = TextAlign.Center,
                             modifier = cellModifier
-                                    .padding(column.padding())
-                                    .background(background)
                                     .padding(horizontal = 8.dp, vertical = 3.dp)
                                     .semantics {
                                         column
@@ -111,7 +111,8 @@ fun <RowData : Any, ExtraData> CodexGridWithHeaders(
                             if (column.primaryTitleHorizontalSpan > 1) null
                             else column.getHelpState(resource)?.asHelpState(helpListener)
                     item(
-                            fillBox = true,
+                            backgroundColor = { CodexTheme.colors.listAccentRowItemOnAppBackground },
+                            padding = column.padding(),
                             horizontalSpan = column.primaryTitleHorizontalSpan,
                             verticalSpan = column.primaryTitleVerticalSpan,
                     ) {
@@ -121,8 +122,6 @@ fun <RowData : Any, ExtraData> CodexGridWithHeaders(
                                 color = CodexTheme.colors.onListItemAppOnBackground,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
-                                        .padding(column.padding())
-                                        .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
                                         .padding(horizontal = 8.dp, vertical = 3.dp)
                                         .wrapContentHeight(Alignment.CenterVertically)
                                         .updateHelpDialogPosition(helpState)
@@ -131,7 +130,7 @@ fun <RowData : Any, ExtraData> CodexGridWithHeaders(
                     }
                 }
                 if (column.primaryTitle == null && column.secondaryTitle == null) {
-                    item(fillBox = true) {
+                    item {
                         Box {}
                     }
                 }
@@ -141,15 +140,16 @@ fun <RowData : Any, ExtraData> CodexGridWithHeaders(
                     val helpState =
                             if (column.primaryTitleHorizontalSpan == 1 && column.primaryTitle != null) null
                             else column.getHelpState(resource)?.asHelpState(helpListener)
-                    item(fillBox = true) {
+                    item(
+                            backgroundColor = { CodexTheme.colors.listAccentRowItemOnAppBackground },
+                            padding = column.padding(),
+                    ) {
                         Text(
                                 text = secondaryTitle.get(),
                                 fontWeight = FontWeight.Bold,
                                 color = CodexTheme.colors.onListItemAppOnBackground,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
-                                        .padding(column.padding())
-                                        .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
                                         .padding(horizontal = 8.dp, vertical = 3.dp)
                                         .updateHelpDialogPosition(helpState)
                                         .clearAndSetSemantics { }

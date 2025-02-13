@@ -271,6 +271,7 @@ object CodexTextField {
             focussedColor: Color = CodexTheme.colors.textFieldFocussedOutline,
             unfocussedColor: Color = CodexTheme.colors.textFieldUnfocussedOutline,
             backgroundColor: Color = CodexTheme.colors.surfaceOnBackground,
+            errorColor: Color = CodexTheme.colors.errorOnAppBackground,
     ) = TextFieldDefaults.outlinedTextFieldColors(
             textColor = CodexTypography.NORMAL.color,
             backgroundColor = backgroundColor,
@@ -282,8 +283,8 @@ object CodexTextField {
 
             disabledBorderColor = CodexTheme.colors.disabledOnSurfaceOnBackground,
             disabledLabelColor = CodexTheme.colors.disabledOnSurfaceOnBackground,
-            errorBorderColor = CodexTheme.colors.errorOnAppBackground,
-            errorLabelColor = CodexTheme.colors.errorOnAppBackground,
+            errorBorderColor = errorColor,
+            errorLabelColor = errorColor,
     )
 
     @Composable

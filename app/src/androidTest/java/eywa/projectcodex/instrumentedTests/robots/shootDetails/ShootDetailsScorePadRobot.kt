@@ -67,15 +67,12 @@ class ShootDetailsScorePadRobot(
     }
 
     private fun clickDropdownMenuItem(menuItem: String) {
-        performGroup {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasTestTag(ScorePadTestTag.DROPDOWN_MENU_ITEM)
             +CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(menuItem))
             +CodexNodeMatcher.IsNotCached
-            // TODO Not sure why but subcompose in CodexGrid is still giving 2 versions of these
-            toSingle(CodexNodeGroupToOne.First) {
-                +CodexNodeInteraction.PerformClick()
-            }
+            +CodexNodeInteraction.PerformClick()
         }
     }
 

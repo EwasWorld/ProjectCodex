@@ -112,11 +112,9 @@ class HeadToHeadAddEndRobot(
             teamScore: CellValue = CellValue.NoColumn,
             points: CellValue = CellValue.NoColumn,
     ) {
-        performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1), substring = true)
-            toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
+        performSingle {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1, type))
                 +CodexNodeInteraction.PerformClick()
-            }
         }
         arrows.forEach {
             clickScoreButton(it)
@@ -151,18 +149,15 @@ class HeadToHeadAddEndRobot(
             teamScore: CellValue = CellValue.NoColumn,
             points: CellValue = CellValue.NoColumn,
     ) {
-        performGroup {
+        performSingle {
             useUnmergedTree()
             +CodexNodeMatcher.HasAnyAncestor(
                     CodexNodeMatcher.HasTestTag(
-                            testTag = HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1),
-                            substring = true,
+                            testTag = HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1, type),
                     ),
             )
             +CodexNodeMatcher.HasSetTextAction
-            toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
                 +CodexNodeInteraction.SetText(score.toString()).waitFor()
-            }
         }
 
         checkTotalRow(rowIndex, type, score, arrows, teamScore, points)
@@ -220,26 +215,21 @@ class HeadToHeadAddEndRobot(
         createRobot(HeadToHeadAddMatchRobot::class, block)
     }
 
-    fun checkArrowRowError(rowIndex: Int, error: String?) {
-        performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1), substring = true)
-            toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
-                +CodexNodeInteraction.AssertHasError(error)
-            }
+    fun checkArrowRowError(rowIndex: Int, error: String?, type: String) {
+        performSingle {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1, type))
+            +CodexNodeInteraction.AssertHasError(error)
         }
     }
 
-    fun checkTotalRowError(rowIndex: Int, error: String?) {
-        performGroup {
+    fun checkTotalRowError(rowIndex: Int, error: String?, type: String) {
+        performSingle {
             +CodexNodeMatcher.HasAnyAncestor(
                     CodexNodeMatcher.HasTestTag(
-                            testTag = HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1),
-                            substring = true,
+                            testTag = HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1, type)
                     )
             )
-            toSingle(CodexNodeGroupToOne.Index(rowIndex)) {
-                +CodexNodeInteraction.AssertHasError(error)
-            }
+            +CodexNodeInteraction.AssertHasError(error)
         }
     }
 

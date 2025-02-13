@@ -16,8 +16,6 @@ import eywa.projectcodex.instrumentedTests.robots.RobotDslMarker
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddCountRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsRobot
 
-// TODO Not sure why but subcompose in CodexGrid is still giving 2 versions of options menu dropdown items
-//  Locations: TODO_OPTIONS_MENU_ISSUE
 class HeadToHeadScorePadRobot(
         composeTestRule: ComposeTestRule<MainActivity>
 ) : ShootDetailsRobot(composeTestRule, HeadToHeadScorePadTestTag.SCREEN) {
@@ -146,14 +144,11 @@ class HeadToHeadScorePadRobot(
         clickMatchEditButton(match)
 
         // Wait for menu to appear
-        performGroup {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadMatchTestTag.MATCH_DROPDOWN_MENU_ITEM.getTestTag(match))
             +CodexNodeMatcher.HasText("Edit match")
             +CodexNodeMatcher.IsNotCached
-            // TODO_OPTIONS_MENU_ISSUE
-            toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.AssertIsDisplayed().waitFor()
-            }
         }
 
         performSingle {
@@ -171,14 +166,11 @@ class HeadToHeadScorePadRobot(
         clickSet(match, setNumber)
 
         // Wait for menu to appear
-        performGroup {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.SET_DROPDOWN_MENU_ITEM.get(match, setNumber))
             +CodexNodeMatcher.HasText("Edit set")
             +CodexNodeMatcher.IsNotCached
-            // TODO_OPTIONS_MENU_ISSUE
-            toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.AssertIsDisplayed().waitFor()
-            }
         }
 
         performSingle {
@@ -218,14 +210,11 @@ class HeadToHeadScorePadRobot(
     }
 
     private fun clickSetMenuItem(match: Int, setNumber: Int, text: String) {
-        performGroup {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.SET_DROPDOWN_MENU_ITEM.get(match, setNumber))
             +CodexNodeMatcher.HasText(text)
             +CodexNodeMatcher.IsNotCached
-            // TODO_OPTIONS_MENU_ISSUE
-            toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.PerformClick().waitFor()
-            }
         }
     }
 
@@ -234,14 +223,11 @@ class HeadToHeadScorePadRobot(
     }
 
     private fun clickMatchMenuItem(match: Int, text: String) {
-        performGroup {
+        performSingle {
             +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadMatchTestTag.MATCH_DROPDOWN_MENU_ITEM.getTestTag(match))
             +CodexNodeMatcher.HasText(text)
             +CodexNodeMatcher.IsNotCached
-            // TODO_OPTIONS_MENU_ISSUE
-            toSingle(CodexNodeGroupToOne.First) {
                 +CodexNodeInteraction.PerformClick().waitFor()
-            }
         }
     }
 
@@ -356,7 +342,7 @@ class GridSetDsl(
         }
         else {
             performOn(type, testTag) {
-                +CodexNodeInteraction.AssertTextEquals(if (content is CellValue.Value) content.value else "-")
+                +CodexNodeInteraction.AssertTextEquals(if (content is CellValue.Value) content.value else "-").waitFor()
             }
         }
     }

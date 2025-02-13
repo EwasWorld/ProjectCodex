@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -40,6 +41,7 @@ import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.grid.CodexGrid
 import eywa.projectcodex.common.sharedUi.grid.CodexGridColumn.Match
 import eywa.projectcodex.common.sharedUi.grid.CodexGridColumn.WrapContent
+import eywa.projectcodex.common.sharedUi.grid.CodexGridConfig
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.arrowCountCalendar.ArrowCountCalendarDisplayData.Entry.Day
 import eywa.projectcodex.components.arrowCountCalendar.ArrowCountCalendarDisplayData.Entry.WeeklyTotal
@@ -124,14 +126,15 @@ fun ArrowCountCalendarScreen(
             ) {
                 state.calendarHeadings.forEachIndexed { index, text ->
                     val minWidth = if (index == state.calendarHeadings.lastIndex) minTotalColumnWidth else minColWidth
-                    item(fillBox = true) {
+                    item(
+                            backgroundColor = { CodexTheme.colors.listAccentRowItemOnAppBackground },
+                            padding = PaddingValues(betweenCellPadding),
+                    ) {
                         Text(
                                 text = text.get(),
                                 textAlign = TextAlign.Center,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
-                                        .padding(betweenCellPadding)
-                                        .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
                                         .padding(arrowCountTextPadding)
                                         .widthIn(min = minWidth)
                         )
@@ -139,11 +142,9 @@ fun ArrowCountCalendarScreen(
                 }
 
                 state.data.entries.forEach { entry ->
-                    item(fillBox = true) {
-                        when (entry) {
-                            is Day -> Day(entry)
-                            is WeeklyTotal -> WeeklyTotal(entry)
-                        }
+                    when (entry) {
+                        is Day -> Day(entry)
+                        is WeeklyTotal -> WeeklyTotal(entry)
                     }
                 }
             }
@@ -172,54 +173,57 @@ fun ArrowCountCalendarScreen(
     }
 }
 
-@Composable
-private fun Day(
-        entry: Day,
-) {
-    val alpha = if (!entry.isCurrentMonth) 0.7f else 1f
-
-    Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            modifier = Modifier
-                    .alpha(alpha)
-                    .padding(betweenCellPadding)
-                    .background(CodexTheme.colors.listItemOnAppBackground)
-                    .padding(arrowCountTextPadding)
+@Suppress("FunctionName")
+private fun CodexGridConfig.Day(entry: Day) {
+    item(
+            backgroundColor = { CodexTheme.colors.listItemOnAppBackground },
+            padding = PaddingValues(betweenCellPadding),
+            modifier = Modifier.alpha(if (!entry.isCurrentMonth) 0.7f else 1f)
     ) {
-        Text(
-                text = entry.date.toString(),
-                textAlign = TextAlign.Center,
-        )
-        Text(
-                text = entry.count?.toString() ?: "",
-                textAlign = TextAlign.Center,
+        Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp),
                 modifier = Modifier
-                        .background(
-                                color = CodexTheme.colors.listAccentCellOnAppBackground,
-                                shape = RoundedCornerShape(20),
-                        )
-                        .modifierIf(entry.count != null, Modifier.padding(horizontal = 2.dp))
-        )
+                        .alpha(if (!entry.isCurrentMonth) 0.8f else 1f)
+                        .padding(arrowCountTextPadding)
+        ) {
+            Text(
+                    text = entry.date.toString(),
+                    textAlign = TextAlign.Center,
+            )
+            Text(
+                    text = entry.count?.toString() ?: "",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                            .background(
+                                    color = CodexTheme.colors.listAccentCellOnAppBackground,
+                                    shape = RoundedCornerShape(20),
+                            )
+                            .modifierIf(entry.count != null, Modifier.padding(horizontal = 2.dp))
+            )
+        }
     }
 }
 
-@Composable
-private fun WeeklyTotal(entry: WeeklyTotal) {
-    Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                    .padding(betweenCellPadding)
-                    .background(CodexTheme.colors.listAccentRowItemOnAppBackground)
-                    .padding(totalCountTextPadding)
+@Suppress("FunctionName")
+private fun CodexGridConfig.WeeklyTotal(entry: WeeklyTotal) {
+    item(
+            backgroundColor = { CodexTheme.colors.listAccentRowItemOnAppBackground },
+            padding = PaddingValues(betweenCellPadding),
     ) {
-        Text(
-                text = entry.count.toString(),
-                textAlign = TextAlign.Center,
-                style = CodexTypography.LARGE,
-                color = CodexTheme.colors.onListItemAppOnBackground,
-        )
+        Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                        .padding(totalCountTextPadding)
+        ) {
+            Text(
+                    text = entry.count.toString(),
+                    textAlign = TextAlign.Center,
+                    style = CodexTypography.LARGE,
+                    color = CodexTheme.colors.onListItemAppOnBackground,
+            )
+        }
     }
 }
 
