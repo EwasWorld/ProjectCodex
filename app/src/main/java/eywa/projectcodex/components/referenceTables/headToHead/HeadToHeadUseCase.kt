@@ -69,6 +69,6 @@ object HeadToHeadUseCase {
     }
 
     fun shootOffSet(teamSize: Int) = if (teamSize > 1) 5 else 6
-    fun winScore(teamSize: Int) = if (teamSize > 1) 5 else 6
+    fun pointsForWin(teamSize: Int) = if (teamSize > 1) 5 else 6
     fun endSize(teamSize: Int, isShootOff: Boolean) = if (isShootOff) 1 else if (teamSize > 1) 2 else 3
 }

@@ -187,13 +187,15 @@ fun CodexGrid(
                 }
             }
 
-            if (item.itemCount > 1 && itemInternalIndex != item.itemCount) {
-                itemInternalIndex = (itemInternalIndex ?: 1) + 1
+            if (item.itemCount > 1) {
+                itemInternalIndex = (itemInternalIndex ?: 0) + 1
 
                 tempHeight = maxOf(tempHeight, placeable.height)
                 tempWidth += placeable.width
 
-                return@map placeable
+                if (itemInternalIndex != item.itemCount) {
+                    return@map placeable
+                }
             }
             itemInternalIndex = null
 

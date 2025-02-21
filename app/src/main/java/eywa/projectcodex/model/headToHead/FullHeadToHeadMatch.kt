@@ -101,10 +101,10 @@ data class FullHeadToHeadMatch(
          * Recurve
          */
         if (isRecurveStyle) {
-            val winScore = HeadToHeadUseCase.winScore(teamSize)
+            val pointsForWin = HeadToHeadUseCase.pointsForWin(teamSize)
 
             // Incomplete sets / not reached required set points
-            if (scores.first < winScore && scores.second < winScore) return HeadToHeadResult.INCOMPLETE
+            if (scores.first < pointsForWin && scores.second < pointsForWin) return HeadToHeadResult.INCOMPLETE
 
             check(scores.first != scores.second) { "Final result cannot be a tie" }
             return if (scores.first > scores.second) HeadToHeadResult.WIN else HeadToHeadResult.LOSS
@@ -137,5 +137,6 @@ data class FullHeadToHeadMatch(
                     runningTotals = runningTotals,
                     finalResult = result,
                     dropdownMenuExpandedFor = dropdownMenuExpandedFor,
+                    showSetResult = isRecurveStyle,
             )
 }

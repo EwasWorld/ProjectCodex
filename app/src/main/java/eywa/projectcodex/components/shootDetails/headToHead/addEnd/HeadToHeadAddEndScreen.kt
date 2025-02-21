@@ -441,12 +441,15 @@ private fun ColumnScope.SetInfo(
                         result.title.get(),
                 )
             }
-            else {
+            else if (state.isRecurveStyle) {
                 stringResource(
                         R.string.head_to_head_add_end__set,
                         state.extras.set.setNumber,
                         result.title.get(),
                 )
+            }
+            else {
+                null
             }
 
     EditRowTypesDialog(state, listener)
@@ -473,12 +476,15 @@ private fun ColumnScope.SetInfo(
                         color = CodexTheme.colors.onAppBackground,
                 )
             }
-            Text(
-                    text = setText,
-                    style = CodexTypography.NORMAL_PLUS,
-                    color = CodexTheme.colors.onAppBackground,
-                    modifier = Modifier.testTag(HeadToHeadAddEndTestTag.SET_RESULT)
-            )
+
+            if (setText != null) {
+                Text(
+                        text = setText,
+                        style = CodexTypography.NORMAL_PLUS,
+                        color = CodexTheme.colors.onAppBackground,
+                        modifier = Modifier.testTag(HeadToHeadAddEndTestTag.SET_RESULT)
+                )
+            }
         }
         if (result == HeadToHeadResult.UNKNOWN) {
             Text(

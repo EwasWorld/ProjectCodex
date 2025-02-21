@@ -268,6 +268,10 @@ private fun MatchDetails(
     ) {
         SimpleDialogContent(
                 title = stringResource(R.string.head_to_head_add_heat__heat_match),
+                positiveButton = ButtonState(
+                        text = stringResource(R.string.head_to_head_add_heat__heat_no_heat_button),
+                        onClick = { listener(SelectHeatDialogItemClicked(null)) },
+                ),
                 negativeButton = ButtonState(
                         text = stringResource(R.string.general_cancel),
                         onClick = { listener(CloseSelectHeatDialog) },

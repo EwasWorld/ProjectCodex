@@ -42,6 +42,7 @@ sealed class HeadToHeadGridState {
             override val enteredArrows: List<FullHeadToHeadSet>,
             val runningTotals: List<Either<Pair<Int, Int>, HeadToHeadNoResult>>?,
             val finalResult: HeadToHeadResult?,
+            val showSetResult: Boolean,
 
             /**
              * <matchNumber, setNumber, dropdownMenuItems>

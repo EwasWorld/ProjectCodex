@@ -329,8 +329,17 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     return
                 }
                 viewModelScope.launch {
-                    if (state.editingSet == null || isInserting) h2hRepo.insert(*state.setToDbDetails().toTypedArray())
-                    else h2hRepo.update(newDetails = state.setToDbDetails(), oldDetails = state.editingToDbDetails()!!)
+                    if (state.editingSet == null || isInserting) {
+                        h2hRepo.insert(
+                                isShootOffWin = state.extras.set.isShootOffWin,
+                                details = state.setToDbDetails().toTypedArray()
+                        )
+                    }
+                    else h2hRepo.update(
+                            newDetails = state.setToDbDetails(),
+                            oldDetails = state.editingToDbDetails()!!,
+                            isShootOffWin = state.extras.set.isShootOffWin,
+                    )
 
                     if (state.editingSet != null || isInserting) {
                         extraState.update { it!!.copy(pressBack = true) }

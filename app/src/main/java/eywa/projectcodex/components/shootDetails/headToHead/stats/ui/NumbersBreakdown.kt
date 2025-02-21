@@ -73,7 +73,11 @@ internal fun ColumnScope.NumbersBreakdown(
                 .takeIf { it.isNotEmpty() }
                 ?: return
 
-        val columns = calculateColumns(data, state.fullShootInfo.h2h.headToHead.teamSize)
+        val columns = calculateColumns(
+                data = data,
+                teamSize = state.fullShootInfo.h2h.headToHead.teamSize,
+                hasRound = state.fullShootInfo.round != null,
+        )
 
         if (columns.isNullOrEmpty()) {
             Text(
@@ -115,6 +119,7 @@ internal fun ColumnScope.NumbersBreakdown(
 fun calculateColumns(
         data: List<HeadToHeadStatsNumbersBreakdownDataRow>,
         teamSize: Int,
+        hasRound: Boolean,
 ): List<CodexGridColumnMetadata<HeadToHeadStatsNumbersBreakdownDataRow, Unit>>? {
     fun List<HeadToHeadStatsNumbersBreakdownDataRow>.contains(type: HeadToHeadArcherType): Boolean =
             any { it.arrowData.containsKey(type) }
@@ -133,6 +138,7 @@ fun calculateColumns(
 
     val handicapColumn =
             when {
+                !hasRound -> null
                 showSelfColumn -> HeadToHeadStatsFixedNumbersColumn.SELF_HANDICAP
                 hasTeamData -> HeadToHeadStatsFixedNumbersColumn.TEAM_HANDICAP
                 else -> null
@@ -150,7 +156,7 @@ fun calculateColumns(
             SelfAverageArrow(null, 1).takeIf { showSelfColumn },
             TeamAverageArrow(null, 1).takeIf { showTeamColumn },
             OpponentAverageArrow(null, 1).takeIf { showOppColumn },
-            DiffAverageArrow(null, 1).takeIf { showDiffColumn },
+            DiffAverageArrow(null, 1, showSelfColumn).takeIf { showDiffColumn },
     ).setColumnCountAndTitle(ResOrActual.Actual("Arrow average"))
             .takeIf { it.isNotEmpty() } ?: return null
 
@@ -158,7 +164,7 @@ fun calculateColumns(
             SelfAverageEnd(null, 1).takeIf { showSelfColumn },
             TeamAverageEnd(null, 1).takeIf { showTeamColumn },
             OpponentAverageEnd(null, 1).takeIf { showOppColumn },
-            DiffAverageEnd(null, 1).takeIf { showDiffColumn },
+            DiffAverageEnd(null, 1, showSelfColumn).takeIf { showDiffColumn },
     ).setColumnCountAndTitle(ResOrActual.Actual("End average"))
 
     return listOfNotNull(
@@ -270,13 +276,15 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
     data class DiffAverageArrow(
             override val type: ResOrActual<String>?,
             override val columnCount: Int,
+            val useSelfColumn: Boolean,
     ) : HeadToHeadStatsNumbersColumn() {
         override val secondaryTitle: ResOrActual<String>
             get() = ResOrActual.Actual("Diff")
 
         override val mapping: (HeadToHeadStatsNumbersBreakdownDataRow) -> ResOrActual<String>
             get() = {
-                val team = it.arrowData[HeadToHeadArcherType.TEAM]?.averageArrowScore
+                val column = if (useSelfColumn) HeadToHeadArcherType.SELF else HeadToHeadArcherType.TEAM
+                val team = it.arrowData[column]?.averageArrowScore
                 val opponent = it.arrowData[HeadToHeadArcherType.OPPONENT]?.averageArrowScore
                 val diff = if (team != null && opponent != null) team - opponent else null
                 diff.asDecimalFormat()
@@ -293,7 +301,7 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
         }
 
         override fun update(type: ResOrActual<String>?, columnCount: Int): HeadToHeadStatsNumbersColumn =
-                DiffAverageArrow(type, columnCount)
+                DiffAverageArrow(type, columnCount, useSelfColumn)
 
         override val testTag: CodexTestTag
             get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_DIFF_ARROW_AVG_CELL
@@ -359,13 +367,15 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
     data class DiffAverageEnd(
             override val type: ResOrActual<String>?,
             override val columnCount: Int,
+            val useSelfColumn: Boolean,
     ) : HeadToHeadStatsNumbersColumn() {
         override val secondaryTitle: ResOrActual<String>
             get() = ResOrActual.Actual("Diff")
 
         override val mapping: (HeadToHeadStatsNumbersBreakdownDataRow) -> ResOrActual<String>
             get() = {
-                val team = it.arrowData[HeadToHeadArcherType.TEAM]?.averageArrowScore
+                val column = if (useSelfColumn) HeadToHeadArcherType.SELF else HeadToHeadArcherType.TEAM
+                val team = it.arrowData[column]?.averageArrowScore
                 val opponent = it.arrowData[HeadToHeadArcherType.OPPONENT]?.averageArrowScore
                 val diff = if (team != null && opponent != null) team - opponent else null
                 diff?.times(it.endSize).asDecimalFormat()
@@ -382,7 +392,7 @@ sealed class HeadToHeadStatsNumbersColumn : CodexGridColumnMetadata<HeadToHeadSt
         }
 
         override fun update(type: ResOrActual<String>?, columnCount: Int): HeadToHeadStatsNumbersColumn =
-                DiffAverageEnd(type, columnCount)
+                DiffAverageEnd(type, columnCount, useSelfColumn)
 
         override val testTag: CodexTestTag
             get() = HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_DIFF_END_AVG_CELL

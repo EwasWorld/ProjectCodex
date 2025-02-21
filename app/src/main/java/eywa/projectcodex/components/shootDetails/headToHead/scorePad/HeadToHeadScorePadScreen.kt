@@ -448,7 +448,6 @@ enum class HeadToHeadScorePadMatchTestTag {
     NO_ENDS,
     GRID,
     EDIT_MATCH_INFO_BUTTON,
-    ADD_NEW_SET_BUTTON,
     MATCH_DROPDOWN_MENU_ITEM,
     ;
 

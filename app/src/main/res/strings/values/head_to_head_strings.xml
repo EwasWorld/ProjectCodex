@@ -78,6 +78,7 @@
     <string name="head_to_head_add_heat__match_header">Match %d</string>
     <string name="head_to_head_add_heat__heat">Match %d:</string>
     <string name="head_to_head_add_heat__heat_match">Match:</string>
+    <string name="head_to_head_add_heat__heat_no_heat_button">No heat</string>
     <string name="head_to_head_add_heat__heat_null">Not selected</string>
     <string name="head_to_head_add_heat__bye_with_sets_warning">This match has sets entered.\nChanging it to a bye\nwill delete the entered sets.</string>
     <string name="head_to_head_add_heat__opponent">Opponent:</string>

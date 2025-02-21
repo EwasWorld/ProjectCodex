@@ -7,6 +7,7 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
+import eywa.projectcodex.instrumentedTests.robots.NewScoreRobot
 import eywa.projectcodex.instrumentedTests.robots.RobotDslMarker
 import eywa.projectcodex.instrumentedTests.robots.common.PerformFn
 import eywa.projectcodex.instrumentedTests.robots.selectFace.SelectFaceBaseRobot
@@ -59,6 +60,11 @@ class HeadToHeadStatsRobot(
     fun checkNumbersBreakdownNoData() {
         checkElementDoesNotExist(HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE)
         checkElementIsDisplayed(HeadToHeadStatsTestTag.NO_NUMBERS_BREAKDOWN_TEXT)
+    }
+
+    fun clickEditMainInfo(block: NewScoreRobot.() -> Unit) {
+        clickElement(StatsTestTag.EDIT_SHOOT_INFO, useUnmergedTree = true)
+        createRobot(NewScoreRobot::class, block)
     }
 
     fun checkNumbersBreakdown(

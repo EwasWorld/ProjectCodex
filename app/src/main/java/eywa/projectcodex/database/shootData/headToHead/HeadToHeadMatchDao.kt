@@ -34,6 +34,15 @@ interface HeadToHeadMatchDao {
     @Query(
             """
                 UPDATE $TABLE_NAME
+                SET isShootOffWin = :isShootOffWin
+                WHERE shootId = :shootId AND matchNumber >= :matchNumber
+            """
+    )
+    suspend fun setIsShootOffWin(shootId: Int, matchNumber: Int, isShootOffWin: Boolean)
+
+    @Query(
+            """
+                UPDATE $TABLE_NAME
                 SET matchNumber = matchNumber + :increment
                 WHERE shootId = :shootId AND matchNumber >= :matchNumbersAboveAndIncluding
             """

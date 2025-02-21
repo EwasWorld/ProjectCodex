@@ -1,5 +1,6 @@
 package eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead
 
+import androidx.test.espresso.Espresso
 import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.addEnd.AddEndTestTag
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
@@ -59,8 +60,9 @@ class HeadToHeadAddEndRobot(
                                 listOf(CodexNodeInteraction.AssertTextEquals("-"))
                             }
                             else {
-                                // 1 to 3 arrows separated by a '-', allow placeholder character '.'
-                                val arrowValue = "[m\\dX\\.]"
+                                // Valid arrow values: m (miss), 1-9, 10, X, or . (placeholder)
+                                val arrowValue = "(?:[m1-9X\\.]|10)"
+                                // 1 to 3 arrows separated by a '-'
                                 val regex = "$arrowValue(?:-$arrowValue){${endSize - 1}}"
                                 listOf(CodexNodeInteraction.AssertTextMatchesRegex(regex))
                             }
@@ -159,6 +161,7 @@ class HeadToHeadAddEndRobot(
             +CodexNodeMatcher.HasSetTextAction
                 +CodexNodeInteraction.SetText(score.toString()).waitFor()
         }
+        Espresso.closeSoftKeyboard()
 
         checkTotalRow(rowIndex, type, score, arrows, teamScore, points)
     }
@@ -201,17 +204,17 @@ class HeadToHeadAddEndRobot(
      * Should stay on add end screen, use overload for jump to add match screen
      */
     fun clickNextEnd() {
-        clickElement(HeadToHeadAddEndTestTag.NEXT_END_BUTTON)
+        clickElement(HeadToHeadAddEndTestTag.NEXT_END_BUTTON, scrollTo = true)
         checkScreenIsShown()
     }
 
     fun clickInsertEnd() {
-        clickElement(HeadToHeadAddEndTestTag.NEXT_END_BUTTON)
+        clickElement(HeadToHeadAddEndTestTag.NEXT_END_BUTTON, scrollTo = true)
         createRobot(HeadToHeadScorePadRobot::class) {}
     }
 
     fun clickNextEnd(block: HeadToHeadAddMatchRobot.() -> Unit) {
-        clickElement(HeadToHeadAddEndTestTag.NEXT_END_BUTTON)
+        clickElement(HeadToHeadAddEndTestTag.NEXT_END_BUTTON, scrollTo = true)
         createRobot(HeadToHeadAddMatchRobot::class, block)
     }
 
@@ -235,6 +238,10 @@ class HeadToHeadAddEndRobot(
 
     fun checkSetResult(set: Int, result: HeadToHeadResult) {
         checkElementText(HeadToHeadAddEndTestTag.SET_RESULT, "Set $set: ${result.asString()}")
+    }
+
+    fun checkNoSetResult() {
+        checkElementDoesNotExist(HeadToHeadAddEndTestTag.SET_RESULT)
     }
 
     fun checkShootOffSetResult(result: HeadToHeadResult) {

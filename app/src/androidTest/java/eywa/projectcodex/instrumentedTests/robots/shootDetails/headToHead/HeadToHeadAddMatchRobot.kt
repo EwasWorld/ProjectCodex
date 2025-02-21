@@ -22,7 +22,7 @@ class HeadToHeadAddMatchRobot(
         clickDataRowValue(HeadToHeadAddMatchTestTag.HEAT)
 
         if (heat == null) {
-            clickDialogCancel("Match:")
+            clickDialogOk("Match:")
         }
         else {
             performSingle {

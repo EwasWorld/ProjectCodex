@@ -82,7 +82,7 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
                 HeadToHeadAddMatchState.PreviousMatch(
                         matchNumber = match.matchNumber,
                         heat = match.heat,
-                        result = sets.lastOrNull()?.result ?: HeadToHeadResult.INCOMPLETE,
+                        result = result,
                         runningTotal = runningTotals.lastOrNull()?.left,
                         isBye = match.isBye,
                 )

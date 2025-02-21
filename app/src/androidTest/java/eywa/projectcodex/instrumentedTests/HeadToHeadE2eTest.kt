@@ -597,6 +597,7 @@ class HeadToHeadE2eTest {
      * No total archers
      * Remove heat from match 2 (shouldn't be auto set for match 3)
      * Check row change is carried through to next set and match
+     * Edit main match info to add a round
      */
     @Test
     fun testTeamTotalScoreNoRound() {
@@ -664,18 +665,201 @@ class HeadToHeadE2eTest {
                             clickOk()
                         }
                         checkRows(2, archerName to false, teamName to true, opponentName to true)
-
+                        checkRunningTotals(0, 0)
                         setArrowRow(0, archerName, listOf("10", "10"), 20, Value(20))
                         setTotalRow(1, teamName, 19, Empty, NoColumn)
                         // Team total should have updated
                         checkArrowRow(0, archerName, listOf("10", "10"), 20, Value(39))
-
                         setTotalRow(2, opponentName, 30, Empty, Value(30))
-                        checkSetResult(1, HeadToHeadResult.WIN)
+                        checkNoSetResult()
                         clickNextEnd()
-                    }
 
-                    TODO("End of test")
+                        checkRows(2, archerName to false, teamName to true, opponentName to true)
+                        checkRunningTotals(39, 30)
+                        setTotalRow(1, teamName, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, listOf("9", "9"), 18, Value(38))
+                        setTotalRow(2, opponentName, 29, Empty, Value(29))
+                        clickNextEnd()
+
+                        checkRunningTotals(77, 59)
+                        setTotalRow(1, teamName, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, listOf("9", "9"), 18, Value(38))
+                        setTotalRow(2, opponentName, 29, Empty, Value(29))
+                        clickNextEnd()
+
+                        // Total score always goes to 4 sets
+                        checkRunningTotals(115, 88)
+                        setTotalRow(1, teamName, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, listOf("5", "5"), 10, Value(30))
+                        setTotalRow(2, opponentName, 40, Empty, Value(40))
+                        clickNextEnd {
+                            checkPrevious("Match 1: 1/8", "Win 145-128")
+                            checkHeat("1/4")
+                            setHeat(null)
+                            clickStartMatch {}
+                        }
+
+                        checkRows(2, archerName to false, teamName to true, opponentName to true)
+                        checkRunningTotals(0, 0)
+                        setTotalRow(1, teamName, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, listOf("10", "10"), 20, Value(40))
+                        setTotalRow(2, opponentName, 40, Empty, Value(40))
+                        clickNextEnd()
+
+                        checkRunningTotals(40, 40)
+                        setTotalRow(1, teamName, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, listOf("10", "10"), 20, Value(40))
+                        setTotalRow(2, opponentName, 40, Empty, Value(40))
+                        clickNextEnd()
+
+                        checkRunningTotals(80, 80)
+                        setTotalRow(1, teamName, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, listOf("10", "10"), 20, Value(40))
+                        setTotalRow(2, opponentName, 40, Empty, Value(40))
+                        clickNextEnd()
+
+                        checkRunningTotals(120, 120)
+                        setTotalRow(1, teamName, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, listOf("10", "10"), 20, Value(40))
+                        setTotalRow(2, opponentName, 40, Empty, Value(40))
+                        clickNextEnd()
+
+                        // Shoot off
+                        checkRunningTotals(160, 160)
+                        setTotalRow(1, teamName, 10, Empty, NoColumn)
+                        setArrowRow(0, archerName, listOf("10"), 10, Value(20))
+                        setTotalRow(2, opponentName, 19, Empty, Value(19))
+                        checkShootOffWinChipNotShown()
+
+                        setTotalRow(2, opponentName, 20, Empty, Value(20))
+                        tapIsShootOffWin(true)
+                        checkShootOffWinChip(true)
+                        clickNextEnd {
+                            checkPrevious("Match 2", "Win 180-180")
+                            checkHeat(null)
+
+                            clickNavBarItem<HeadToHeadScorePadRobot> {
+                                checkGrid(1, HeadToHeadResult.WIN) {
+                                    checkEnd(1, null, "39-30", 3) {
+                                        checkRow(0, archerName, Value("10-10"), 20, Value(39))
+                                        checkRow(1, teamName, Empty, 19, NoCell)
+                                        checkRow(2, opponentName, Empty, 30, NoColumn)
+                                    }
+                                    checkEnd(2, null, "77-59", 3) {
+                                        checkRow(0, archerName, Value("9-9"), 18, Value(38))
+                                        checkRow(1, teamName, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, Empty, 29, NoColumn)
+                                    }
+                                    checkEnd(3, null, "115-88", 3) {
+                                        checkRow(0, archerName, Value("9-9"), 18, Value(38))
+                                        checkRow(1, teamName, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, Empty, 29, NoColumn)
+                                    }
+                                    checkEnd(4, null, "145-128", 3) {
+                                        checkRow(0, archerName, Value("5-5"), 10, Value(30))
+                                        checkRow(1, teamName, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, Empty, 40, NoColumn)
+                                    }
+                                }
+
+                                checkGrid(2, HeadToHeadResult.WIN) {
+                                    checkEnd(1, null, "40-40", 3) {
+                                        checkRow(0, archerName, Value("10-10"), 20, Value(40))
+                                        checkRow(1, teamName, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, Empty, 40, NoColumn)
+                                    }
+                                    checkEnd(2, null, "80-80", 3) {
+                                        checkRow(0, archerName, Value("10-10"), 20, Value(40))
+                                        checkRow(1, teamName, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, Empty, 40, NoColumn)
+                                    }
+                                    checkEnd(3, null, "120-120", 3) {
+                                        checkRow(0, archerName, Value("10-10"), 20, Value(40))
+                                        checkRow(1, teamName, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, Empty, 40, NoColumn)
+                                    }
+                                    checkEnd(4, null, "160-160", 3) {
+                                        checkRow(0, archerName, Value("10-10"), 20, Value(40))
+                                        checkRow(1, teamName, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, Empty, 40, NoColumn)
+                                    }
+                                    checkEnd(5, null, "180-180", 3) {
+                                        checkRow(0, archerName, Value("10"), 10, Value(20))
+                                        checkRow(1, teamName, Empty, 10, NoCell)
+                                        checkRow(2, opponentName, Empty, 20, NoColumn)
+                                    }
+                                }
+
+                                openEditEnd(2, 5) {
+                                    tapIsShootOffWin(false)
+                                    clickConfirmEdit()
+                                }
+                                checkGrid(2, HeadToHeadResult.LOSS) {
+                                    checkEnd(5, null, "180-180", 3) {
+                                        checkRow(0, archerName, Value("10"), 10, Value(20))
+                                        checkRow(1, teamName, Empty, 10, NoCell)
+                                        checkRow(2, opponentName, Empty, 20, NoColumn)
+                                    }
+                                }
+                            }
+
+                            clickNavBarItem<HeadToHeadStatsRobot> {
+                                checkDate("10 Nov 20 10:15")
+                                checkRound("Head to head")
+                                checkH2hInfo("Teams of 2, Total score, Rank 2")
+                                checkFaces("Full")
+
+                                checkMatchRow(0, "1/8", "-", "-", "145-128 Win")
+                                checkMatchRow(1, "2", "-", "-", "180-180 Loss")
+
+                                handicapAndClassificationRobot.checkClassificationDoesNotExist()
+
+                                checkNumbersBreakdown(HandicapType.SELF, listOf(SELF, OPPONENT, DIFFERENCE)) {
+                                    checkRow(0, "1/8", null)
+                                    checkEndAverages(0, SELF to 16.5f, OPPONENT to 16f, DIFFERENCE to 0.5f)
+                                    checkArrowAverages(0, SELF to 8.3f, OPPONENT to 8f, DIFFERENCE to 0.3f)
+
+                                    checkRow(1, "2", null)
+                                    checkEndAverages(1, SELF to 20f, OPPONENT to 20f, DIFFERENCE to 0f)
+                                    checkArrowAverages(1, SELF to 10f, OPPONENT to 10f, DIFFERENCE to 0f)
+
+                                    checkRow(2, "Total", null)
+                                    checkEndAverages(2, SELF to 18.4f, OPPONENT to 18.1f, DIFFERENCE to 0.2f)
+                                    checkArrowAverages(2, SELF to 9.2f, OPPONENT to 9.1f, DIFFERENCE to 0.1f)
+                                }
+
+                                clickEditMainInfo {
+                                    selectRoundsRobot.clickSelectedRound {
+                                        clickRound("WA 70")
+                                    }
+                                    clickSubmitEditScore()
+                                }
+                                checkScreenIsShown()
+                                checkRound("H2H: WA 70")
+
+
+                                handicapAndClassificationRobot.checkClassification(
+                                        Classification.ELITE_MASTER_BOWMAN,
+                                        false
+                                )
+                                handicapAndClassificationRobot.checkHandicap(16)
+
+                                checkNumbersBreakdown(HandicapType.SELF, listOf(SELF, OPPONENT, DIFFERENCE)) {
+                                    checkRow(0, "1/8", 31f)
+                                    checkEndAverages(0, SELF to 16.5f, OPPONENT to 16f, DIFFERENCE to 0.5f)
+                                    checkArrowAverages(0, SELF to 8.3f, OPPONENT to 8f, DIFFERENCE to 0.3f)
+
+                                    checkRow(1, "2", 0f)
+                                    checkEndAverages(1, SELF to 20f, OPPONENT to 20f, DIFFERENCE to 0f)
+                                    checkArrowAverages(1, SELF to 10f, OPPONENT to 10f, DIFFERENCE to 0f)
+
+                                    checkRow(2, "Total", 16f)
+                                    checkEndAverages(2, SELF to 18.4f, OPPONENT to 18.1f, DIFFERENCE to 0.2f)
+                                    checkArrowAverages(2, SELF to 9.2f, OPPONENT to 9.1f, DIFFERENCE to 0.1f)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

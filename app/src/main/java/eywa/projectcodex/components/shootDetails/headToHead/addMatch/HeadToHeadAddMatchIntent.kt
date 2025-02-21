@@ -10,7 +10,7 @@ sealed class HeadToHeadAddMatchIntent {
     data class MaxPossibleRankUpdated(val rank: String?) : HeadToHeadAddMatchIntent()
     data object ToggleIsBye : HeadToHeadAddMatchIntent()
     data object HeatClicked : HeadToHeadAddMatchIntent()
-    data class SelectHeatDialogItemClicked(val heat: Int) : HeadToHeadAddMatchIntent()
+    data class SelectHeatDialogItemClicked(val heat: Int?) : HeadToHeadAddMatchIntent()
     data object CloseSelectHeatDialog : HeadToHeadAddMatchIntent()
     data object SubmitClicked : HeadToHeadAddMatchIntent()
     data object DeleteClicked : HeadToHeadAddMatchIntent()

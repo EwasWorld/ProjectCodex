@@ -6,6 +6,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
@@ -320,16 +322,21 @@ fun HeadToHeadGrid(
                             horizontalSpan = columnMetadata.size - 1,
                     ) {
                         Box {
-                            DataRow(
-                                    title = stringResource(
-                                            R.string.head_to_head_add_end__set_result,
-                                            extraData.result.title.get(),
-                                    ),
-                                    text = extraData.result.title.get(),
-                                    modifier = Modifier
-                                            .padding(vertical = 5.dp, horizontal = 10.dp)
-                                            .testTag(SET_RESULT.get())
-                            )
+                            if (state.showSetResult) {
+                                DataRow(
+                                        title = stringResource(
+                                                R.string.head_to_head_add_end__set_result,
+                                                extraData.result.title.get(),
+                                        ),
+                                        text = extraData.result.title.get(),
+                                        modifier = Modifier
+                                                .padding(vertical = 5.dp, horizontal = 10.dp)
+                                                .testTag(SET_RESULT.get())
+                                )
+                            }
+                            else {
+                                Spacer(modifier = Modifier.height(1.dp))
+                            }
                             DropdownMenu(
                                     menuItems = state.dropdownMenuExpandedFor?.third.orEmpty(),
                                     expanded = state.dropdownMenuExpandedFor?.first == state.matchNumber
@@ -579,6 +586,7 @@ fun ScorePad_HeadToHeadGrid_Preview() {
                         ),
                         runningTotals = listOf(2 to 0, 4 to 0, 5 to 0).map { Either.Left(it) },
                         finalResult = HeadToHeadResult.WIN,
+                        showSetResult = true,
                 ),
         )
     }
@@ -615,6 +623,7 @@ fun AllTypesTotals_ScorePad_HeadToHeadGrid_Preview() {
                         ),
                         runningTotals = null,
                         finalResult = null,
+                        showSetResult = false,
                 ),
                 errorOnIncompleteRows = true,
         )
@@ -651,6 +660,7 @@ fun AllTypesArrows_ScorePad_HeadToHeadGrid_Preview() {
                         ),
                         runningTotals = null,
                         finalResult = null,
+                        showSetResult = true,
                 ),
                 errorOnIncompleteRows = true,
         )

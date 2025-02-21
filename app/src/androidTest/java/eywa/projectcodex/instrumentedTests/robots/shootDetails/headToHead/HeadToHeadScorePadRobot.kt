@@ -148,7 +148,7 @@ class HeadToHeadScorePadRobot(
             +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadMatchTestTag.MATCH_DROPDOWN_MENU_ITEM.getTestTag(match))
             +CodexNodeMatcher.HasText("Edit match")
             +CodexNodeMatcher.IsNotCached
-                +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
 
         performSingle {
@@ -170,7 +170,7 @@ class HeadToHeadScorePadRobot(
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.SET_DROPDOWN_MENU_ITEM.get(match, setNumber))
             +CodexNodeMatcher.HasText("Edit set")
             +CodexNodeMatcher.IsNotCached
-                +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
         }
 
         performSingle {
@@ -214,7 +214,7 @@ class HeadToHeadScorePadRobot(
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.SET_DROPDOWN_MENU_ITEM.get(match, setNumber))
             +CodexNodeMatcher.HasText(text)
             +CodexNodeMatcher.IsNotCached
-                +CodexNodeInteraction.PerformClick().waitFor()
+            +CodexNodeInteraction.PerformClick().waitFor()
         }
     }
 
@@ -227,7 +227,7 @@ class HeadToHeadScorePadRobot(
             +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadMatchTestTag.MATCH_DROPDOWN_MENU_ITEM.getTestTag(match))
             +CodexNodeMatcher.HasText(text)
             +CodexNodeMatcher.IsNotCached
-                +CodexNodeInteraction.PerformClick().waitFor()
+            +CodexNodeInteraction.PerformClick().waitFor()
         }
     }
 
@@ -287,13 +287,20 @@ class GridDsl(
 ) {
     fun checkEnd(
             setNumber: Int,
-            result: HeadToHeadResult,
+            result: HeadToHeadResult?,
             runningTotal: String,
             rowCount: Int,
             config: GridSetDsl.() -> Unit,
     ) {
-        robot.checkDataRowValueText(HeadToHeadGridColumnTestTag.SET_RESULT.get(match, setNumber), result.asString())
+        if (result == null) {
+            robot.checkElementDoesNotExist(HeadToHeadGridColumnTestTag.SET_RESULT.get(match, setNumber))
+        }
+        else {
+            robot.checkDataRowValueText(HeadToHeadGridColumnTestTag.SET_RESULT.get(match, setNumber), result.asString())
+        }
+
         robot.checkDataRowValueText(HeadToHeadGridColumnTestTag.SET_RUNNING_TOTAL.get(match, setNumber), runningTotal)
+
         robot.performGroup {
             +CodexNodeMatcher.HasTestTag(
                     testTag = HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(match, setNumber),
@@ -302,6 +309,7 @@ class GridDsl(
             +CodexNodeMatcher.IsNotCached
             +CodexNodeGroupInteraction.AssertCount(rowCount).waitFor()
         }
+
         GridSetDsl(match, setNumber, robot).apply(config)
     }
 }
