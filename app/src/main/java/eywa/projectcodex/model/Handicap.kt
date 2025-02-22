@@ -99,6 +99,16 @@ object Handicap {
             return null
         }
 
+        val firstDistanceArrowCount = roundArrowCounts.minByOrNull { it.distanceNumber }?.arrowCount!!
+        // Scale the score to at least the size of the first distance for more accurate results
+        // Binary search ends when reaching score +/- 1 so the larger the score, the more precise it can be
+        val archerScore: Int =
+                when {
+                    arrows == null -> score
+                    arrows >= firstDistanceArrowCount -> score
+                    else -> score * firstDistanceArrowCount / arrows
+                }
+
         fun calculate(hc: Double) =
                 getScoreForRound(
                         round = round,
@@ -106,7 +116,7 @@ object Handicap {
                         roundDistances = roundDistances,
                         handicap = hc,
                         innerTenArcher = innerTenArcher,
-                        arrows = arrows,
+                        arrows = arrows?.coerceAtLeast(firstDistanceArrowCount),
                         use2023Handicaps = use2023Handicaps,
                         faces = faces,
                         logger = logger,
@@ -117,8 +127,8 @@ object Handicap {
         var low = calculate(MIN_HANDICAP.toDouble()) ?: return null
         var high = calculate(maxHandicap(use2023Handicaps).toDouble()) ?: return null
 
-        if (low.score < score) return low.handicap
-        if (high.score >= score) return high.handicap
+        if (low.score < archerScore) return low.handicap
+        if (high.score >= archerScore) return high.handicap
 
         /*
          * Find the handicap at which the [score] turns into [score - 1]
@@ -127,7 +137,9 @@ object Handicap {
             check(high.handicap > low.handicap) { "Binary search bounds gone bad" }
 
             val testHc = when {
-                high.score != score - 1 || low.score != score || high.handicap - low.handicap > 10.0.pow(accuracy) ->
+                high.score != archerScore - 1 || low.score != archerScore || high.handicap - low.handicap > 10.0.pow(
+                        accuracy
+                ) ->
                     (high.handicap + low.handicap) / 2.0
 
                 floor(high.handicap) == floor(low.handicap) -> break
@@ -136,7 +148,7 @@ object Handicap {
             }
 
             val testPair = calculate(testHc)!!
-            if (testPair.score < score) high = testPair
+            if (testPair.score < archerScore) high = testPair
             else low = testPair
         }
 
@@ -144,7 +156,7 @@ object Handicap {
         val highCheck = calculate(ceil(high.handicap))!!
         check(highCheck.handicap > lowCheck.handicap) { "Binary search bounds gone bad" }
 
-        if (highCheck.handicap - lowCheck.handicap == 1.0 && lowCheck.score == score && highCheck.score < score) {
+        if (highCheck.handicap - lowCheck.handicap == 1.0 && lowCheck.score == archerScore && highCheck.score < archerScore) {
             return lowCheck.handicap
         }
 

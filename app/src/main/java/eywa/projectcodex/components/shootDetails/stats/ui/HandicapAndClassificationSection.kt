@@ -49,6 +49,7 @@ import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
 internal fun HandicapAndClassificationSection(
         state: StatsState,
         modifier: Modifier = Modifier,
+        prefix: String? = null,
         helpListener: (HelpShowcaseIntent) -> Unit,
         listener: (StatsIntent) -> Unit,
 ) {
@@ -60,10 +61,11 @@ internal fun HandicapAndClassificationSection(
             bow = state.bow,
             handicap = state.fullShootInfo.handicap,
             helpListener = helpListener,
-            modifier = modifier,
             handicapTablesClicked = { listener(StatsIntent.ExpandHandicapsClicked) },
             classificationTablesClicked = { listener(StatsIntent.ExpandClassificationsClicked) },
             archerCategoryClicked = { listener(StatsIntent.EditArcherInfoClicked) },
+            prefix = prefix,
+            modifier = modifier,
     )
 }
 
@@ -408,5 +410,41 @@ fun NoArrows_HandicapAndClassificationSection_Preview() {
                 listener = {},
                 modifier = Modifier.padding(10.dp)
         )
+    }
+}
+
+@Preview(
+        showBackground = true,
+        backgroundColor = CodexColors.Raw.COLOR_PRIMARY
+)
+@Composable
+fun Prefixed_HandicapAndClassificationSection_Preview() {
+    CodexTheme {
+        Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            HandicapAndClassificationSection(
+                    state = StatsState(
+                            main = ShootDetailsState(
+                                    shootId = 1,
+                                    fullShootInfo = ShootPreviewHelperDsl.create {
+                                        round = RoundPreviewHelper.wa1440RoundData
+                                        addIdenticalArrows(6, 9)
+                                    },
+                                    archerInfo = DatabaseArcherPreviewHelper.default
+                                            .copy(isGent = false, age = ClassificationAge.OVER_50),
+                                    bow = DatabaseBowPreviewHelper.default.copy(type = ClassificationBow.BAREBOW),
+                                    wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+                            ),
+                            extras = StatsExtras(),
+                            classificationTablesUseCase = ClassificationTablesPreviewHelper
+                                    .get(LocalContext.current),
+                    ),
+                    helpListener = {},
+                    listener = {},
+                    modifier = Modifier.padding(10.dp),
+                    prefix = "Prefix",
+            )
+        }
     }
 }

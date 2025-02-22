@@ -205,11 +205,12 @@ data class FullShootInfo(
         }
         else if (h2h != null && h2h.arrowsShot > 0 && fullRoundInfo != null) {
             val rowArrows = h2h.getArrows(SELF) ?: return@lazy null
-            val roundInfo = fullRoundInfo?.maxDistanceOnlyWithArrowCount(rowArrows.arrowCount)
+            val roundInfo = fullRoundInfo?.maxDistanceOnlyWithMinArrowCount(rowArrows.arrowCount)
             Handicap.getHandicapForRound(
                     round = roundInfo!!,
                     subType = null,
                     score = rowArrows.total,
+                    arrows = rowArrows.arrowCount,
                     innerTenArcher = isInnerTenArcher,
                     use2023Handicaps = use2023HandicapSystem,
                     faces = faces?.take(1),
@@ -227,9 +228,10 @@ data class FullShootInfo(
         if (rowArrows.arrowCount == 0) return@lazy null
 
         Handicap.getHandicapForRound(
-                round = fullRoundInfo!!.maxDistanceOnlyWithArrowCount(rowArrows.arrowCount),
+                round = fullRoundInfo!!.maxDistanceOnlyWithMinArrowCount(rowArrows.arrowCount),
                 subType = null,
                 score = rowArrows.total,
+                arrows = rowArrows.arrowCount,
                 innerTenArcher = isInnerTenArcher,
                 use2023Handicaps = use2023HandicapSystem,
                 faces = faces?.take(1),

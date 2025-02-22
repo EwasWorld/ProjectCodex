@@ -50,7 +50,13 @@ open class TestActionDslRoot internal constructor() {
 
     internal fun perform(composeTestRule: ComposeTestRule<MainActivity>) {
         nodes.fold<TestActionDslNode, TestActionDslPreviousNode?>(null) { prev, node ->
-            node.perform(composeTestRule, prev)
+            try {
+                node.perform(composeTestRule, prev)
+            }
+            catch (e: AssertionError) {
+                println("CODEX_NODE_DESCRIPTION:\n" + node.description + "\nPrev: " + (prev?.description ?: "null"))
+                throw e
+            }
         }
     }
 }

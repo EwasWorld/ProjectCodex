@@ -51,12 +51,13 @@ internal fun ColumnScope.NumbersBreakdown(
     }
     else {
         val calculateHandicap = { totalScore: Int, arrowCount: Int ->
-            val fullRoundInfo = state.fullShootInfo.fullRoundInfo?.maxDistanceOnlyWithArrowCount(arrowCount)
+            val fullRoundInfo = state.fullShootInfo.fullRoundInfo?.maxDistanceOnlyWithMinArrowCount(arrowCount)
             if (fullRoundInfo != null) {
                 Handicap.getHandicapForRound(
                         round = fullRoundInfo,
                         subType = null,
                         score = totalScore,
+                        arrows = arrowCount,
                         innerTenArcher = state.fullShootInfo.isInnerTenArcher,
                         use2023Handicaps = state.fullShootInfo.use2023HandicapSystem,
                         faces = state.fullShootInfo.faces,

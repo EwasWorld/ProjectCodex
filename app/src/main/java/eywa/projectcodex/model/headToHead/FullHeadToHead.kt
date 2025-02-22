@@ -67,8 +67,8 @@ data class FullHeadToHead(
                     ?: getArrows(HeadToHeadArcherType.TEAM)?.let { it to false }
 
     fun getArrows(type: HeadToHeadArcherType) =
-            matches.fold<FullHeadToHeadMatch, RowArrows?>(RowArrows.Arrows(listOf())) { acc, set ->
-                if (acc == null) null else set.getArrows(type)?.let { it + acc }
+            matches.fold<FullHeadToHeadMatch, RowArrows?>(null) { acc, match ->
+                match.getArrows(type)?.let { it + acc }
             }
 
     companion object {

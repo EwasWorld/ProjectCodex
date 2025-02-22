@@ -29,8 +29,9 @@ sealed class RowArrows {
 
     data class Total(override val total: Int, override val arrowCount: Int) : RowArrows()
 
-    operator fun plus(other: RowArrows): RowArrows =
-            if (this is Arrows && other is Arrows) Arrows(arrows + other.arrows)
+    operator fun plus(other: RowArrows?): RowArrows =
+            if (other == null) this
+            else if (this is Arrows && other is Arrows) Arrows(arrows + other.arrows)
             else Total(total + other.total, arrowCount + other.arrowCount)
 
     val averageArrowScore

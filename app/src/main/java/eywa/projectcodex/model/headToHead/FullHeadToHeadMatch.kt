@@ -28,11 +28,13 @@ data class FullHeadToHeadMatch(
         get() = sets.isNotEmpty()
 
     val arrowsShot: Int
-        get() = getArrows(HeadToHeadArcherType.SELF)?.arrowCount ?: 0
+        get() = getArrows(HeadToHeadArcherType.SELF)?.arrowCount
+                ?: getArrows(HeadToHeadArcherType.TEAM)?.arrowCount?.div(teamSize)
+                ?: 0
 
     fun getArrows(type: HeadToHeadArcherType) =
-            sets.fold<FullHeadToHeadSet, RowArrows?>(RowArrows.Arrows(listOf())) { acc, set ->
-                if (acc == null) null else (set.getArrows(type)?.let { it + acc } ?: acc)
+            sets.fold<FullHeadToHeadSet, RowArrows?>(null) { acc, set ->
+                set.getArrows(type)?.let { it + acc } ?: acc
             }
 
     val isComplete

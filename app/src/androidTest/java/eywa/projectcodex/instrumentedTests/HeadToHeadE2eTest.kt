@@ -447,8 +447,8 @@ class HeadToHeadE2eTest {
                         )
                         handicapAndClassificationRobot.checkHandicap(14)
 
-                        checkNumbersBreakdown(HandicapType.SELF, listOf(SELF, OPPONENT, DIFFERENCE)) {
-                            checkRow(0, "Semi", 23f)
+                        checkNumbersBreakdown(3, HandicapType.SELF, listOf(SELF, OPPONENT, DIFFERENCE)) {
+                            checkRow(0, "Semi", 22.5f)
                             // 2.6 isn't exactly correct, rounding error?
                             checkEndAverages(0, SELF to 26.4f, OPPONENT to 29.1f, DIFFERENCE to -2.6f)
                             checkArrowAverages(0, SELF to 8.8f, OPPONENT to 9.7f, DIFFERENCE to -0.9f)
@@ -813,8 +813,9 @@ class HeadToHeadE2eTest {
                                 checkMatchRow(1, "2", "-", "-", "180-180 Loss")
 
                                 handicapAndClassificationRobot.checkClassificationDoesNotExist()
+                                handicapAndClassificationRobot.checkHandicapDoesNotExist()
 
-                                checkNumbersBreakdown(HandicapType.SELF, listOf(SELF, OPPONENT, DIFFERENCE)) {
+                                checkNumbersBreakdown(3, HandicapType.SELF, listOf(SELF, TEAM, OPPONENT, DIFFERENCE)) {
                                     checkRow(0, "1/8", null)
                                     checkEndAverages(0, SELF to 16.5f, OPPONENT to 16f, DIFFERENCE to 0.5f)
                                     checkArrowAverages(0, SELF to 8.3f, OPPONENT to 8f, DIFFERENCE to 0.3f)
@@ -844,8 +845,8 @@ class HeadToHeadE2eTest {
                                 )
                                 handicapAndClassificationRobot.checkHandicap(16)
 
-                                checkNumbersBreakdown(HandicapType.SELF, listOf(SELF, OPPONENT, DIFFERENCE)) {
-                                    checkRow(0, "1/8", 31f)
+                                checkNumbersBreakdown(3, HandicapType.SELF, listOf(SELF, TEAM, OPPONENT, DIFFERENCE)) {
+                                    checkRow(0, "1/8", 30.5f)
                                     checkEndAverages(0, SELF to 16.5f, OPPONENT to 16f, DIFFERENCE to 0.5f)
                                     checkArrowAverages(0, SELF to 8.3f, OPPONENT to 8f, DIFFERENCE to 0.3f)
 
@@ -853,10 +854,87 @@ class HeadToHeadE2eTest {
                                     checkEndAverages(1, SELF to 20f, OPPONENT to 20f, DIFFERENCE to 0f)
                                     checkArrowAverages(1, SELF to 10f, OPPONENT to 10f, DIFFERENCE to 0f)
 
-                                    checkRow(2, "Total", 16f)
+                                    checkRow(2, "Total", 15.8f)
                                     checkEndAverages(2, SELF to 18.4f, OPPONENT to 18.1f, DIFFERENCE to 0.2f)
                                     checkArrowAverages(2, SELF to 9.2f, OPPONENT to 9.1f, DIFFERENCE to 0.1f)
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Team - total score - with round
+     * Check team HC shows correctly on stats screen
+     */
+    @Test
+    fun testTeamTotalScoreRound() {
+        setup()
+
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                val date = "10/11/2020 10:15".parseDate()
+                val teamName = GridSetDsl.DEFAULT_TEAM_NAME
+                val opponentName = GridSetDsl.DEFAULT_OPPONENT_NAME
+
+                selectRoundsRobot.clickSelectedRound {
+                    clickRound("WA 70")
+                }
+                setDate(date)
+                setTime(date)
+                clickType(NewScoreRobot.Type.COUNT)
+                clickType(NewScoreRobot.Type.HEAD_TO_HEAD)
+
+                clickH2hSetPoints(false)
+                checkIsH2hStandardFormat(true)
+                setHeadToHeadFields(2, 2, null)
+
+                clickSubmitNewScoreHeadToHead {
+                    clickStartMatch {
+                        clickEditRows {
+                            checkEditRowsDialog(
+                                    GridSetDsl.DEFAULT_ARCHER_NAME to "Arrows",
+                                    GridSetDsl.DEFAULT_TEAM_MATE_NAME to "Off",
+                                    GridSetDsl.DEFAULT_TEAM_NAME to "Total",
+                                    GridSetDsl.DEFAULT_OPPONENT_NAME to "Total",
+                            )
+                            clickEditRowsDialogRow(GridSetDsl.DEFAULT_ARCHER_NAME)
+                            clickEditRowsDialogRow(GridSetDsl.DEFAULT_ARCHER_NAME)
+                            checkEditRowsDialog(
+                                    GridSetDsl.DEFAULT_ARCHER_NAME to "Off",
+                                    GridSetDsl.DEFAULT_TEAM_MATE_NAME to "Off",
+                                    GridSetDsl.DEFAULT_TEAM_NAME to "Total",
+                                    GridSetDsl.DEFAULT_OPPONENT_NAME to "Total",
+                            )
+                            clickOk()
+                        }
+
+                        checkRows(2, teamName to true, opponentName to true)
+                        checkRunningTotals(0, 0)
+                        setTotalRow(0, teamName, 32, NoColumn)
+                        setTotalRow(1, opponentName, 36, NoColumn)
+                        clickNextEnd()
+
+                        clickNavBarItem<HeadToHeadStatsRobot> {
+                            checkDate("10 Nov 20 10:15")
+                            checkRound("H2H: WA 70")
+                            checkH2hInfo("Teams of 2, Total score, Rank 2")
+                            checkFaces("Full")
+
+                            handicapAndClassificationRobot.checkClassification(
+                                    Classification.BOWMAN_1ST_CLASS,
+                                    false,
+                            )
+                            handicapAndClassificationRobot.checkHandicap(34)
+
+                            checkNumbersBreakdown(1, HandicapType.TEAM, listOf(TEAM, OPPONENT, DIFFERENCE)) {
+                                checkRow(0, "1", 33.5f)
+                                checkEndAverages(0, TEAM to 16f, OPPONENT to 18f, DIFFERENCE to -2f)
+                                checkArrowAverages(0, TEAM to 8f, OPPONENT to 9f, DIFFERENCE to -1f)
                             }
                         }
                     }

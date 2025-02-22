@@ -4,6 +4,7 @@ import eywa.projectcodex.common.ComposeTestRule
 import eywa.projectcodex.components.shootDetails.headToHead.stats.ui.HeadToHeadStatsTestTag
 import eywa.projectcodex.components.shootDetails.stats.ui.StatsTestTag
 import eywa.projectcodex.core.mainActivity.MainActivity
+import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
@@ -68,10 +69,15 @@ class HeadToHeadStatsRobot(
     }
 
     fun checkNumbersBreakdown(
+            rowCount: Int,
             handicapType: NumbersBreakdownRobot.HandicapType,
             columns: List<NumbersBreakdownRobot.Column>,
             block: NumbersBreakdownRobot.() -> Unit,
     ) {
+        performGroup {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_MATCH_CELL)
+            +CodexNodeGroupInteraction.AssertCount(rowCount)
+        }
         NumbersBreakdownRobot(::perform, handicapType, columns).apply(block)
     }
 
@@ -86,7 +92,8 @@ class HeadToHeadStatsRobot(
             columns: List<Column>,
     ) {
         init {
-//            checkColumns(*columns.toTypedArray())
+            check(columns.isNotEmpty())
+            checkColumns(*columns.toTypedArray())
         }
 
         private fun checkColumns(vararg columns: Column) {
@@ -96,8 +103,10 @@ class HeadToHeadStatsRobot(
                         performFn {
                             allNodes {
                                 +CodexNodeMatcher.HasTestTag(it)
+                                +CodexNodeMatcher.IsNotCached
                                 toSingle(CodexNodeGroupToOne.First) {
-                                    +CodexNodeInteraction.AssertIsDisplayed()
+                                    +CodexNodeInteraction.PerformScrollTo()
+                                    +CodexNodeInteraction.AssertIsDisplayed().waitFor()
                                 }
                             }
                         }
@@ -106,7 +115,8 @@ class HeadToHeadStatsRobot(
                         performFn {
                             singleNode {
                                 +CodexNodeMatcher.HasTestTag(it)
-                                +CodexNodeInteraction.AssertDoesNotExist()
+                                +CodexNodeMatcher.IsNotCached
+                                +CodexNodeInteraction.AssertDoesNotExist().waitFor()
                             }
                         }
                     }
