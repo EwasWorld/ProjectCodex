@@ -75,7 +75,7 @@ class HeadToHeadRepo(
     }
 
     @Transaction
-    suspend fun insert(vararg details: DatabaseHeadToHeadDetail, isShootOffWin: Boolean? = null) {
+    suspend fun insert(vararg details: DatabaseHeadToHeadDetail, shootOffSets: Map<Int, Boolean>? = null) {
         check(details.isNotEmpty())
         check(
                 details.distinctBy { "${it.shootId}-${it.matchNumber}-${it.setNumber}" }.size == 1,
@@ -101,8 +101,8 @@ class HeadToHeadRepo(
         }
         headToHeadDetailDao.insert(*details)
 
-        if (isShootOffWin != null) {
-            headToHeadMatchDao.setIsShootOffWin(firstItem.shootId, firstItem.matchNumber, isShootOffWin)
+        if (shootOffSets != null) {
+            headToHeadMatchDao.setShootOffSets(firstItem.shootId, firstItem.matchNumber, shootOffSets)
         }
     }
 
@@ -110,7 +110,7 @@ class HeadToHeadRepo(
     suspend fun update(
             newDetails: List<DatabaseHeadToHeadDetail>,
             oldDetails: List<DatabaseHeadToHeadDetail>,
-            isShootOffWin: Boolean? = null,
+            shootOffSets: Map<Int, Boolean>? = null,
     ) {
         check(newDetails.isNotEmpty()) { "No details found" }
         check(newDetails.distinctBy { it.type }.size == newDetails.size) { "Duplicate types found" }
@@ -140,9 +140,9 @@ class HeadToHeadRepo(
         }
         headToHeadDetailDao.update(*update.toTypedArray())
         headToHeadDetailDao.insert(*insert.toTypedArray())
-        if (isShootOffWin != null) {
+        if (shootOffSets != null) {
             val firstItem = newDetails[0]
-            headToHeadMatchDao.setIsShootOffWin(firstItem.shootId, firstItem.matchNumber, isShootOffWin)
+            headToHeadMatchDao.setShootOffSets(firstItem.shootId, firstItem.matchNumber, shootOffSets)
         }
     }
 

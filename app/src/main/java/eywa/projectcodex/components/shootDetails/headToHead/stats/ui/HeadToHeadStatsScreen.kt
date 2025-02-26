@@ -267,7 +267,7 @@ fun NoMatches_HeadToHeadStatsScreen_Preview() {
                 state = HeadToHeadStatsState(
                         fullShootInfo = ShootPreviewHelperDsl.create {
                             addH2h {
-                                headToHead = headToHead.copy(totalArchers = 5, isStandardFormat = false)
+                                headToHead = headToHead.copy(totalArchers = 5, endSize = 3)
                             }
                         },
                         classificationTablesUseCase = ClassificationTablesPreviewHelper.get(),

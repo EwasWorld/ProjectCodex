@@ -2,7 +2,6 @@ package eywa.projectcodex.model.headToHead
 
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
-import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData
@@ -42,13 +41,13 @@ data class FullHeadToHeadSet(
         val setNumber: Int,
         val data: List<HeadToHeadGridRowData>,
         val teamSize: Int,
-        val isShootOffWin: Boolean,
-        val isRecurveStyle: Boolean,
+        /**
+         * Has a value if and only if the set is a shoot off, else null
+         */
+        val isShootOffWin: Boolean?,
+        val isSetPointsFormat: Boolean,
+        val endSize: Int,
 ) {
-    val endSize
-        get() = HeadToHeadUseCase.endSize(teamSize, isShootOff)
-    val isShootOff = HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
-
     init {
         check(data.distinctBy { it.type }.size == data.size) { "Duplicate types found" }
         check(teamSize > 0) { "Team size must be > 0" }
@@ -63,6 +62,8 @@ data class FullHeadToHeadSet(
     val teamEndScore
         get() = team.left ?: team.right?.let { (it as? HeadToHeadNoResult.Partial)?.score }
     val result = result()
+    val isShootOff
+        get() = isShootOffWin != null
 
     fun arrowsShot(type: HeadToHeadArcherType) =
             if (result == HeadToHeadResult.INCOMPLETE) 0
@@ -128,7 +129,7 @@ data class FullHeadToHeadSet(
     private fun result(): HeadToHeadResult {
         val result = data.find { it.type == HeadToHeadArcherType.RESULT }
         if (result != null) {
-            if (!isRecurveStyle) throw IllegalStateException("Cannot give results for non-recurve style matches")
+            if (!isSetPointsFormat) throw IllegalStateException("Cannot give results for non-recurve style matches")
             if (!result.isComplete) return HeadToHeadResult.INCOMPLETE
             if (!result.isTotalRow) throw IllegalStateException("Result must be total row")
 
@@ -146,7 +147,7 @@ data class FullHeadToHeadSet(
         return when {
             team.left!! > opponent.left!! -> HeadToHeadResult.WIN
             team.left!! < opponent.left!! -> HeadToHeadResult.LOSS
-            isShootOff && isShootOffWin -> HeadToHeadResult.WIN
+            isShootOff && isShootOffWin!! -> HeadToHeadResult.WIN
             isShootOff -> HeadToHeadResult.LOSS
             else -> HeadToHeadResult.TIE
         }

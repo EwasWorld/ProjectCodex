@@ -549,10 +549,10 @@ fun Editing_HeadToHeadAddMatchScreen_Preview() {
                                 heat = 0,
                                 opponent = null,
                                 opponentQualificationRank = null,
-                                isShootOffWin = false,
                                 sightersCount = 0,
                                 isBye = false,
                                 maxPossibleRank = 1,
+                                shootOffSets = mapOf(),
                         ),
                         extras = HeadToHeadAddMatchExtras(
                                 heat = 0,

@@ -307,7 +307,7 @@ class HeadToHeadAddEndViewModelUnitTest {
                                             ),
                                             teamSize = 1,
                                             isShootOffWin = false,
-                                            isRecurveStyle = true,
+                                            isSetPointsFormat = true,
                                     ),
                                     selected = HeadToHeadArcherType.SELF,
                             ),

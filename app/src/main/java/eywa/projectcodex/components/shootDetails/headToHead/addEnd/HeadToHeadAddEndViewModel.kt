@@ -16,9 +16,11 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType.*
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndIntent.*
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData.*
+import eywa.projectcodex.database.shootData.headToHead.setShootOffResult
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -56,6 +58,10 @@ class HeadToHeadAddEndViewModel @Inject constructor(
         val shoot = main.fullShootInfo!!
         val fullH2hInfo = shoot.h2h ?: throw ShootDetailsError()
 
+        val endSize = fullH2hInfo.headToHead.endSize ?: HeadToHeadUseCase.endSize(
+                teamSize = fullH2hInfo.headToHead.teamSize,
+                isShootOff = false,
+        )
         val roundInfo = HeadToHeadRoundInfo(
                 round = shoot.fullRoundInfo?.round,
                 face = shoot.faces?.first(),
@@ -63,6 +69,8 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                         ?: shoot.shootDetail?.distance,
                 sightMark = main.sightMark,
                 isMetric = shoot.fullRoundInfo?.round?.isMetric ?: shoot.shootDetail?.isDistanceInMeters,
+                endSize = endSize,
+                isStandardFormat = fullH2hInfo.headToHead.isStandardFormat,
         )
 
         val teamSize = fullH2hInfo.headToHead.teamSize
@@ -94,7 +102,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     roundInfo = roundInfo,
                     extras = extras ?: HeadToHeadAddEndExtras().resetEditInfo(editingSet),
                     match = editingMatch.match,
-                    isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
+                    isRecurveStyle = fullH2hInfo.headToHead.isSetPointsFormat,
                     teamRunningTotal = null,
                     opponentRunningTotal = null,
                     editingSet = editingSet,
@@ -106,8 +114,9 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 setNumber = 0,
                 data = listOf(),
                 teamSize = fullH2hInfo.headToHead.teamSize,
-                isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
-                isShootOffWin = false,
+                isSetPointsFormat = fullH2hInfo.headToHead.isSetPointsFormat,
+                isShootOffWin = null,
+                endSize = endSize,
         )
 
         // Create new set with fixed set number
@@ -117,14 +126,15 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             if (extras == null || extras.set.setNumber != editingSetNumber) {
                 val isShootOff = isStandardFormat && HeadToHeadUseCase.shootOffSet(teamSize) == editingSetNumber
                 val data = generateEmptyDataRows(
-                        endSize = HeadToHeadUseCase.endSize(teamSize, isShootOff),
+                        endSize = endSize,
                         teamSize = teamSize,
                         previous = editingMatch.sets.find { it.setNumber == editingSetNumber - 1 }?.data,
                 )
 
                 extraState.update {
                     HeadToHeadAddEndExtras(
-                            set = blankSet.copy(setNumber = editingSetNumber, data = data),
+                            set = blankSet.copy(setNumber = editingSetNumber, data = data)
+                                    .setIsShootOff(fullH2hInfo.headToHead.endSize),
                             selected = null,
                     )
                 }
@@ -139,7 +149,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     roundInfo = roundInfo,
                     extras = extras ?: HeadToHeadAddEndExtras(),
                     match = editingMatch.match,
-                    isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
+                    isRecurveStyle = fullH2hInfo.headToHead.isSetPointsFormat,
                     // Default to zeros on the first set only
                     teamRunningTotal = scores?.first ?: 0.takeIf { editingSetNumber == 1 },
                     // Default to zeros on the first set only
@@ -163,8 +173,6 @@ class HeadToHeadAddEndViewModel @Inject constructor(
         // Creating new set
         if (lastSet == null || lastSet.isComplete) {
             val setNumber = (lastSet?.setNumber?.plus(1)) ?: 1
-            val isShootOff = isStandardFormat && HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
-            val endSize = HeadToHeadUseCase.endSize(teamSize, isShootOff)
 
             fun getPreviousMatchFinalSetData() = fullH2hInfo
                     .matches
@@ -180,7 +188,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                             teamSize = teamSize,
                             previous = lastSet?.data ?: getPreviousMatchFinalSetData(),
                     ),
-            )
+            ).setIsShootOff(fullH2hInfo.headToHead.endSize)
 
             if (extras == null || extras.set.setNumber != set.setNumber) {
                 extraState.update { HeadToHeadAddEndExtras(set = set, selected = SELF) }
@@ -191,7 +199,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     roundInfo = roundInfo,
                     extras = extras ?: HeadToHeadAddEndExtras(),
                     match = match.match,
-                    isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
+                    isRecurveStyle = fullH2hInfo.headToHead.isSetPointsFormat,
                     // Default to zeros on the first set only
                     teamRunningTotal = scores?.first ?: 0.takeIf { setNumber == 1 },
                     // Default to zeros on the first set only
@@ -211,7 +219,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 roundInfo = roundInfo,
                 extras = extras ?: HeadToHeadAddEndExtras(),
                 match = match.match,
-                isRecurveStyle = fullH2hInfo.headToHead.isRecurveStyle,
+                isRecurveStyle = fullH2hInfo.headToHead.isSetPointsFormat,
                 // Default to zeros on the first set only
                 teamRunningTotal = scores?.first ?: 0.takeIf { extras?.set?.setNumber == 1 },
                 // Default to zeros on the first set only
@@ -261,6 +269,14 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             arrowInputsError = setOf(),
             incompleteError = false,
     )
+
+    private fun FullHeadToHeadSet.setIsShootOff(matchEndSize: Int?): FullHeadToHeadSet {
+        val isShootOff = matchEndSize == null && HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
+        return copy(
+                isShootOffWin = if (isShootOff) false else null,
+                endSize = if (isShootOff) 1 else (matchEndSize ?: HeadToHeadUseCase.endSize(teamSize, false))
+        )
+    }
 
     fun handle(action: HeadToHeadAddEndIntent) {
         fun updateState(block: (HeadToHeadAddEndExtras) -> HeadToHeadAddEndExtras) =
@@ -318,27 +334,58 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 updateState { it.copy(selected = action.row) }
             }
 
-            ToggleShootOffWin -> updateState { it.copy(set = it.set.copy(isShootOffWin = !it.set.isShootOffWin)) }
+            ToggleShootOffWin -> updateState {
+                if (it.set.isShootOffWin == null) return@updateState it
+                it.copy(set = it.set.copy(isShootOffWin = !it.set.isShootOffWin))
+            }
+
+            ToggleShootOff -> updateState {
+                val currentState = state.value.getData()!!
+                val isShootOffWin = if (it.set.isShootOffWin == null) false else null
+                val endSize = if (isShootOffWin == null) currentState.roundInfo.endSize else 1
+                it.copy(
+                        set = it.set.copy(
+                                isShootOffWin = isShootOffWin,
+                                endSize = endSize,
+                                data = generateEmptyDataRows(
+                                        endSize = endSize,
+                                        teamSize = it.set.teamSize,
+                                        it.set.data,
+                                ),
+                        )
+                )
+            }
+
             SubmitClicked -> state.value.getData().let { state ->
                 if (state == null) {
                     return
                 }
 
-                if (!state.extras.set.isComplete) {
+                val set = state.extras.set
+                if (!set.isComplete) {
                     updateState { it.copy(incompleteError = true) }
                     return
                 }
                 viewModelScope.launch {
+                    // Only respect isShootOffWin if it's a tie
+                    val isShootOffWin =
+                            if (!set.isShootOff) null
+                            // Result will not be complete if result is unknown
+                            else if (!set.result.isComplete || set.result == HeadToHeadResult.TIE) set.isShootOffWin
+                            else set.result == HeadToHeadResult.WIN
+                    val shootOffSets = state.match.shootOffSets
+                            .setShootOffResult(set.setNumber, isShootOffWin)
+
                     if (state.editingSet == null || isInserting) {
                         h2hRepo.insert(
-                                isShootOffWin = state.extras.set.isShootOffWin,
+                                shootOffSets = shootOffSets,
                                 details = state.setToDbDetails().toTypedArray()
                         )
                     }
                     else h2hRepo.update(
                             newDetails = state.setToDbDetails(),
                             oldDetails = state.editingToDbDetails()!!,
-                            isShootOffWin = state.extras.set.isShootOffWin,
+                            shootOffSets = shootOffSets,
                     )
 
                     if (state.editingSet != null || isInserting) {
@@ -383,8 +430,9 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                             getRow(type, isTotal, it.set.endSize, it.set.teamSize)
                         },
                         teamSize = it.set.teamSize,
-                        isRecurveStyle = it.set.isRecurveStyle,
+                        isSetPointsFormat = it.set.isSetPointsFormat,
                         isShootOffWin = it.set.isShootOffWin,
+                        endSize = it.set.endSize,
                 )
 
                 it.copy(

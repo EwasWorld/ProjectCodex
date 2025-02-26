@@ -282,6 +282,19 @@ class HeadToHeadAddEndRobot(
         checkShootOffWinChip(newValue)
     }
 
+    fun checkShootOffChip(isWin: Boolean) {
+        checkCheckboxState(HeadToHeadAddEndTestTag.IS_SHOOT_OFF_CHECKBOX, isWin, useUnmergedTree = true)
+    }
+
+    fun checkShootOffChipNotShown() {
+        checkElementDoesNotExist(HeadToHeadAddEndTestTag.IS_SHOOT_OFF_CHECKBOX)
+    }
+
+    fun tapIsShootOff(newValue: Boolean) {
+        clickElement(HeadToHeadAddEndTestTag.IS_SHOOT_OFF_CHECKBOX, useUnmergedTree = true)
+        checkShootOffChip(newValue)
+    }
+
     fun checkSighters(count: Int) {
         checkElementTextOrDoesNotExist(AddEndTestTag.SIGHTERS, count.toString(), true)
     }

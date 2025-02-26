@@ -56,6 +56,7 @@ import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
 import eywa.projectcodex.common.sharedUi.codexTheme.asClickableStyle
+import eywa.projectcodex.common.sharedUi.previewHelpers.HeadToHeadMatchPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.previewHelpers.HeadToHeadSetPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
@@ -74,7 +75,6 @@ import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndIntent.*
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGrid
-import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatchPreviewHelper
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 @Composable
@@ -114,12 +114,12 @@ fun HeadToHeadAddEndScreen(
             }
 
             if (data.extras.openEditSightMark) {
-                val args = if (data.roundInfo?.sightMark != null) {
+                val args = if (data.roundInfo.sightMark != null) {
                     mapOf(NavArgument.SIGHT_MARK_ID to data.roundInfo.sightMark.id.toString())
                 }
                 else {
-                    val distance = data.roundInfo?.distance ?: DEFAULT_INT_NAV_ARG
-                    val isMetric = data.roundInfo?.isMetric ?: true
+                    val distance = data.roundInfo.distance ?: DEFAULT_INT_NAV_ARG
+                    val isMetric = data.roundInfo.isMetric ?: true
                     mapOf(NavArgument.DISTANCE to distance.toString(), NavArgument.IS_METRIC to isMetric.toString())
                 }
                 CodexNavRoute.SIGHT_MARK_DETAIL.navigate(navController, args)
@@ -189,21 +189,19 @@ fun HeadToHeadAddEndScreen(
                         .horizontalScroll(rememberScrollState())
                         .padding(horizontal = CodexTheme.dimens.screenPadding)
         ) {
-            if (state.roundInfo != null) {
-                SightMark(
-                        distance = state.roundInfo.distance,
-                        isMetric = state.roundInfo.isMetric,
-                        sightMark = state.roundInfo.sightMark,
-                        helpListener = helpListener,
-                        onExpandClicked = { listener(ExpandSightMarkClicked) },
-                        onEditClicked = { listener(EditSightMarkClicked) },
-                )
-                Text(
-                        text = stringResource(R.string.input_end__section_delimiter),
-                        style = CodexTypography.NORMAL,
-                        color = CodexTheme.colors.onAppBackground,
-                )
-            }
+            SightMark(
+                    distance = state.roundInfo.distance,
+                    isMetric = state.roundInfo.isMetric,
+                    sightMark = state.roundInfo.sightMark,
+                    helpListener = helpListener,
+                    onExpandClicked = { listener(ExpandSightMarkClicked) },
+                    onEditClicked = { listener(EditSightMarkClicked) },
+            )
+            Text(
+                    text = stringResource(R.string.input_end__section_delimiter),
+                    style = CodexTypography.NORMAL,
+                    color = CodexTheme.colors.onAppBackground,
+            )
             MatchFixedInfo(state, listener)
         }
 
@@ -512,13 +510,26 @@ private fun ColumnScope.SetInfo(
                 modifier = Modifier.padding(vertical = 10.dp),
         )
 
-        if (state.extras.set.isShootOff && state.extras.set.teamEndScore == state.extras.set.opponentEndScore) {
+        if (
+            state.extras.set.isShootOffWin != null
+            && state.extras.set.isComplete
+            && state.extras.set.teamEndScore == state.extras.set.opponentEndScore
+        ) {
             CodexChip(
                     text = stringResource(R.string.head_to_head_add_end__shoot_off_win),
                     selected = state.extras.set.isShootOffWin,
                     testTag = HeadToHeadAddEndTestTag.IS_SHOOT_OFF_WIN_CHECKBOX,
                     style = CodexTypography.NORMAL,
                     onToggle = { listener(ToggleShootOffWin) },
+            )
+        }
+        if (!state.roundInfo.isStandardFormat) {
+            CodexChip(
+                    text = stringResource(R.string.head_to_head_add_end__shoot_off_chip),
+                    selected = state.extras.set.isShootOffWin != null,
+                    testTag = HeadToHeadAddEndTestTag.IS_SHOOT_OFF_CHECKBOX,
+                    style = CodexTypography.NORMAL,
+                    onToggle = { listener(ToggleShootOff) },
             )
         }
     }
@@ -536,8 +547,8 @@ private fun Buttons(
     ) {
         if (state.extras.selectedData?.isTotalRow == false) {
             ArrowButtonGroup(
-                    round = state.roundInfo?.round,
-                    roundFace = state.roundInfo?.face,
+                    round = state.roundInfo.round,
+                    roundFace = state.roundInfo.face,
                     onClick = { listener(ArrowInputAction(ArrowInputted(it))) },
                     modifier = Modifier.updateHelpDialogPosition(
                             HelpShowcaseItem(
@@ -552,7 +563,10 @@ private fun Buttons(
             }
         }
 
-        if (state.extras.set.result == HeadToHeadResult.UNKNOWN && state.extras.set.setNumber >= 3) {
+        if (
+            !state.roundInfo.isStandardFormat ||
+            (state.extras.set.result == HeadToHeadResult.UNKNOWN && state.extras.set.setNumber >= 3)
+        ) {
             CodexButton(
                     text = stringResource(R.string.head_to_head_add_end__next_match),
                     onClick = { listener(CreateNextMatchClicked) },
@@ -663,6 +677,7 @@ private fun EditButtons(
 
 enum class HeadToHeadAddEndTestTag : CodexTestTag {
     SCREEN,
+    IS_SHOOT_OFF_CHECKBOX,
     IS_SHOOT_OFF_WIN_CHECKBOX,
     CREATE_NEXT_MATCH_BUTTON,
     OPPONENT,
@@ -688,7 +703,7 @@ fun HeadToHeadAddScreen_Preview() {
     CodexTheme {
         HeadToHeadAddEndScreen(
                 state = HeadToHeadAddEndState(
-                        match = DatabaseHeadToHeadMatchPreviewHelper.data,
+                        match = HeadToHeadMatchPreviewHelperDsl.data,
                         teamRunningTotal = 0,
                         opponentRunningTotal = 0,
                 ),
@@ -702,7 +717,7 @@ fun Editing_HeadToHeadAddScreen_Preview() {
     CodexTheme {
         HeadToHeadAddEndScreen(
                 state = HeadToHeadAddEndState(
-                        match = DatabaseHeadToHeadMatchPreviewHelper.data,
+                        match = HeadToHeadMatchPreviewHelperDsl.data,
                         teamRunningTotal = 0,
                         opponentRunningTotal = 0,
                         editingSet = HeadToHeadSetPreviewHelperDsl(
@@ -710,6 +725,7 @@ fun Editing_HeadToHeadAddScreen_Preview() {
                                 teamSize = 1,
                                 isShootOffWin = false,
                                 isRecurveStyle = true,
+                                endSize = 3,
                         ).apply {
                             addRows()
                         }.asFull(),
@@ -724,7 +740,7 @@ fun Inserting_HeadToHeadAddScreen_Preview() {
     CodexTheme {
         HeadToHeadAddEndScreen(
                 state = HeadToHeadAddEndState(
-                        match = DatabaseHeadToHeadMatchPreviewHelper.data,
+                        match = HeadToHeadMatchPreviewHelperDsl.data,
                         teamRunningTotal = 0,
                         opponentRunningTotal = 0,
                         isInserting = true,
@@ -739,15 +755,17 @@ fun EditRowTypes_HeadToHeadAddScreen_Preview() {
     CodexTheme {
         HeadToHeadAddEndScreen(
                 state = HeadToHeadAddEndState(
-                        match = DatabaseHeadToHeadMatchPreviewHelper.data,
+                        match = HeadToHeadMatchPreviewHelperDsl.data,
                         extras = HeadToHeadAddEndExtras(
                                 set = FullHeadToHeadSet(
                                         setNumber = 1,
                                         data = listOf(),
                                         teamSize = 2,
                                         isShootOffWin = false,
-                                        isRecurveStyle = true,
-                                ),
+                                        isSetPointsFormat = true,
+                                        endSize = 3,
+
+                                        ),
                                 selectRowTypesDialogState = mapOf(
                                         HeadToHeadArcherType.SELF to false,
                                         HeadToHeadArcherType.TEAM_MATE to true,
@@ -766,13 +784,14 @@ fun Unknown_HeadToHeadAddScreen_Preview() {
     CodexTheme {
         HeadToHeadAddEndScreen(
                 state = HeadToHeadAddEndState(
-                        match = DatabaseHeadToHeadMatchPreviewHelper.data,
+                        match = HeadToHeadMatchPreviewHelperDsl.data,
                         extras = HeadToHeadAddEndExtras(
                                 set = HeadToHeadSetPreviewHelperDsl(
                                         setNumber = 3,
                                         teamSize = 1,
                                         isShootOffWin = false,
                                         isRecurveStyle = true,
+                                        endSize = 3,
                                 ).apply {
                                     addRows(HeadToHeadResult.WIN)
                                     removeRow(HeadToHeadArcherType.OPPONENT)
@@ -789,7 +808,7 @@ fun ByeHeadToHeadAddScreen_Preview() {
     CodexTheme {
         HeadToHeadAddEndScreen(
                 state = HeadToHeadAddEndState(
-                        match = DatabaseHeadToHeadMatchPreviewHelper.data.copy(isBye = true),
+                        match = HeadToHeadMatchPreviewHelperDsl.data.copy(isBye = true),
                 ),
         ) {}
     }

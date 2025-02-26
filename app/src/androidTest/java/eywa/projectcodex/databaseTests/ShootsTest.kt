@@ -473,7 +473,7 @@ class ShootsTest {
                             }
                         }
                         addMatch {
-                            match = match.copy(heat = 0, sightersCount = 0, isShootOffWin = true)
+                            match = match.copy(heat = 0, sightersCount = 0, shootOffSets = mapOf(6 to true))
                             addSet {
                                 addRows(
                                         winnerScore = 30,

@@ -71,7 +71,7 @@ fun DateAndRoundSection(
             ProvideTextStyle(value = CodexTypography.SMALL.copy(color = CodexTheme.colors.onAppBackground)) {
                 fullShootInfo.h2h?.headToHead?.let {
                     val team = if (it.teamSize > 1) "Teams of ${it.teamSize}" else "Individual"
-                    val style = if (it.isRecurveStyle) "Set points" else "Total score"
+                    val style = if (it.isSetPointsFormat) "Set points" else "Total score"
                     val rank = if (it.qualificationRank != null) ", Rank ${it.qualificationRank}" else ""
                     val format = if (it.isStandardFormat) "" else "\nNon-standard format"
                     val totalArchers =
@@ -158,7 +158,7 @@ fun H2h_DateAndRoundSection_Preview() {
                     round = RoundPreviewHelper.wa1440RoundData
                     faces = listOf(RoundFace.FULL, RoundFace.FULL, RoundFace.HALF, RoundFace.HALF)
                     addH2h {
-                        headToHead = headToHead.copy(isRecurveStyle = true, teamSize = 1, qualificationRank = 5)
+                        headToHead = headToHead.copy(isSetPointsFormat = true, teamSize = 1, qualificationRank = 5)
                     }
                 },
                 editClickedListener = {},

@@ -162,6 +162,28 @@ class HeadToHeadScorePadRobot(
         clickMatchEditButton(match)
     }
 
+    fun checkAddEndOptionAvailable(match: Int) {
+        clickMatchEditButton(match)
+
+        // Wait for menu to appear
+        performSingle {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadMatchTestTag.MATCH_DROPDOWN_MENU_ITEM.getTestTag(match))
+            +CodexNodeMatcher.HasText("Edit match")
+            +CodexNodeMatcher.IsNotCached
+            +CodexNodeInteraction.AssertIsDisplayed().waitFor()
+        }
+
+        performSingle {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadScorePadMatchTestTag.MATCH_DROPDOWN_MENU_ITEM.getTestTag(match))
+            +CodexNodeMatcher.HasText("Add set")
+            +CodexNodeMatcher.IsNotCached
+            +CodexNodeInteraction.AssertIsDisplayed()
+        }
+
+        // Dismiss dropdown
+        clickMatchEditButton(match)
+    }
+
     private fun checkCannotInsertEnd(match: Int, setNumber: Int) {
         clickSet(match, setNumber)
 

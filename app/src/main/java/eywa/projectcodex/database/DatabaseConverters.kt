@@ -38,23 +38,32 @@ class DatabaseConverters {
     fun roundFaceToInt(value: RoundFace) = value.ordinal
 
     @TypeConverter
-    fun intToRoundFace(value: Int) = RoundFace.values()[value]
+    fun intToRoundFace(value: Int) = RoundFace.entries[value]
 
     @TypeConverter
     fun handicapTypeToInt(value: HandicapType) = value.ordinal
 
     @TypeConverter
-    fun intToHandicapType(value: Int) = HandicapType.values()[value]
+    fun intToHandicapType(value: Int) = HandicapType.entries[value]
 
     @TypeConverter
     fun classificationAgeToInt(value: ClassificationAge) = value.ordinal
 
     @TypeConverter
-    fun intToClassificationAge(value: Int) = ClassificationAge.values()[value]
+    fun intToClassificationAge(value: Int) = ClassificationAge.entries[value]
 
     @TypeConverter
     fun classificationBowToInt(value: ClassificationBow) = value.ordinal
 
     @TypeConverter
-    fun intToClassificationBow(value: Int) = ClassificationBow.values()[value]
+    fun intToClassificationBow(value: Int) = ClassificationBow.entries[value]
+
+    @TypeConverter
+    fun stringToMapIntBool(value: String) = stringToList(value).associate {
+        val (k, v) = it.split("-")
+        k.toInt() to v.toBoolean()
+    }
+
+    @TypeConverter
+    fun mapIntBoolToString(value: Map<Int, Boolean>) = listToString(value.entries.map { (key, value) -> "$key-$value" })
 }

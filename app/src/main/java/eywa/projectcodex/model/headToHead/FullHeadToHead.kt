@@ -20,6 +20,8 @@ data class FullHeadToHead(
     ) : this(
             headToHead = headToHead,
             matches = details.groupBy { it.matchNumber }.let { grouped ->
+                val endSize = headToHead.endSize
+                        ?: HeadToHeadUseCase.endSize(headToHead.teamSize, false)
                 matches.map { match ->
                     val shootOffSet = HeadToHeadUseCase.shootOffSet(headToHead.teamSize)
                     FullHeadToHeadMatch(
@@ -27,6 +29,7 @@ data class FullHeadToHead(
                             sets = (grouped[match.matchNumber] ?: emptyList())
                                     .groupBy { it.setNumber }
                                     .map { (setNumber, details) ->
+                                        val isShootOffWin = match.shootOffSets[setNumber]
                                         FullHeadToHeadSet(
                                                 setNumber = setNumber,
                                                 data = details.asRowData(
@@ -38,18 +41,29 @@ data class FullHeadToHead(
                                                         isEditable = isEditable,
                                                 ),
                                                 teamSize = headToHead.teamSize,
-                                                isShootOffWin = match.isShootOffWin,
-                                                isRecurveStyle = headToHead.isRecurveStyle,
+                                                isSetPointsFormat = headToHead.isSetPointsFormat,
+                                                isShootOffWin = isShootOffWin,
+                                                endSize = if (isShootOffWin == null) endSize else 1
                                         )
                                     }
                                     .sortedBy { it.setNumber },
                             teamSize = headToHead.teamSize,
-                            isRecurveStyle = headToHead.isRecurveStyle,
+                            isSetPointsFormat = headToHead.isSetPointsFormat,
                             isStandardFormat = headToHead.isStandardFormat,
                     )
                 }
             },
     )
+
+    init {
+        check(
+                matches.all {
+                    it.isSetPointsFormat == headToHead.isSetPointsFormat
+                            && it.isStandardFormat == (headToHead.endSize == null)
+                            && it.teamSize == headToHead.teamSize
+                },
+        )
+    }
 
     val hasStarted: Boolean
         get() = matches.any { it.hasStarted }

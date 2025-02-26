@@ -44,6 +44,7 @@ import eywa.projectcodex.common.sharedUi.SimpleDialog
 import eywa.projectcodex.common.sharedUi.SimpleDialogContent
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTheme
 import eywa.projectcodex.common.sharedUi.codexTheme.CodexTypography
+import eywa.projectcodex.common.sharedUi.previewHelpers.HeadToHeadPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
@@ -51,13 +52,9 @@ import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGrid
-import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowDataPreviewHelper
 import eywa.projectcodex.components.shootDetails.headToHead.grid.SetDropdownMenuItem
 import eywa.projectcodex.components.shootDetails.headToHead.scorePad.HeadToHeadScorePadIntent.*
 import eywa.projectcodex.components.shootDetails.headToHead.scorePad.HeadToHeadScorePadMatchTestTag.*
-import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
-import eywa.projectcodex.model.headToHead.FullHeadToHeadMatch
-import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 @Composable
 fun HeadToHeadScorePadScreen(
@@ -468,97 +465,45 @@ fun HeadToHeadScorePadScreen_Preview() {
     CodexTheme {
         HeadToHeadScorePadScreen(
                 HeadToHeadScorePadState(
-                        entries = listOf(
-                                FullHeadToHeadMatch(
-                                        match = DatabaseHeadToHeadMatch(
-                                                matchNumber = 1,
-                                                heat = 1,
-                                                opponent = "Jessica Summers",
-                                                opponentQualificationRank = 1,
-                                                shootId = 1,
-                                                sightersCount = 0,
-                                                isBye = false,
-                                                isShootOffWin = false,
-                                                maxPossibleRank = 3,
-                                        ),
-                                        isRecurveStyle = true,
-                                        isStandardFormat = true,
-                                        teamSize = 1,
-                                        sets = listOf(),
-                                ),
-                                FullHeadToHeadMatch(
-                                        match = DatabaseHeadToHeadMatch(
-                                                matchNumber = 2,
-                                                heat = 1,
-                                                opponent = "Jessica Summ",
-                                                opponentQualificationRank = 1,
-                                                shootId = 1,
-                                                sightersCount = 0,
-                                                isBye = false,
-                                                isShootOffWin = false,
-                                                maxPossibleRank = null,
-                                        ),
-                                        isRecurveStyle = true,
-                                        isStandardFormat = true,
-                                        teamSize = 1,
-                                        sets = listOf(
-                                                FullHeadToHeadSet(
-                                                        data = HeadToHeadGridRowDataPreviewHelper.create(),
-                                                        teamSize = 1,
-                                                        isShootOffWin = false,
-                                                        setNumber = 1,
-                                                        isRecurveStyle = true,
-                                                ),
-                                                FullHeadToHeadSet(
-                                                        data = HeadToHeadGridRowDataPreviewHelper.create(),
-                                                        teamSize = 1,
-                                                        isShootOffWin = false,
-                                                        setNumber = 2,
-                                                        isRecurveStyle = true,
-                                                ),
-                                                FullHeadToHeadSet(
-                                                        data = HeadToHeadGridRowDataPreviewHelper.create(),
-                                                        teamSize = 1,
-                                                        isShootOffWin = false,
-                                                        setNumber = 3,
-                                                        isRecurveStyle = true,
-                                                ),
-                                        ),
-                                ),
-                                FullHeadToHeadMatch(
-                                        match = DatabaseHeadToHeadMatch(
-                                                matchNumber = 3,
-                                                heat = 1,
-                                                opponent = null,
-                                                opponentQualificationRank = null,
-                                                shootId = 1,
-                                                sightersCount = 0,
-                                                isBye = false,
-                                                isShootOffWin = false,
-                                                maxPossibleRank = null,
-                                        ),
-                                        isRecurveStyle = true,
-                                        isStandardFormat = true,
-                                        teamSize = 1,
-                                        sets = listOf(
-                                                FullHeadToHeadSet(
-                                                        data = HeadToHeadGridRowDataPreviewHelper.create(),
-                                                        teamSize = 1,
-                                                        isShootOffWin = false,
-                                                        setNumber = 1,
-                                                        isRecurveStyle = true,
-                                                ),
-                                                FullHeadToHeadSet(
-                                                        data = HeadToHeadGridRowDataPreviewHelper.create(),
-                                                        teamSize = 1,
-                                                        isShootOffWin = false,
-                                                        setNumber = 2,
-                                                        isRecurveStyle = true,
-                                                ),
-                                        ),
-                                ),
-                        ),
-                )
+                        entries = HeadToHeadPreviewHelperDsl(1).apply {
+                            headToHead = headToHead.copy(
+                                    isSetPointsFormat = true,
+                                    teamSize = 1,
+                            )
+
+                            addMatch {
+                                match = match.copy(
+                                        heat = 5,
+                                        opponent = "Jessica Summers",
+                                        opponentQualificationRank = 1,
+                                        maxPossibleRank = 3,
+                                )
+                            }
+
+                            addMatch {
+                                match = match.copy(
+                                        opponent = "Jessica Summ",
+                                        opponentQualificationRank = 1,
+                                        maxPossibleRank = null,
+                                )
+                                addSet {
+                                    addRows()
+                                    addRows()
+                                    addRows()
+                                }
+                            }
+
+                            addMatch {
+                                match = match.copy(
+                                        maxPossibleRank = null,
+                                )
+                                addSet {
+                                    addRows()
+                                    addRows()
+                                }
+                            }
+                        }.asFull().matches
+                ),
         ) {}
     }
 }

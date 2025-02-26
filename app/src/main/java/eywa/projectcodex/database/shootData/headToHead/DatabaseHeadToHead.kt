@@ -19,12 +19,21 @@ import eywa.projectcodex.database.shootData.DatabaseShoot
 )
 data class DatabaseHeadToHead(
         @PrimaryKey val shootId: Int,
-        val isRecurveStyle: Boolean,
+        /**
+         * Set points (usually recurve matches) vs total score (usually compound matches)
+         */
+        val isSetPointsFormat: Boolean,
         val teamSize: Int,
         val qualificationRank: Int?,
-        val isStandardFormat: Boolean,
+        /**
+         * If null, the matches are standard format, else free format
+         */
+        val endSize: Int?,
         val totalArchers: Int?,
 ) {
+    val isStandardFormat: Boolean
+        get() = endSize == null
+
     fun getOpponentRank(matchNumber: Int): Opponent? {
         if (qualificationRank == null || totalArchers == null) return null
         return HeadToHeadUseCase.getOpponents(rank = qualificationRank, totalArchers = totalArchers)

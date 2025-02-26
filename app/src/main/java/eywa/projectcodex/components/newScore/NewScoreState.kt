@@ -45,6 +45,11 @@ data class NewScoreState(
                         NumberValidator.NotRequired,
                 ),
         ),
+        val h2hEndSize: NumberFieldState<Int> = NumberFieldState(
+                TypeValidator.IntValidator,
+                NumberValidator.InRange(1..12),
+                NumberValidator.NotRequired,
+        ),
         val h2hQualificationRank: NumberFieldState<Int> = NumberFieldState(
                 TypeValidator.IntValidator,
                 NumberValidator.InRange(1..HeadToHeadUseCase.MAX_QUALI_RANK),
@@ -129,11 +134,12 @@ data class NewScoreState(
             else if (h2hTeamSize.parsed == null) null
             else DatabaseHeadToHead(
                     shootId = roundBeingEdited?.shoot?.shootId ?: 0,
-                    isRecurveStyle = h2hStyleIsRecurve,
-                    isStandardFormat = h2hFormatIsStandard,
+                    isSetPointsFormat = h2hStyleIsRecurve,
                     teamSize = h2hTeamSize.parsed,
                     qualificationRank = h2hQualificationRank.parsed,
                     totalArchers = h2hTotalArchers.parsed,
+                    endSize = (h2hEndSize.parsed ?: HeadToHeadUseCase.endSize(h2hTeamSize.parsed, false))
+                            .takeIf { !h2hFormatIsStandard },
             )
 
     companion object {

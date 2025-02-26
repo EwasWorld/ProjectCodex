@@ -49,6 +49,7 @@ object HeadToHeadGridRowDataPreviewHelper {
     fun create(
             teamSize: Int = 1,
             isShootOff: Boolean = false,
+            endSize: Int = HeadToHeadUseCase.endSize(teamSize = teamSize, isShootOff = isShootOff),
             result: HeadToHeadResult = HeadToHeadResult.WIN,
             typesToIsTotal: Map<HeadToHeadArcherType, Boolean> = mapOf(
                     HeadToHeadArcherType.TEAM to false,
@@ -63,7 +64,6 @@ object HeadToHeadGridRowDataPreviewHelper {
         require(result != HeadToHeadResult.UNKNOWN)
         val isIncomplete = result == HeadToHeadResult.INCOMPLETE
 
-        val endSize = HeadToHeadUseCase.endSize(teamSize = teamSize, isShootOff = isShootOff)
         val maxScore = teamSize * endSize * 10
         require(winnerScore == null || (winnerScore in 0..maxScore))
         require(loserScore == null || (loserScore in 0..maxScore))

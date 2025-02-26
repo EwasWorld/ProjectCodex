@@ -28,10 +28,10 @@ data class HeadToHeadAddMatchState(
                     heat = extras.heat,
                     opponent = extras.opponent.takeIf { it.isNotBlank() && !extras.isBye },
                     opponentQualificationRank = extras.opponentQualiRank.parsed.takeIf { !extras.isBye },
-                    isShootOffWin = false,
                     sightersCount = 0,
                     maxPossibleRank = extras.maxPossibleRank.parsed,
                     isBye = extras.isBye,
+                    shootOffSets = mapOf(),
             )
 
     data class PreviousMatch(

@@ -14,11 +14,19 @@ data class FullHeadToHeadMatch(
         val match: DatabaseHeadToHeadMatch,
         val sets: List<FullHeadToHeadSet>,
         val teamSize: Int,
-        val isRecurveStyle: Boolean,
+        val isSetPointsFormat: Boolean,
         val isStandardFormat: Boolean,
 ) {
     init {
         check(match.heat == null || match.heat in 0..HeadToHeadUseCase.MAX_HEAT)
+        check(
+                sets.all {
+                    it.teamSize == teamSize
+                            && it.isSetPointsFormat == isSetPointsFormat
+                            && it.isShootOff == match.shootOffSets.containsKey(it.setNumber)
+                            && (!isStandardFormat || it.endSize == HeadToHeadUseCase.endSize(teamSize, it.isShootOff))
+                },
+        )
     }
 
     val runningTotals = runningTotals()
@@ -43,7 +51,7 @@ data class FullHeadToHeadMatch(
 
     /**
      * @return for each set in [sets], provide cumulative team/opponent score.
-     * For [isRecurveStyle] this is the set points, else it's the total score.
+     * For [isSetPointsFormat] this is the set points, else it's the total score.
      * [HeadToHeadNoResult] if this or any previous set is incomplete or unknown
      */
     private fun runningTotals(): List<HeadToHeadRunningTotal> {
@@ -69,13 +77,13 @@ data class FullHeadToHeadMatch(
             }
             else {
                 teamScore +=
-                        if (isRecurveStyle && isShootOff) result.shootOffPoints
-                        else if (isRecurveStyle) result.defaultPoints
+                        if (isSetPointsFormat && isShootOff) result.shootOffPoints
+                        else if (isSetPointsFormat) result.defaultPoints
                         else set.teamEndScore ?: 0
 
                 opponentScore +=
-                        if (isRecurveStyle && isShootOff) result.opposite().shootOffPoints
-                        else if (isRecurveStyle) result.opposite().defaultPoints
+                        if (isSetPointsFormat && isShootOff) result.opposite().shootOffPoints
+                        else if (isSetPointsFormat) result.opposite().defaultPoints
                         else set.opponentEndScore ?: 0
                 Either.Left(teamScore to opponentScore)
             }
@@ -102,7 +110,7 @@ data class FullHeadToHeadMatch(
         /*
          * Recurve
          */
-        if (isRecurveStyle) {
+        if (isSetPointsFormat) {
             val pointsForWin = HeadToHeadUseCase.pointsForWin(teamSize)
 
             // Incomplete sets / not reached required set points
@@ -139,6 +147,6 @@ data class FullHeadToHeadMatch(
                     runningTotals = runningTotals,
                     finalResult = result,
                     dropdownMenuExpandedFor = dropdownMenuExpandedFor,
-                    showSetResult = isRecurveStyle,
+                    showSetResult = isSetPointsFormat,
             )
 }

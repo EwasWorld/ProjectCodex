@@ -187,9 +187,40 @@ private fun HeadToHeadSection(
                             helpTitle = stringResource(R.string.help_create_round__h2h_format_title),
                             helpBody = stringResource(R.string.help_create_round__h2h_format_body),
                     ).asHelpState { listener(HelpShowcaseAction(it)) },
-                    onClick = { listener(H2hFormatChanged) }.takeIf { !state.isEditing },
+                    // Allow edit from standard to non-standard but not back
+                    // Check whether roundBeingEdited is null (a round is not being edited)
+                    // or endSize is null (standard format)
+                    onClick = { listener(H2hFormatChanged) }.takeIf { state.roundBeingEdited?.h2h?.headToHead?.endSize == null },
                     modifier = Modifier.testTag(NewScoreTestTag.H2H_FORMAT_SWITCH)
             )
+            if (!state.h2hFormatIsStandard) {
+                if (state.isEditing) {
+                    DataRow(
+                            title = stringResource(R.string.create_round__h2h_end_size),
+                            text = state.h2hEndSize.text,
+                            helpState = HelpShowcaseItem(
+                                    helpTitle = stringResource(R.string.help_create_round__h2h_end_size_title),
+                                    helpBody = stringResource(R.string.help_create_round__h2h_end_size_body),
+                            ).asHelpState { listener(HelpShowcaseAction(it)) },
+                            modifier = Modifier.testTag(NewScoreTestTag.H2H_END_SIZE_INPUT)
+                    )
+                }
+                else {
+                    CodexLabelledNumberFieldWithErrorMessage(
+                            title = stringResource(R.string.create_round__h2h_end_size),
+                            currentValue = state.h2hEndSize.text,
+                            fieldTestTag = NewScoreTestTag.H2H_END_SIZE_INPUT,
+                            errorMessageTestTag = NewScoreTestTag.H2H_END_SIZE_ERROR,
+                            errorMessage = state.h2hEndSize.error,
+                            placeholder = stringResource(R.string.create_round__h2h_end_size_placeholder),
+                            onValueChanged = { listener(H2hEndSizeChanged(it)) },
+                            helpState = HelpShowcaseItem(
+                                    helpTitle = stringResource(R.string.help_create_round__h2h_end_size_title),
+                                    helpBody = stringResource(R.string.help_create_round__h2h_end_size_body),
+                            ).asHelpState { listener(HelpShowcaseAction(it)) },
+                    )
+                }
+            }
             CodexLabelledNumberFieldWithErrorMessage(
                     title = stringResource(R.string.create_round__h2h_team_size),
                     currentValue = state.h2hTeamSize.text,
@@ -388,6 +419,8 @@ enum class NewScoreTestTag : CodexTestTag {
     TYPE_SWITCH,
     H2H_STYLE_SWITCH,
     H2H_FORMAT_SWITCH,
+    H2H_END_SIZE_INPUT,
+    H2H_END_SIZE_ERROR,
     H2H_TEAM_SIZE_INPUT,
     H2H_TEAM_SIZE_ERROR,
     H2H_TOTAL_ARCHERS_INPUT,
@@ -456,6 +489,7 @@ class NewScoreStatePreviewProvider : PreviewParameterProvider<NewScoreState> {
             // H2h
             initialState.copy(
                     type = NewScoreType.HEAD_TO_HEAD,
+                    h2hFormatIsStandard = false,
             ),
 
             // Editing

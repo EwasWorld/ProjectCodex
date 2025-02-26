@@ -139,6 +139,7 @@ class NewScoreRobot(
         performSingle {
             matchDataRowValue(NewScoreTestTag.H2H_FORMAT_SWITCH)
             +CodexNodeInteraction.PerformScrollTo().waitFor()
+            +CodexNodeInteraction.PerformClick()
             +CodexNodeInteraction.AssertTextEquals(
                     if (expectedIsStandardFormat) "Standard" else "Non-standard"
             )

@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.shootDetails.headToHead.addEnd
 
+import eywa.projectcodex.common.sharedUi.previewHelpers.HeadToHeadMatchPreviewHelperDsl
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsError
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
@@ -8,17 +9,16 @@ import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridS
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
-import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatchPreviewHelper
 import eywa.projectcodex.model.SightMark
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 data class HeadToHeadAddEndState(
-        val roundInfo: HeadToHeadRoundInfo? = null,
+        val roundInfo: HeadToHeadRoundInfo = HeadToHeadRoundInfo(),
         val extras: HeadToHeadAddEndExtras = HeadToHeadAddEndExtras(),
         val teamRunningTotal: Int? = null,
         val opponentRunningTotal: Int? = null,
         val isRecurveStyle: Boolean = true,
-        val match: DatabaseHeadToHeadMatch = DatabaseHeadToHeadMatchPreviewHelper.data,
+        val match: DatabaseHeadToHeadMatch = HeadToHeadMatchPreviewHelperDsl.data,
         val editingSet: FullHeadToHeadSet? = null,
         val isInserting: Boolean = false,
 ) {
@@ -44,6 +44,8 @@ data class HeadToHeadRoundInfo(
 
         val round: Round? = null,
         val face: RoundFace? = null,
+        val endSize: Int = 3,
+        val isStandardFormat: Boolean = true,
 )
 
 data class HeadToHeadAddEndExtras(
@@ -55,9 +57,10 @@ data class HeadToHeadAddEndExtras(
         val set: FullHeadToHeadSet = FullHeadToHeadSet(
                 data = HeadToHeadGridRowDataPreviewHelper.selfAndOpponent,
                 teamSize = 1,
-                isShootOffWin = false,
+                isShootOffWin = null,
                 setNumber = 1,
-                isRecurveStyle = true,
+                isSetPointsFormat = true,
+                endSize = 3,
         ),
         val selected: HeadToHeadArcherType? = set.data.map { it.type }.minByOrNull { it.ordinal },
         val arrowInputsError: Set<ArrowInputsError> = setOf(),

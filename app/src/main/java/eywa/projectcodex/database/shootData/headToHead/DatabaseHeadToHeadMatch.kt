@@ -6,6 +6,9 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.database.shootData.DatabaseShoot
 
+fun Map<Int, Boolean>.setShootOffResult(setNumber: Int, isShootOffWin: Boolean?) =
+        if (isShootOffWin == null) minus(setNumber) else plus(setNumber to isShootOffWin)
+
 @Entity(
         tableName = DatabaseHeadToHeadMatch.TABLE_NAME,
         primaryKeys = ["shootId", "matchNumber"],
@@ -31,7 +34,10 @@ data class DatabaseHeadToHeadMatch(
         val maxPossibleRank: Int?,
         val opponent: String?,
         val opponentQualificationRank: Int?,
-        val isShootOffWin: Boolean,
+        /**
+         * setNumber to isShootOffWin. If a setNumber is in this map, then it is a shoot-off
+         */
+        val shootOffSets: Map<Int, Boolean>,
         val sightersCount: Int,
         val isBye: Boolean,
 ) {

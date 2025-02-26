@@ -24,7 +24,7 @@ class FullHeadToHeadSetUnitTest {
                 data = map { (type, total) -> HeadToHeadGridRowData.Total(type, 1, total) },
                 teamSize = teamSize,
                 isShootOffWin = isShootOffWin,
-                isRecurveStyle = isRecurveStyle,
+                isSetPointsFormat = isRecurveStyle,
         )
     }
 
@@ -249,7 +249,7 @@ class FullHeadToHeadSetUnitTest {
                             data = listOf(input),
                             teamSize = 1,
                             isShootOffWin = false,
-                            isRecurveStyle = true,
+                            isSetPointsFormat = true,
                     ).asDatabaseDetails(1, 0),
             )
         }
@@ -279,7 +279,7 @@ class FullHeadToHeadSetUnitTest {
                         ),
                         teamSize = 1,
                         isShootOffWin = false,
-                        isRecurveStyle = true,
+                        isSetPointsFormat = true,
                 ).asDatabaseDetails(3, 4),
         )
     }

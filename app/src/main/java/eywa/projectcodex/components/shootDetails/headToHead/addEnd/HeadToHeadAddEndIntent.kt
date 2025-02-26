@@ -22,6 +22,7 @@ sealed class HeadToHeadAddEndIntent {
     data object SightersClicked : HeadToHeadAddEndIntent()
     data object SightersHandled : HeadToHeadAddEndIntent()
     data object ToggleShootOffWin : HeadToHeadAddEndIntent()
+    data object ToggleShootOff : HeadToHeadAddEndIntent()
     data class GridRowClicked(val row: HeadToHeadArcherType) : HeadToHeadAddEndIntent()
     data class GridTextValueChanged(val type: HeadToHeadArcherType, val text: String?) : HeadToHeadAddEndIntent()
     data class ArrowInputAction(val action: ArrowInputsIntent) : HeadToHeadAddEndIntent()
