@@ -424,6 +424,7 @@ private fun EditRowTypesDialog(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ColumnScope.SetInfo(
         state: HeadToHeadAddEndState,
@@ -510,27 +511,31 @@ private fun ColumnScope.SetInfo(
                 modifier = Modifier.padding(vertical = 10.dp),
         )
 
-        if (
-            state.extras.set.isShootOffWin != null
-            && state.extras.set.isComplete
-            && state.extras.set.teamEndScore == state.extras.set.opponentEndScore
+        FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            CodexChip(
-                    text = stringResource(R.string.head_to_head_add_end__shoot_off_win),
-                    selected = state.extras.set.isShootOffWin,
-                    testTag = HeadToHeadAddEndTestTag.IS_SHOOT_OFF_WIN_CHECKBOX,
-                    style = CodexTypography.NORMAL,
-                    onToggle = { listener(ToggleShootOffWin) },
-            )
-        }
-        if (!state.roundInfo.isStandardFormat) {
-            CodexChip(
-                    text = stringResource(R.string.head_to_head_add_end__shoot_off_chip),
-                    selected = state.extras.set.isShootOffWin != null,
-                    testTag = HeadToHeadAddEndTestTag.IS_SHOOT_OFF_CHECKBOX,
-                    style = CodexTypography.NORMAL,
-                    onToggle = { listener(ToggleShootOff) },
-            )
+            if (!state.roundInfo.isStandardFormat) {
+                CodexChip(
+                        text = stringResource(R.string.head_to_head_add_end__shoot_off_chip),
+                        selected = state.extras.set.isShootOffWin != null,
+                        testTag = HeadToHeadAddEndTestTag.IS_SHOOT_OFF_CHECKBOX,
+                        style = CodexTypography.NORMAL,
+                        onToggle = { listener(ToggleShootOff) },
+                )
+            }
+            if (
+                state.extras.set.isShootOffWin != null
+                && state.extras.set.isComplete
+                && state.extras.set.teamEndScore == state.extras.set.opponentEndScore
+            ) {
+                CodexChip(
+                        text = stringResource(R.string.head_to_head_add_end__shoot_off_win),
+                        selected = state.extras.set.isShootOffWin,
+                        testTag = HeadToHeadAddEndTestTag.IS_SHOOT_OFF_WIN_CHECKBOX,
+                        style = CodexTypography.NORMAL,
+                        onToggle = { listener(ToggleShootOffWin) },
+                )
+            }
         }
     }
 }
@@ -723,12 +728,38 @@ fun Editing_HeadToHeadAddScreen_Preview() {
                         editingSet = HeadToHeadSetPreviewHelperDsl(
                                 setNumber = 1,
                                 teamSize = 1,
-                                isShootOffWin = false,
+                                isShootOffWin = null,
                                 isRecurveStyle = true,
                                 endSize = 3,
                         ).apply {
-                            addRows()
+                            addRows(isEditable = true)
                         }.asFull(),
+                ),
+        ) {}
+    }
+}
+
+@Preview
+@Composable
+fun ShootOff_HeadToHeadAddScreen_Preview() {
+    CodexTheme {
+        HeadToHeadAddEndScreen(
+                state = HeadToHeadAddEndState(
+                        match = HeadToHeadMatchPreviewHelperDsl.data,
+                        teamRunningTotal = 0,
+                        opponentRunningTotal = 0,
+                        extras = HeadToHeadAddEndExtras(
+                                set = HeadToHeadSetPreviewHelperDsl(
+                                        setNumber = 1,
+                                        teamSize = 1,
+                                        isShootOffWin = false,
+                                        isRecurveStyle = true,
+                                        endSize = 1,
+                                ).apply {
+                                    addRows(winnerScore = 10, loserScore = 10, isEditable = true)
+                                }.asFull()
+                        ),
+                        roundInfo = HeadToHeadRoundInfo(isStandardFormat = false)
                 ),
         ) {}
     }
@@ -761,11 +792,10 @@ fun EditRowTypes_HeadToHeadAddScreen_Preview() {
                                         setNumber = 1,
                                         data = listOf(),
                                         teamSize = 2,
-                                        isShootOffWin = false,
+                                        isShootOffWin = null,
                                         isSetPointsFormat = true,
                                         endSize = 3,
-
-                                        ),
+                                ),
                                 selectRowTypesDialogState = mapOf(
                                         HeadToHeadArcherType.SELF to false,
                                         HeadToHeadArcherType.TEAM_MATE to true,
@@ -789,11 +819,11 @@ fun Unknown_HeadToHeadAddScreen_Preview() {
                                 set = HeadToHeadSetPreviewHelperDsl(
                                         setNumber = 3,
                                         teamSize = 1,
-                                        isShootOffWin = false,
+                                        isShootOffWin = null,
                                         isRecurveStyle = true,
                                         endSize = 3,
                                 ).apply {
-                                    addRows(HeadToHeadResult.WIN)
+                                    addRows(HeadToHeadResult.WIN, isEditable = true)
                                     removeRow(HeadToHeadArcherType.OPPONENT)
                                 }.asFull(),
                         ),

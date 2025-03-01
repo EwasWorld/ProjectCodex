@@ -27,11 +27,12 @@ sealed class HeadToHeadGridState {
     ) : HeadToHeadGridState() {
         init {
             require(enteredArrows.isEmpty() || enteredArrows.size == 1)
+            val filtered = enteredArrows[0].data.filterNot {
+                it !is HeadToHeadGridRowData.Total || it.type == HeadToHeadArcherType.RESULT
+            }
             require(
-                    enteredArrows[0].data.all {
-                        it !is HeadToHeadGridRowData.Total || it.type == HeadToHeadArcherType.RESULT
-                    },
-            )
+                    filtered.isEmpty(),
+            ) { "$filtered" }
         }
 
         override val matchNumber: Int = 1

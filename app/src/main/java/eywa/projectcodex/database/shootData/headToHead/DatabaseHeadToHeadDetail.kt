@@ -30,7 +30,7 @@ data class DatabaseHeadToHeadDetail(
         val isTotal: Boolean,
         val setNumber: Int,
         val arrowNumber: Int,
-        val score: Int?,
+        val score: Int,
         val isX: Boolean,
 ) {
     companion object {

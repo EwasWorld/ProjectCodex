@@ -13,7 +13,7 @@
     <string name="head_to_head_add_end__editing_set">Editing</string>
     <string name="head_to_head_add_end__inserting_set">Inserting</string>
     <string name="head_to_head_add_end__shoot_off">Shoot off: %s</string> <!-- Shoot off: Win -->
-    <string name="head_to_head_add_end__shoot_off_win">Win</string>
+    <string name="head_to_head_add_end__shoot_off_win">Closest to centre</string>
     <string name="head_to_head_add_end__shoot_off_chip">Shoot off</string>
     <string name="head_to_head_add_end__submit">Next set</string>
     <string name="head_to_head_add_end__insert_submit">Insert set</string>

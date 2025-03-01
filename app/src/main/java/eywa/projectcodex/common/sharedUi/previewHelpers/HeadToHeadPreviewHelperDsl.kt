@@ -125,12 +125,14 @@ class HeadToHeadSetPreviewHelperDsl(
     val isShootOff
         get() = isShootOffWin != null
 
-    private val actualEndSize = endSize ?: HeadToHeadUseCase.endSize(teamSize = teamSize, isShootOff = isShootOff)
+    private val actualEndSize =
+            if (isShootOff) 1
+            else endSize ?: HeadToHeadUseCase.endSize(teamSize = teamSize, isShootOff = isShootOff)
 
     fun addRows(
             result: HeadToHeadResult = HeadToHeadResult.WIN,
             typesToIsTotal: Map<HeadToHeadArcherType, Boolean> = mapOf(
-                    HeadToHeadArcherType.TEAM to false,
+                    HeadToHeadArcherType.SELF to false,
                     HeadToHeadArcherType.OPPONENT to true,
             ),
             isEditable: Boolean = false,

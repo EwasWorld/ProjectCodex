@@ -29,6 +29,10 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
             get() = arrows.size
         override val isTotalRow: Boolean
             get() = false
+
+        init {
+            require(expectedArrowCount > 0)
+        }
     }
 
     data class Total(
@@ -43,6 +47,10 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
             get() = total != null
         override val arrowsShot: Int
             get() = if (total == null) 0 else expectedArrowCount
+
+        init {
+            require(expectedArrowCount > 0)
+        }
     }
 
     data class EditableTotal(
@@ -62,5 +70,9 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
             get() = total != null
         override val arrowsShot: Int
             get() = if (total == null) 0 else expectedArrowCount
+
+        init {
+            require(expectedArrowCount > 0)
+        }
     }
 }

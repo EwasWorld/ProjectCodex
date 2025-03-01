@@ -51,8 +51,10 @@ data class FullHeadToHeadSet(
     init {
         check(data.distinctBy { it.type }.size == data.size) { "Duplicate types found" }
         check(teamSize > 0) { "Team size must be > 0" }
-        // <= teamSize rather than 1 because in a team of 3 the OPPONENT size will be 3 (1 for each archer)
-        check(!isShootOff || data.all { it.expectedArrowCount <= teamSize }) { "expectedArrowCount incorrect" }
+        check(
+                // <= teamSize rather than 1 because in a team of 3 the OPPONENT size will be 3 (1 for each archer)
+                !isShootOff || data.all { it.expectedArrowCount <= teamSize },
+        ) { "expectedArrowCount for shoot off is incorrect" }
     }
 
     private val team = getTeamTotal()
@@ -217,24 +219,12 @@ data class FullHeadToHeadSet(
 
                     when (rowData) {
                         is HeadToHeadGridRowData.Arrows -> {
-                            if (rowData.arrows.isNotEmpty()) {
-                                rowData.arrows.mapIndexed { index, arrow ->
-                                    typeData.copy(
-                                            headToHeadArrowScoreId = rowData.dbIds?.getOrNull(index) ?: 0,
-                                            arrowNumber = index + 1,
-                                            score = arrow.score,
-                                            isX = arrow.isX,
-                                    )
-                                }
-                            }
-                            else {
-                                listOf(
-                                        typeData.copy(
-                                                headToHeadArrowScoreId = rowData.dbIds?.firstOrNull() ?: 0,
-                                                arrowNumber = 1,
-                                                score = null,
-                                                isX = false,
-                                        ),
+                            rowData.arrows.mapIndexed { index, arrow ->
+                                typeData.copy(
+                                        headToHeadArrowScoreId = rowData.dbIds?.getOrNull(index) ?: 0,
+                                        arrowNumber = index + 1,
+                                        score = arrow.score,
+                                        isX = arrow.isX,
                                 )
                             }
                         }
@@ -244,7 +234,7 @@ data class FullHeadToHeadSet(
                                     typeData.copy(
                                             headToHeadArrowScoreId = rowData.dbId ?: 0,
                                             arrowNumber = 1,
-                                            score = rowData.total,
+                                            score = rowData.total!!,
                                             isX = false,
                                     ),
                             )
@@ -254,7 +244,7 @@ data class FullHeadToHeadSet(
                                     typeData.copy(
                                             headToHeadArrowScoreId = rowData.dbId ?: 0,
                                             arrowNumber = 1,
-                                            score = rowData.total,
+                                            score = rowData.total!!,
                                             isX = false,
                                     ),
                             )
