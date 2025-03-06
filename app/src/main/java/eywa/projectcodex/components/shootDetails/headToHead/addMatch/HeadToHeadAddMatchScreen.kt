@@ -552,7 +552,6 @@ fun Editing_HeadToHeadAddMatchScreen_Preview() {
                                 sightersCount = 0,
                                 isBye = false,
                                 maxPossibleRank = 1,
-                                shootOffSets = mapOf(),
                         ),
                         extras = HeadToHeadAddMatchExtras(
                                 heat = 0,

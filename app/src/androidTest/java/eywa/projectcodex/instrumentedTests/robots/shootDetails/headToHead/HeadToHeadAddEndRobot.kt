@@ -11,7 +11,6 @@ import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDialogCancel
 import eywa.projectcodex.instrumentedTests.dsl.CodexDefaultActions.clickDialogOk
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupInteraction
-import eywa.projectcodex.instrumentedTests.dsl.CodexNodeGroupToOne
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeInteraction
 import eywa.projectcodex.instrumentedTests.dsl.CodexNodeMatcher
 import eywa.projectcodex.instrumentedTests.robots.RobotDslMarker
@@ -109,6 +108,7 @@ class HeadToHeadAddEndRobot(
     fun setArrowRow(
             rowIndex: Int,
             type: String,
+            typeTag: String,
             arrows: List<String>,
             score: Int,
             teamScore: CellValue = CellValue.NoColumn,
@@ -116,18 +116,27 @@ class HeadToHeadAddEndRobot(
     ) {
         performSingle {
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1, type))
-                +CodexNodeInteraction.PerformClick()
+            +CodexNodeInteraction.PerformClick()
         }
         arrows.forEach {
             clickScoreButton(it)
         }
 
-        checkArrowRow(rowIndex, type, arrows, score, teamScore, points)
+        checkArrowRow(
+                rowIndex = rowIndex,
+                type = type,
+                typeTag = typeTag,
+                arrows = arrows,
+                score = score,
+                teamScore = teamScore,
+                points = points
+        )
     }
 
     fun checkArrowRow(
             rowIndex: Int,
             type: String,
+            typeTag: String,
             arrows: List<String>,
             score: Int,
             teamScore: CellValue = CellValue.NoColumn,
@@ -136,6 +145,7 @@ class HeadToHeadAddEndRobot(
         gridSetDsl.checkRow(
                 rowIndex = rowIndex,
                 type = type,
+                typeTag = typeTag,
                 arrows = CellValue.Value(arrows.joinToString("-")),
                 score = score,
                 teamScore = teamScore,
@@ -146,6 +156,7 @@ class HeadToHeadAddEndRobot(
     fun setTotalRow(
             rowIndex: Int,
             type: String,
+            typeTag: String,
             score: Int,
             arrows: CellValue = CellValue.Empty,
             teamScore: CellValue = CellValue.NoColumn,
@@ -155,20 +166,29 @@ class HeadToHeadAddEndRobot(
             useUnmergedTree()
             +CodexNodeMatcher.HasAnyAncestor(
                     CodexNodeMatcher.HasTestTag(
-                            testTag = HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1, type),
+                            testTag = HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1, typeTag),
                     ),
             )
             +CodexNodeMatcher.HasSetTextAction
-                +CodexNodeInteraction.SetText(score.toString()).waitFor()
+            +CodexNodeInteraction.SetText(score.toString()).waitFor()
         }
         Espresso.closeSoftKeyboard()
 
-        checkTotalRow(rowIndex, type, score, arrows, teamScore, points)
+        checkTotalRow(
+                rowIndex = rowIndex,
+                type = type,
+                typeTag = typeTag,
+                score = score,
+                arrows = arrows,
+                teamScore = teamScore,
+                points = points,
+        )
     }
 
     fun checkTotalRow(
             rowIndex: Int,
             type: String,
+            typeTag: String,
             score: Int,
             arrows: CellValue = CellValue.Empty,
             teamScore: CellValue = CellValue.NoColumn,
@@ -177,6 +197,7 @@ class HeadToHeadAddEndRobot(
         gridSetDsl.checkRow(
                 rowIndex = rowIndex,
                 type = type,
+                typeTag = typeTag,
                 arrows = arrows,
                 score = score,
                 teamScore = teamScore,
@@ -185,19 +206,19 @@ class HeadToHeadAddEndRobot(
         )
     }
 
-    fun clickResultRow(rowIndex: Int, newValue: HeadToHeadResult, points: CellValue = CellValue.NoColumn) {
-        performGroup {
-            +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1), substring = true)
+    fun clickResultRow(rowIndex: Int, newValue: HeadToHeadResult) {
+        performSingle {
+            +CodexNodeMatcher.HasTestTag(
+                    HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1, GridSetDsl.RESULTS_NAME_AND_TAG),
+            )
             +CodexNodeMatcher.IsNotCached
-            toSingle(CodexNodeGroupToOne.Index(1)) {
-                +CodexNodeInteraction.PerformClick().waitFor()
-            }
+            +CodexNodeInteraction.PerformClick().waitFor()
         }
-        gridSetDsl.checkResultsRow(rowIndex, newValue.asString(), points)
+        gridSetDsl.checkResultsRow(rowIndex, newValue.asString())
     }
 
-    fun checkResultRow(rowIndex: Int, result: HeadToHeadResult, points: CellValue = CellValue.NoColumn) {
-        gridSetDsl.checkResultsRow(rowIndex, result.asString(), points)
+    fun checkResultRow(rowIndex: Int, result: HeadToHeadResult) {
+        gridSetDsl.checkResultsRow(rowIndex, result.asString())
     }
 
     /**
@@ -218,14 +239,14 @@ class HeadToHeadAddEndRobot(
         createRobot(HeadToHeadAddMatchRobot::class, block)
     }
 
-    fun checkArrowRowError(rowIndex: Int, error: String?, type: String) {
+    fun checkArrowRowError(error: String?, type: String) {
         performSingle {
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1, type))
             +CodexNodeInteraction.AssertHasError(error)
         }
     }
 
-    fun checkTotalRowError(rowIndex: Int, error: String?, type: String) {
+    fun checkTotalRowError(error: String?, type: String) {
         performSingle {
             +CodexNodeMatcher.HasAnyAncestor(
                     CodexNodeMatcher.HasTestTag(
@@ -269,17 +290,23 @@ class HeadToHeadAddEndRobot(
         checkElementText(HeadToHeadAddEndTestTag.OPPONENT, text)
     }
 
-    fun checkShootOffWinChip(isWin: Boolean) {
-        checkCheckboxState(HeadToHeadAddEndTestTag.IS_SHOOT_OFF_WIN_CHECKBOX, isWin, useUnmergedTree = true)
+    fun checkShootOffWinChip(rowIndex: Int, result: Boolean?) {
+        gridSetDsl.checkShootOffRow(rowIndex, result)
     }
 
     fun checkShootOffWinChipNotShown() {
-        checkElementDoesNotExist(HeadToHeadAddEndTestTag.IS_SHOOT_OFF_WIN_CHECKBOX)
+        gridSetDsl.checkShootOffRowNotShown()
     }
 
-    fun tapIsShootOffWin(newValue: Boolean) {
-        clickElement(HeadToHeadAddEndTestTag.IS_SHOOT_OFF_WIN_CHECKBOX, useUnmergedTree = true)
-        checkShootOffWinChip(newValue)
+    fun tapIsShootOffWin(rowIndex: Int, newValue: Boolean?) {
+        performSingle {
+            +CodexNodeMatcher.HasTestTag(
+                    HeadToHeadGridColumnTestTag.END_TOTAL_CELL.get(1, 1, GridSetDsl.SHOOT_OFF_TAG),
+            )
+            +CodexNodeMatcher.IsNotCached
+            +CodexNodeInteraction.PerformClick().waitFor()
+        }
+        checkShootOffWinChip(rowIndex, newValue)
     }
 
     fun checkShootOffChip(isWin: Boolean) {

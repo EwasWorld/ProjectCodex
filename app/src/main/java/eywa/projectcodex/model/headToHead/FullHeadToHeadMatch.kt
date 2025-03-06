@@ -23,7 +23,6 @@ data class FullHeadToHeadMatch(
                 sets.all {
                     it.teamSize == teamSize
                             && it.isSetPointsFormat == isSetPointsFormat
-                            && it.isShootOff == match.shootOffSets.containsKey(it.setNumber)
                             && (!isStandardFormat || it.endSize == HeadToHeadUseCase.endSize(teamSize, it.isShootOff))
                 },
         )

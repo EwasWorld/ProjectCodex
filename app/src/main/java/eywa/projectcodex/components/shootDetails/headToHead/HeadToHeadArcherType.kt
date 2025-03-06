@@ -72,7 +72,14 @@ enum class HeadToHeadArcherType(
                     else -> !types.contains(SELF) || !types.contains(TEAM_MATE)
                 }
             },
-    )
+    ),
+
+    SHOOT_OFF(
+            text = ResOrActual.Actual("Closest\nto centre"),
+            isTeam = false,
+            showForSelectorDialog = { _, _ -> false },
+            enabledOnSelectorDialog = { _, _ -> throw UnsupportedOperationException() },
+    ),
     ;
 
     open fun expectedArrowCount(endSize: Int, teamSize: Int): Int = 1

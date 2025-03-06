@@ -473,7 +473,7 @@ class ShootsTest {
                             }
                         }
                         addMatch {
-                            match = match.copy(heat = 0, sightersCount = 0, shootOffSets = mapOf(6 to true))
+                            match = match.copy(heat = 0, sightersCount = 0)
                             addSet {
                                 addRows(
                                         winnerScore = 30,
@@ -514,7 +514,7 @@ class ShootsTest {
                                         result = HeadToHeadResult.TIE,
                                 )
                             }
-                            addSet {
+                            addSet(true) {
                                 addRows(
                                         winnerScore = 10,
                                         loserScore = 9,

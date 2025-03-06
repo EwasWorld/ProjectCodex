@@ -57,7 +57,6 @@ data class HeadToHeadAddEndExtras(
         val set: FullHeadToHeadSet = FullHeadToHeadSet(
                 data = HeadToHeadGridRowDataPreviewHelper.selfAndOpponent,
                 teamSize = 1,
-                isShootOffWin = null,
                 setNumber = 1,
                 isSetPointsFormat = true,
                 endSize = 3,

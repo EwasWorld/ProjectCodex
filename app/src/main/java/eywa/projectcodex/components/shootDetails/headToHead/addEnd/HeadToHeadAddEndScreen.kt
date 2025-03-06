@@ -75,6 +75,7 @@ import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndIntent.*
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGrid
+import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 @Composable
@@ -517,23 +518,10 @@ private fun ColumnScope.SetInfo(
             if (!state.roundInfo.isStandardFormat) {
                 CodexChip(
                         text = stringResource(R.string.head_to_head_add_end__shoot_off_chip),
-                        selected = state.extras.set.isShootOffWin != null,
+                        selected = state.extras.set.isShootOff,
                         testTag = HeadToHeadAddEndTestTag.IS_SHOOT_OFF_CHECKBOX,
                         style = CodexTypography.NORMAL,
                         onToggle = { listener(ToggleShootOff) },
-                )
-            }
-            if (
-                state.extras.set.isShootOffWin != null
-                && state.extras.set.isComplete
-                && state.extras.set.teamEndScore == state.extras.set.opponentEndScore
-            ) {
-                CodexChip(
-                        text = stringResource(R.string.head_to_head_add_end__shoot_off_win),
-                        selected = state.extras.set.isShootOffWin,
-                        testTag = HeadToHeadAddEndTestTag.IS_SHOOT_OFF_WIN_CHECKBOX,
-                        style = CodexTypography.NORMAL,
-                        onToggle = { listener(ToggleShootOffWin) },
                 )
             }
         }
@@ -683,7 +671,6 @@ private fun EditButtons(
 enum class HeadToHeadAddEndTestTag : CodexTestTag {
     SCREEN,
     IS_SHOOT_OFF_CHECKBOX,
-    IS_SHOOT_OFF_WIN_CHECKBOX,
     CREATE_NEXT_MATCH_BUTTON,
     OPPONENT,
     SET_RESULT,
@@ -711,6 +698,7 @@ fun HeadToHeadAddScreen_Preview() {
                         match = HeadToHeadMatchPreviewHelperDsl.data,
                         teamRunningTotal = 0,
                         opponentRunningTotal = 0,
+                        roundInfo = HeadToHeadRoundInfo(isStandardFormat = false),
                 ),
         ) {}
     }
@@ -728,7 +716,7 @@ fun Editing_HeadToHeadAddScreen_Preview() {
                         editingSet = HeadToHeadSetPreviewHelperDsl(
                                 setNumber = 1,
                                 teamSize = 1,
-                                isShootOffWin = null,
+                                isShootOff = false,
                                 isRecurveStyle = true,
                                 endSize = 3,
                         ).apply {
@@ -752,11 +740,18 @@ fun ShootOff_HeadToHeadAddScreen_Preview() {
                                 set = HeadToHeadSetPreviewHelperDsl(
                                         setNumber = 1,
                                         teamSize = 1,
-                                        isShootOffWin = false,
+                                        isShootOff = false,
                                         isRecurveStyle = true,
                                         endSize = 1,
                                 ).apply {
                                     addRows(winnerScore = 10, loserScore = 10, isEditable = true)
+                                    addRow(
+                                            HeadToHeadGridRowData.Total(
+                                                    type = HeadToHeadArcherType.SHOOT_OFF,
+                                                    expectedArrowCount = 1,
+                                                    total = 2,
+                                            )
+                                    )
                                 }.asFull()
                         ),
                         roundInfo = HeadToHeadRoundInfo(isStandardFormat = false)
@@ -792,7 +787,6 @@ fun EditRowTypes_HeadToHeadAddScreen_Preview() {
                                         setNumber = 1,
                                         data = listOf(),
                                         teamSize = 2,
-                                        isShootOffWin = null,
                                         isSetPointsFormat = true,
                                         endSize = 3,
                                 ),
@@ -819,7 +813,7 @@ fun Unknown_HeadToHeadAddScreen_Preview() {
                                 set = HeadToHeadSetPreviewHelperDsl(
                                         setNumber = 3,
                                         teamSize = 1,
-                                        isShootOffWin = null,
+                                        isShootOff = false,
                                         isRecurveStyle = true,
                                         endSize = 3,
                                 ).apply {

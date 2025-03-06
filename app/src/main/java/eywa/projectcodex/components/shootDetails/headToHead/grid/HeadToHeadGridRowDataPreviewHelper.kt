@@ -32,7 +32,13 @@ object HeadToHeadGridRowDataPreviewHelper {
         val endSize = if (isShootOff) 1 else 3
         return typesToIsTotal.map { (type, isTotal) ->
             val expectedArrowCount = type.expectedArrowCount(endSize, teamSize)
-            if (type == HeadToHeadArcherType.RESULT || isTotal) {
+            if (type == HeadToHeadArcherType.RESULT) {
+                HeadToHeadGridRowData.Result(HeadToHeadResult.WIN)
+            }
+            else if (type == HeadToHeadArcherType.SHOOT_OFF) {
+                HeadToHeadGridRowData.ShootOff(HeadToHeadResult.WIN)
+            }
+            else if (isTotal) {
                 if (isEditable) HeadToHeadGridRowData.EditableTotal(type, expectedArrowCount)
                 else HeadToHeadGridRowData.Total(type, expectedArrowCount, null)
             }
@@ -78,18 +84,29 @@ object HeadToHeadGridRowDataPreviewHelper {
         val opponentTotal =
                 if (result == HeadToHeadResult.LOSS || result == HeadToHeadResult.TIE) winnerTotal else loserTotal
 
-        return typesToIsTotal.entries.mapIndexed { i, (type, isTotal) ->
+        val rows =
+                if (!isShootOff || typesToIsTotal.containsKey(HeadToHeadArcherType.SHOOT_OFF)) typesToIsTotal
+                else typesToIsTotal.plus(HeadToHeadArcherType.SHOOT_OFF to true)
+
+        return rows.entries.mapIndexed { i, (type, isTotal) ->
             val total = when (type) {
                 HeadToHeadArcherType.SELF -> selfTotal
                 HeadToHeadArcherType.OPPONENT -> opponentTotal
                 HeadToHeadArcherType.TEAM_MATE -> teamTotal - selfTotal
                 HeadToHeadArcherType.TEAM -> teamTotal
-                HeadToHeadArcherType.RESULT -> result.defaultPoints
+                HeadToHeadArcherType.RESULT -> -1
+                HeadToHeadArcherType.SHOOT_OFF -> -1
             }
             require(total >= 0)
             val expectedArrowCount = type.expectedArrowCount(endSize, teamSize)
             val indexes = dbIds?.getOrNull(i)
-            if (type == HeadToHeadArcherType.RESULT || isTotal) {
+            if (type == HeadToHeadArcherType.RESULT) {
+                HeadToHeadGridRowData.Result(result)
+            }
+            else if (type == HeadToHeadArcherType.SHOOT_OFF) {
+                HeadToHeadGridRowData.ShootOff(result)
+            }
+            else if (isTotal) {
                 val index = indexes?.getOrNull(0)
                 if (isEditable) {
                     HeadToHeadGridRowData.EditableTotal(type, expectedArrowCount, dbId = index).let {

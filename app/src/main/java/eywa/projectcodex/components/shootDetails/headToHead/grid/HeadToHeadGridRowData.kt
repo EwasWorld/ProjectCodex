@@ -5,6 +5,7 @@ import eywa.projectcodex.common.sharedUi.numberField.NumberFieldState
 import eywa.projectcodex.common.sharedUi.numberField.NumberValidator
 import eywa.projectcodex.common.sharedUi.numberField.TypeValidator
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.model.Arrow
 
 sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
@@ -14,6 +15,7 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
     abstract val isComplete: Boolean
     abstract val arrowsShot: Int
     open val isTotalRow: Boolean = true
+    open val isFullWidth: Boolean = false
 
     data class Arrows(
             override val type: HeadToHeadArcherType,
@@ -31,7 +33,7 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
             get() = false
 
         init {
-            require(expectedArrowCount > 0)
+            standardRowChecks()
         }
     }
 
@@ -49,7 +51,7 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
             get() = if (total == null) 0 else expectedArrowCount
 
         init {
-            require(expectedArrowCount > 0)
+            standardRowChecks()
         }
     }
 
@@ -72,7 +74,125 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
             get() = if (total == null) 0 else expectedArrowCount
 
         init {
-            require(expectedArrowCount > 0)
+            standardRowChecks()
+        }
+    }
+
+    protected fun standardRowChecks() {
+        require(expectedArrowCount > 0)
+        require(type != HeadToHeadArcherType.RESULT)
+        require(type != HeadToHeadArcherType.SHOOT_OFF)
+    }
+
+    data class Result(
+            val result: HeadToHeadResult = HeadToHeadResult.LOSS,
+            val dbId: Int? = null,
+    ) : HeadToHeadGridRowData() {
+        init {
+            require(orderedMap.find { it.first == result } != null)
+        }
+
+        val dbScoreValue: Int
+            get() = orderedMap.find { it.first == result }!!.second
+
+        override val type: HeadToHeadArcherType
+            get() = HeadToHeadArcherType.RESULT
+        override val expectedArrowCount: Int
+            get() = 0
+        override val totalScore: Int
+            get() = 0
+        override val isComplete: Boolean
+            get() = true
+        override val arrowsShot: Int
+            get() = 0
+        override val isTotalRow: Boolean
+            get() = false
+        override val isFullWidth: Boolean
+            get() = true
+
+        /**
+         * Used when the user clicks the result, this is how it will change
+         */
+        fun next(): Result {
+            val index = orderedMap.indexOfFirst { it.first == result }.takeIf { it != -1 }!!
+            return Result(
+                    result = orderedMap[(index + 1) % orderedMap.size].first,
+                    dbId = dbId,
+            )
+        }
+
+        companion object {
+            private val orderedMap = listOf(
+                    HeadToHeadResult.LOSS to 0,
+                    HeadToHeadResult.TIE to 1,
+                    HeadToHeadResult.WIN to 2,
+            )
+
+            fun fromDbValue(score: Int, dbId: Int? = null) =
+                    Result(
+                            result = orderedMap.find { it.second == score }!!.first,
+                            dbId = dbId,
+                    )
+        }
+    }
+
+    data class ShootOff(
+            /**
+             * When this is null, it means the scores are different therefore can be used to determine whether
+             * the set is a win/loss. If this is a tie, for standard format there should be another shoot off
+             * that uses closest to centre rules. Else win/loss represent closest to centre result
+             */
+            val result: HeadToHeadResult? = HeadToHeadResult.LOSS,
+            val dbId: Int? = null,
+    ) : HeadToHeadGridRowData() {
+        init {
+            require(orderedMap.find { it.first == result } != null)
+        }
+
+        val dbScoreValue: Int
+            get() = orderedMap.find { it.first == result }!!.second
+
+        override val type: HeadToHeadArcherType
+            get() = HeadToHeadArcherType.SHOOT_OFF
+        override val expectedArrowCount: Int
+            get() = 0
+        override val totalScore: Int
+            get() = 0
+        override val isComplete: Boolean
+            get() = true
+        override val arrowsShot: Int
+            get() = 0
+        override val isTotalRow: Boolean
+            get() = false
+        override val isFullWidth: Boolean
+            get() = true
+
+        /**
+         * Used when the user clicks the shoot off row, this is how it will change
+         */
+        fun next(): ShootOff {
+            val index = orderedMap.indexOfFirst { it.first == result }.takeIf { it != -1 }!!
+            // Don't allow null result to be selected
+            val newIndex = ((index + 1) % orderedMap.size).coerceAtLeast(1)
+            return ShootOff(
+                    result = orderedMap[newIndex].first,
+                    dbId = dbId,
+            )
+        }
+
+        companion object {
+            private val orderedMap = listOf(
+                    null to 3,
+                    HeadToHeadResult.WIN to 2,
+                    HeadToHeadResult.TIE to 1,
+                    HeadToHeadResult.LOSS to 0,
+            )
+
+            fun fromDbValue(score: Int, dbId: Int? = null) =
+                    ShootOff(
+                            result = orderedMap.find { it.second == score }!!.first,
+                            dbId = dbId,
+                    )
         }
     }
 }

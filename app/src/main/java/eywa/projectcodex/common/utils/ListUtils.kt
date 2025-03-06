@@ -14,4 +14,9 @@ object ListUtils {
 
     fun <T> List<T>.containsDuplicates() = distinct().size != size
     fun <T> List<T>.getDuplicates() = groupBy { it }.filter { it.value.size > 1 }.keys
+
+    /**
+     * @return the item after [item]
+     */
+    fun <T> List<T>.next(item: T) = get(indexOf(item) % size)
 }

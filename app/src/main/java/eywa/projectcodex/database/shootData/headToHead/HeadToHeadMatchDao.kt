@@ -34,15 +34,6 @@ interface HeadToHeadMatchDao {
     @Query(
             """
                 UPDATE $TABLE_NAME
-                SET shootOffSets = :shootOffSets
-                WHERE shootId = :shootId AND matchNumber >= :matchNumber
-            """
-    )
-    suspend fun setShootOffSets(shootId: Int, matchNumber: Int, shootOffSets: Map<Int, Boolean>)
-
-    @Query(
-            """
-                UPDATE $TABLE_NAME
                 SET matchNumber = matchNumber + :increment
                 WHERE shootId = :shootId AND matchNumber >= :matchNumbersAboveAndIncluding
             """

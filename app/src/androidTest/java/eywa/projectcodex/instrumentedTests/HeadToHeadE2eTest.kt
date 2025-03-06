@@ -92,6 +92,8 @@ class HeadToHeadE2eTest {
                 val date = "10/11/2020 10:15".parseDate()
                 val archerName = GridSetDsl.DEFAULT_ARCHER_NAME
                 val opponentName = GridSetDsl.DEFAULT_OPPONENT_NAME
+                val archerTag = GridSetDsl.DEFAULT_ARCHER_NAME
+                val opponentTag = GridSetDsl.DEFAULT_OPPONENT_NAME
 
                 selectRoundsRobot.clickSelectedRound {
                     clickRound("WA 70")
@@ -192,60 +194,62 @@ class HeadToHeadE2eTest {
 
                         checkRunningTotals(0, 0)
                         clickNextEnd()
-                        checkArrowRowError(0, "Required", archerName)
-                        checkTotalRowError(1, "Required", opponentName)
+                        checkArrowRowError("Required", archerName)
+                        checkTotalRowError("Required", opponentName)
 
-                        setArrowRow(0, archerName, listOf("10", "10", "10"), 30)
-                        setTotalRow(1, opponentName, 29)
-                        checkArrowRowError(0, null, archerName)
-                        checkTotalRowError(1, null, opponentName)
-                        setTotalRow(1, opponentName, 31)
-                        checkTotalRowError(1, "Must be between 0 and 30 (inclusive)", opponentName)
-                        setTotalRow(1, opponentName, 29)
-                        checkTotalRowError(1, null, opponentName)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10", "10"), 30)
+                        setTotalRow(1, opponentName, opponentTag, 29)
+                        checkArrowRowError(null, archerName)
+                        checkTotalRowError(null, opponentName)
+                        setTotalRow(1, opponentName, opponentTag, 31)
+                        checkTotalRowError("Must be between 0 and 30 (inclusive)", opponentName)
+                        setTotalRow(1, opponentName, opponentTag, 29)
+                        checkTotalRowError(null, opponentName)
 
                         checkSetResult(1, HeadToHeadResult.WIN)
                         clickNextEnd()
                         checkRunningTotals(2, 0)
 
                         checkSetResult(2, HeadToHeadResult.INCOMPLETE)
-                        setArrowRow(0, archerName, listOf("1", "10", "10"), 21)
+                        setArrowRow(0, archerName, archerTag, listOf("1", "10", "10"), 21)
                         checkSetResult(2, HeadToHeadResult.INCOMPLETE)
-                        setTotalRow(1, opponentName, 29)
+                        setTotalRow(1, opponentName, opponentTag, 29)
                         checkSetResult(2, HeadToHeadResult.LOSS)
                         clickNextEnd()
                         checkRunningTotals(2, 2)
 
-                        setArrowRow(0, archerName, listOf("1", "10", "10"), 21)
-                        setTotalRow(1, opponentName, 29)
+                        setArrowRow(0, archerName, archerTag, listOf("1", "10", "10"), 21)
+                        setTotalRow(1, opponentName, opponentTag, 29)
                         checkSetResult(3, HeadToHeadResult.LOSS)
                         clickNextEnd()
                         checkRunningTotals(2, 4)
 
-                        setArrowRow(0, archerName, listOf("9", "10", "10"), 29)
-                        setTotalRow(1, opponentName, 29)
+                        setArrowRow(0, archerName, archerTag, listOf("9", "10", "10"), 29)
+                        setTotalRow(1, opponentName, opponentTag, 29)
                         checkSetResult(4, HeadToHeadResult.TIE)
                         clickNextEnd()
                         checkRunningTotals(3, 5)
 
-                        setArrowRow(0, archerName, listOf("10", "10", "10"), 30)
-                        setTotalRow(1, opponentName, 29)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10", "10"), 30)
+                        setTotalRow(1, opponentName, opponentTag, 29)
                         checkSetResult(5, HeadToHeadResult.WIN)
                         clickNextEnd()
                         checkRunningTotals(5, 5)
 
-                        checkShootOffWinChipNotShown()
-                        setArrowRow(0, archerName, listOf("10"), 10)
-                        setTotalRow(1, opponentName, 9)
-                        checkShootOffWinChipNotShown()
+                        checkShootOffWinChip(2, null)
+                        setArrowRow(0, archerName, archerTag, listOf("10"), 10)
+                        setTotalRow(1, opponentName, opponentTag, 9)
+                        checkShootOffWinChip(2, null)
                         checkShootOffSetResult(HeadToHeadResult.WIN)
 
-                        setTotalRow(1, opponentName, 10)
-                        checkShootOffWinChip(false)
+                        setTotalRow(1, opponentName, opponentTag, 10)
+                        checkShootOffWinChip(2, false)
                         checkShootOffSetResult(HeadToHeadResult.LOSS)
-                        tapIsShootOffWin(true)
+                        tapIsShootOffWin(2, true)
                         checkShootOffSetResult(HeadToHeadResult.WIN)
-                        tapIsShootOffWin(false)
+                        tapIsShootOffWin(2, null)
+                        checkShootOffSetResult(HeadToHeadResult.TIE)
+                        tapIsShootOffWin(2, false)
                         checkShootOffSetResult(HeadToHeadResult.LOSS)
                         clickNextEnd { }
                     }
@@ -255,28 +259,29 @@ class HeadToHeadE2eTest {
                         checkMatchDetails(1, "quarter-final (1/4)", 18, null, null)
                         checkGrid(2, HeadToHeadResult.LOSS) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.LOSS, "2-2", 2) {
-                                checkRow(0, archerName, Value("1-10-10"), 21, NoColumn, Value(0))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(2))
+                                checkRow(0, archerName, archerTag, Value("1-10-10"), 21, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(2))
                             }
                             checkEnd(3, HeadToHeadResult.LOSS, "2-4", 2) {
-                                checkRow(0, archerName, Value("1-10-10"), 21, NoColumn, Value(0))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(2))
+                                checkRow(0, archerName, archerTag, Value("1-10-10"), 21, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(2))
                             }
                             checkEnd(4, HeadToHeadResult.TIE, "3-5", 2) {
-                                checkRow(0, archerName, Value("9-10-10"), 29, NoColumn, Value(1))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(1))
+                                checkRow(0, archerName, archerTag, Value("9-10-10"), 29, NoColumn, Value(1))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(1))
                             }
                             checkEnd(5, HeadToHeadResult.WIN, "5-5", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
-                            checkEnd(6, HeadToHeadResult.LOSS, "5-6", 2) {
-                                checkRow(0, archerName, Value("10"), 10, NoColumn, Value(0))
-                                checkRow(1, opponentName, Empty, 10, NoColumn, Value(1))
+                            checkEnd(6, HeadToHeadResult.LOSS, "5-6", 3) {
+                                checkRow(0, archerName, archerTag, Value("10"), 10, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 10, NoColumn, Value(1))
+                                checkShootOffRow(2, false)
                             }
                         }
                         clickNavBarItem<HeadToHeadAddMatchRobot> {}
@@ -291,13 +296,13 @@ class HeadToHeadE2eTest {
                     checkOpponentRank(1)
                     setOpponent("Emma Fitzgerald", 1)
                     clickStartMatch {
-                        setArrowRow(0, archerName, listOf("10", "10", "10"), 30)
-                        setTotalRow(1, opponentName, 29)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10", "10"), 30)
+                        setTotalRow(1, opponentName, opponentTag, 29)
                         clickNextEnd()
                         checkRunningTotals(2, 0)
 
-                        setArrowRow(0, archerName, listOf("10", "10", "10"), 30)
-                        setTotalRow(1, opponentName, 29)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10", "10"), 30)
+                        setTotalRow(1, opponentName, opponentTag, 29)
                         clickNextEnd()
                         checkRunningTotals(4, 0)
                     }
@@ -307,21 +312,22 @@ class HeadToHeadE2eTest {
                         checkMatchDetails(1, "quarter-final (1/4)", 18, null, null)
 
                         checkGrid(2, HeadToHeadResult.LOSS) {
-                            checkEnd(6, HeadToHeadResult.LOSS, "5-6", 2) {
-                                checkRow(0, archerName, Value("10"), 10, NoColumn, Value(0))
-                                checkRow(1, opponentName, Empty, 10, NoColumn, Value(1))
+                            checkEnd(6, HeadToHeadResult.LOSS, "5-6", 3) {
+                                checkRow(0, archerName, archerTag, Value("10"), 10, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 10, NoColumn, Value(1))
+                                checkShootOffRow(2, false)
                             }
                         }
 
                         checkMaxRank(3, 3)
                         checkGrid(3, HeadToHeadResult.INCOMPLETE) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.WIN, "4-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                         }
                     }
@@ -364,7 +370,7 @@ class HeadToHeadE2eTest {
                         }
                         checkRows(3, archerName to true)
 
-                        setTotalRow(0, archerName, 30, arrows = NoColumn)
+                        setTotalRow(0, archerName, archerTag, 30, arrows = NoColumn)
                         clickNextEnd()
                         checkNoRunningTotals()
                         checkRows(3, archerName to true)
@@ -373,21 +379,30 @@ class HeadToHeadE2eTest {
                     clickNavBarItem<HeadToHeadScorePadRobot> {
                         checkGrid(3, HeadToHeadResult.UNKNOWN) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.WIN, "4-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(3, HeadToHeadResult.UNKNOWN, "-", 1) {
-                                checkRow(0, archerName, Empty, 30, NoColumn, Empty)
+                                checkRow(0, archerName, archerTag, Empty, 30, NoColumn, Empty)
                             }
                         }
 
                         openEditEnd(3, 3) {
                             checkRows(3, archerName to true)
-                            gridSetDsl.checkRow(0, archerName, NoColumn, 30, NoColumn, NoColumn, isEditable = true)
+                            gridSetDsl.checkRow(
+                                    0,
+                                    archerName,
+                                    archerTag,
+                                    NoColumn,
+                                    30,
+                                    NoColumn,
+                                    NoColumn,
+                                    isEditable = true
+                            )
 
                             clickEditRows {
                                 checkEditRowsDialog(
@@ -406,7 +421,16 @@ class HeadToHeadE2eTest {
                             }
 
                             checkRows(3, archerName to true, "Result" to true)
-                            gridSetDsl.checkRow(0, archerName, NoColumn, 30, NoColumn, NoColumn, isEditable = true)
+                            gridSetDsl.checkRow(
+                                    0,
+                                    archerName,
+                                    archerTag,
+                                    NoColumn,
+                                    30,
+                                    NoColumn,
+                                    NoColumn,
+                                    isEditable = true
+                            )
                             checkResultRow(1, HeadToHeadResult.LOSS)
                             clickResultRow(1, HeadToHeadResult.TIE)
                             clickResultRow(1, HeadToHeadResult.WIN)
@@ -417,16 +441,16 @@ class HeadToHeadE2eTest {
 
                         checkGrid(3, HeadToHeadResult.WIN) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.WIN, "4-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(3, HeadToHeadResult.WIN, "6-0", 2) {
-                                checkRow(0, archerName, Empty, 30, NoColumn, Value(2))
-                                checkResultsRow(1, "Win", Value(2))
+                                checkRow(0, archerName, archerTag, Empty, 30, NoColumn, Value(2))
+                                checkResultsRow(1, "Win")
                             }
                         }
                     }
@@ -521,35 +545,35 @@ class HeadToHeadE2eTest {
                         deleteEnd(3, 2)
                         checkGrid(3, HeadToHeadResult.INCOMPLETE) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.WIN, "4-0", 2) {
-                                checkRow(0, archerName, Empty, 30, NoColumn, Value(2))
-                                checkResultsRow(1, "Win", Value(2))
+                                checkRow(0, archerName, archerTag, Empty, 30, NoColumn, Value(2))
+                                checkResultsRow(1, "Win")
                             }
                         }
 
                         insertEnd(3, 2) {
                             checkRows(3, archerName to false, opponentName to true)
-                            setArrowRow(0, archerName, listOf("8", "7", "6"), 21)
-                            setTotalRow(1, opponentName, 25)
+                            setArrowRow(0, archerName, archerTag, listOf("8", "7", "6"), 21)
+                            setTotalRow(1, opponentName, opponentTag, 25)
                             clickInsertEnd()
                         }
                         checkScreenIsShown()
 
                         checkGrid(3, HeadToHeadResult.INCOMPLETE) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.LOSS, "2-2", 2) {
-                                checkRow(0, archerName, Value("8-7-6"), 21, NoColumn, Value(0))
-                                checkRow(1, opponentName, Empty, 25, NoColumn, Value(2))
+                                checkRow(0, archerName, archerTag, Value("8-7-6"), 21, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 25, NoColumn, Value(2))
                             }
                             checkEnd(3, HeadToHeadResult.WIN, "4-2", 2) {
-                                checkRow(0, archerName, Empty, 30, NoColumn, Value(2))
-                                checkResultsRow(1, "Win", Value(2))
+                                checkRow(0, archerName, archerTag, Empty, 30, NoColumn, Value(2))
+                                checkResultsRow(1, "Win")
                             }
                         }
 
@@ -560,16 +584,16 @@ class HeadToHeadE2eTest {
 
                         checkGrid(2, HeadToHeadResult.INCOMPLETE) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.LOSS, "2-2", 2) {
-                                checkRow(0, archerName, Value("8-7-6"), 21, NoColumn, Value(0))
-                                checkRow(1, opponentName, Empty, 25, NoColumn, Value(2))
+                                checkRow(0, archerName, archerTag, Value("8-7-6"), 21, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 25, NoColumn, Value(2))
                             }
                             checkEnd(3, HeadToHeadResult.WIN, "4-2", 2) {
-                                checkRow(0, archerName, Empty, 30, NoColumn, Value(2))
-                                checkResultsRow(1, "Win", Value(2))
+                                checkRow(0, archerName, archerTag, Empty, 30, NoColumn, Value(2))
+                                checkResultsRow(1, "Win")
                             }
                         }
 
@@ -609,6 +633,9 @@ class HeadToHeadE2eTest {
                 val archerName = GridSetDsl.DEFAULT_ARCHER_NAME
                 val teamName = GridSetDsl.DEFAULT_TEAM_MATE_NAME
                 val opponentName = GridSetDsl.DEFAULT_OPPONENT_NAME
+                val archerTag = GridSetDsl.DEFAULT_ARCHER_NAME
+                val teamTag = GridSetDsl.TEAM_MATE_TAG
+                val opponentTag = GridSetDsl.DEFAULT_OPPONENT_NAME
 
                 selectRoundsRobot.checkSelectedRound("No Round")
                 setDate(date)
@@ -666,32 +693,32 @@ class HeadToHeadE2eTest {
                         }
                         checkRows(2, archerName to false, teamName to true, opponentName to true)
                         checkRunningTotals(0, 0)
-                        setArrowRow(0, archerName, listOf("10", "10"), 20, Value(20))
-                        setTotalRow(1, teamName, 19, Empty, NoColumn)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10"), 20, Value(20))
+                        setTotalRow(1, teamName, teamTag, 19, Empty, NoColumn)
                         // Team total should have updated
-                        checkArrowRow(0, archerName, listOf("10", "10"), 20, Value(39))
-                        setTotalRow(2, opponentName, 30, Empty, Value(30))
+                        checkArrowRow(0, archerName, archerTag, listOf("10", "10"), 20, Value(39))
+                        setTotalRow(2, opponentName, opponentTag, 30, Empty, Value(30))
                         checkNoSetResult()
                         clickNextEnd()
 
                         checkRows(2, archerName to false, teamName to true, opponentName to true)
                         checkRunningTotals(39, 30)
-                        setTotalRow(1, teamName, 20, Empty, NoColumn)
-                        setArrowRow(0, archerName, listOf("9", "9"), 18, Value(38))
-                        setTotalRow(2, opponentName, 29, Empty, Value(29))
+                        setTotalRow(1, teamName, teamTag, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, archerTag, listOf("9", "9"), 18, Value(38))
+                        setTotalRow(2, opponentName, opponentTag, 29, Empty, Value(29))
                         clickNextEnd()
 
                         checkRunningTotals(77, 59)
-                        setTotalRow(1, teamName, 20, Empty, NoColumn)
-                        setArrowRow(0, archerName, listOf("9", "9"), 18, Value(38))
-                        setTotalRow(2, opponentName, 29, Empty, Value(29))
+                        setTotalRow(1, teamName, teamTag, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, archerTag, listOf("9", "9"), 18, Value(38))
+                        setTotalRow(2, opponentName, opponentTag, 29, Empty, Value(29))
                         clickNextEnd()
 
                         // Total score always goes to 4 sets
                         checkRunningTotals(115, 88)
-                        setTotalRow(1, teamName, 20, Empty, NoColumn)
-                        setArrowRow(0, archerName, listOf("5", "5"), 10, Value(30))
-                        setTotalRow(2, opponentName, 40, Empty, Value(40))
+                        setTotalRow(1, teamName, teamTag, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, archerTag, listOf("5", "5"), 10, Value(30))
+                        setTotalRow(2, opponentName, opponentTag, 40, Empty, Value(40))
                         clickNextEnd {
                             checkPrevious("Match 1: 1/8", "Win 145-128")
                             checkHeat("1/4")
@@ -701,39 +728,38 @@ class HeadToHeadE2eTest {
 
                         checkRows(2, archerName to false, teamName to true, opponentName to true)
                         checkRunningTotals(0, 0)
-                        setTotalRow(1, teamName, 20, Empty, NoColumn)
-                        setArrowRow(0, archerName, listOf("10", "10"), 20, Value(40))
-                        setTotalRow(2, opponentName, 40, Empty, Value(40))
+                        setTotalRow(1, teamName, teamTag, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10"), 20, Value(40))
+                        setTotalRow(2, opponentName, opponentTag, 40, Empty, Value(40))
                         clickNextEnd()
 
                         checkRunningTotals(40, 40)
-                        setTotalRow(1, teamName, 20, Empty, NoColumn)
-                        setArrowRow(0, archerName, listOf("10", "10"), 20, Value(40))
-                        setTotalRow(2, opponentName, 40, Empty, Value(40))
+                        setTotalRow(1, teamName, teamTag, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10"), 20, Value(40))
+                        setTotalRow(2, opponentName, opponentTag, 40, Empty, Value(40))
                         clickNextEnd()
 
                         checkRunningTotals(80, 80)
-                        setTotalRow(1, teamName, 20, Empty, NoColumn)
-                        setArrowRow(0, archerName, listOf("10", "10"), 20, Value(40))
-                        setTotalRow(2, opponentName, 40, Empty, Value(40))
+                        setTotalRow(1, teamName, teamTag, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10"), 20, Value(40))
+                        setTotalRow(2, opponentName, opponentTag, 40, Empty, Value(40))
                         clickNextEnd()
 
                         checkRunningTotals(120, 120)
-                        setTotalRow(1, teamName, 20, Empty, NoColumn)
-                        setArrowRow(0, archerName, listOf("10", "10"), 20, Value(40))
-                        setTotalRow(2, opponentName, 40, Empty, Value(40))
+                        setTotalRow(1, teamName, teamTag, 20, Empty, NoColumn)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10"), 20, Value(40))
+                        setTotalRow(2, opponentName, opponentTag, 40, Empty, Value(40))
                         clickNextEnd()
 
                         // Shoot off
                         checkRunningTotals(160, 160)
-                        setTotalRow(1, teamName, 10, Empty, NoColumn)
-                        setArrowRow(0, archerName, listOf("10"), 10, Value(20))
-                        setTotalRow(2, opponentName, 19, Empty, Value(19))
-                        checkShootOffWinChipNotShown()
+                        setTotalRow(1, teamName, teamTag, 10, Empty, NoColumn)
+                        setArrowRow(0, archerName, archerTag, listOf("10"), 10, Value(20))
+                        setTotalRow(2, opponentName, opponentTag, 19, Empty, Value(19))
+                        checkShootOffWinChip(3, null)
 
-                        setTotalRow(2, opponentName, 20, Empty, Value(20))
-                        tapIsShootOffWin(true)
-                        checkShootOffWinChip(true)
+                        setTotalRow(2, opponentName, opponentTag, 20, Empty, Value(20))
+                        tapIsShootOffWin(3, true)
                         clickNextEnd {
                             checkPrevious("Match 2", "Win 180-180")
                             checkHeat(null)
@@ -741,64 +767,67 @@ class HeadToHeadE2eTest {
                             clickNavBarItem<HeadToHeadScorePadRobot> {
                                 checkGrid(1, HeadToHeadResult.WIN) {
                                     checkEnd(1, null, "39-30", 3) {
-                                        checkRow(0, archerName, Value("10-10"), 20, Value(39))
-                                        checkRow(1, teamName, Empty, 19, NoCell)
-                                        checkRow(2, opponentName, Empty, 30, NoColumn)
+                                        checkRow(0, archerName, archerTag, Value("10-10"), 20, Value(39))
+                                        checkRow(1, teamName, teamTag, Empty, 19, NoCell)
+                                        checkRow(2, opponentName, opponentTag, Empty, 30, NoColumn)
                                     }
                                     checkEnd(2, null, "77-59", 3) {
-                                        checkRow(0, archerName, Value("9-9"), 18, Value(38))
-                                        checkRow(1, teamName, Empty, 20, NoCell)
-                                        checkRow(2, opponentName, Empty, 29, NoColumn)
+                                        checkRow(0, archerName, archerTag, Value("9-9"), 18, Value(38))
+                                        checkRow(1, teamName, teamTag, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, opponentTag, Empty, 29, NoColumn)
                                     }
                                     checkEnd(3, null, "115-88", 3) {
-                                        checkRow(0, archerName, Value("9-9"), 18, Value(38))
-                                        checkRow(1, teamName, Empty, 20, NoCell)
-                                        checkRow(2, opponentName, Empty, 29, NoColumn)
+                                        checkRow(0, archerName, archerTag, Value("9-9"), 18, Value(38))
+                                        checkRow(1, teamName, teamTag, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, opponentTag, Empty, 29, NoColumn)
                                     }
                                     checkEnd(4, null, "145-128", 3) {
-                                        checkRow(0, archerName, Value("5-5"), 10, Value(30))
-                                        checkRow(1, teamName, Empty, 20, NoCell)
-                                        checkRow(2, opponentName, Empty, 40, NoColumn)
+                                        checkRow(0, archerName, archerTag, Value("5-5"), 10, Value(30))
+                                        checkRow(1, teamName, teamTag, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, opponentTag, Empty, 40, NoColumn)
                                     }
                                 }
 
                                 checkGrid(2, HeadToHeadResult.WIN) {
                                     checkEnd(1, null, "40-40", 3) {
-                                        checkRow(0, archerName, Value("10-10"), 20, Value(40))
-                                        checkRow(1, teamName, Empty, 20, NoCell)
-                                        checkRow(2, opponentName, Empty, 40, NoColumn)
+                                        checkRow(0, archerName, archerTag, Value("10-10"), 20, Value(40))
+                                        checkRow(1, teamName, teamTag, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, opponentTag, Empty, 40, NoColumn)
                                     }
                                     checkEnd(2, null, "80-80", 3) {
-                                        checkRow(0, archerName, Value("10-10"), 20, Value(40))
-                                        checkRow(1, teamName, Empty, 20, NoCell)
-                                        checkRow(2, opponentName, Empty, 40, NoColumn)
+                                        checkRow(0, archerName, archerTag, Value("10-10"), 20, Value(40))
+                                        checkRow(1, teamName, teamTag, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, opponentTag, Empty, 40, NoColumn)
                                     }
                                     checkEnd(3, null, "120-120", 3) {
-                                        checkRow(0, archerName, Value("10-10"), 20, Value(40))
-                                        checkRow(1, teamName, Empty, 20, NoCell)
-                                        checkRow(2, opponentName, Empty, 40, NoColumn)
+                                        checkRow(0, archerName, archerTag, Value("10-10"), 20, Value(40))
+                                        checkRow(1, teamName, teamTag, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, opponentTag, Empty, 40, NoColumn)
                                     }
                                     checkEnd(4, null, "160-160", 3) {
-                                        checkRow(0, archerName, Value("10-10"), 20, Value(40))
-                                        checkRow(1, teamName, Empty, 20, NoCell)
-                                        checkRow(2, opponentName, Empty, 40, NoColumn)
+                                        checkRow(0, archerName, archerTag, Value("10-10"), 20, Value(40))
+                                        checkRow(1, teamName, teamTag, Empty, 20, NoCell)
+                                        checkRow(2, opponentName, opponentTag, Empty, 40, NoColumn)
                                     }
-                                    checkEnd(5, null, "180-180", 3) {
-                                        checkRow(0, archerName, Value("10"), 10, Value(20))
-                                        checkRow(1, teamName, Empty, 10, NoCell)
-                                        checkRow(2, opponentName, Empty, 20, NoColumn)
+                                    checkEnd(5, null, "180-180", 4) {
+                                        checkRow(0, archerName, archerTag, Value("10"), 10, Value(20))
+                                        checkRow(1, teamName, teamTag, Empty, 10, NoCell)
+                                        checkRow(2, opponentName, opponentTag, Empty, 20, NoColumn)
+                                        checkShootOffRow(3, true)
                                     }
                                 }
 
                                 openEditEnd(2, 5) {
-                                    tapIsShootOffWin(false)
+                                    tapIsShootOffWin(3, null)
+                                    tapIsShootOffWin(3, false)
                                     clickConfirmEdit()
                                 }
                                 checkGrid(2, HeadToHeadResult.LOSS) {
-                                    checkEnd(5, null, "180-180", 3) {
-                                        checkRow(0, archerName, Value("10"), 10, Value(20))
-                                        checkRow(1, teamName, Empty, 10, NoCell)
-                                        checkRow(2, opponentName, Empty, 20, NoColumn)
+                                    checkEnd(5, null, "180-180", 4) {
+                                        checkRow(0, archerName, archerTag, Value("10"), 10, Value(20))
+                                        checkRow(1, teamName, teamTag, Empty, 10, NoCell)
+                                        checkRow(2, opponentName, opponentTag, Empty, 20, NoColumn)
+                                        checkShootOffRow(3, false)
                                     }
                                 }
                             }
@@ -880,6 +909,8 @@ class HeadToHeadE2eTest {
                 val date = "10/11/2020 10:15".parseDate()
                 val teamName = GridSetDsl.DEFAULT_TEAM_NAME
                 val opponentName = GridSetDsl.DEFAULT_OPPONENT_NAME
+                val teamTag = GridSetDsl.DEFAULT_TEAM_NAME
+                val opponentTag = GridSetDsl.DEFAULT_OPPONENT_NAME
 
                 selectRoundsRobot.clickSelectedRound {
                     clickRound("WA 70")
@@ -915,8 +946,8 @@ class HeadToHeadE2eTest {
 
                         checkRows(2, teamName to true, opponentName to true)
                         checkRunningTotals(0, 0)
-                        setTotalRow(0, teamName, 32, NoColumn)
-                        setTotalRow(1, opponentName, 36, NoColumn)
+                        setTotalRow(0, teamName, teamTag, 32, NoColumn)
+                        setTotalRow(1, opponentName, opponentTag, 36, NoColumn)
                         clickNextEnd()
 
                         clickNavBarItem<HeadToHeadStatsRobot> {
@@ -952,6 +983,8 @@ class HeadToHeadE2eTest {
                 val date = "10/11/2020 10:15".parseDate()
                 val archerName = GridSetDsl.DEFAULT_ARCHER_NAME
                 val opponentName = GridSetDsl.DEFAULT_OPPONENT_NAME
+                val archerTag = GridSetDsl.DEFAULT_ARCHER_NAME
+                val opponentTag = GridSetDsl.DEFAULT_OPPONENT_NAME
 
                 selectRoundsRobot.clickSelectedRound {
                     clickRound("WA 70")
@@ -1044,61 +1077,63 @@ class HeadToHeadE2eTest {
 
                         checkRunningTotals(0, 0)
                         clickNextEnd()
-                        checkArrowRowError(0, "Required", archerName)
-                        checkTotalRowError(1, "Required", opponentName)
+                        checkArrowRowError("Required", archerName)
+                        checkTotalRowError("Required", opponentName)
 
-                        setArrowRow(0, archerName, listOf("10", "10", "10"), 30)
-                        setTotalRow(1, opponentName, 29)
-                        checkArrowRowError(0, null, archerName)
-                        checkTotalRowError(1, null, opponentName)
-                        setTotalRow(1, opponentName, 31)
-                        checkTotalRowError(1, "Must be between 0 and 30 (inclusive)", opponentName)
-                        setTotalRow(1, opponentName, 29)
-                        checkTotalRowError(1, null, opponentName)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10", "10"), 30)
+                        setTotalRow(1, opponentName, opponentTag, 29)
+                        checkArrowRowError(null, archerName)
+                        checkTotalRowError(null, opponentName)
+                        setTotalRow(1, opponentName, opponentTag, 31)
+                        checkTotalRowError("Must be between 0 and 30 (inclusive)", opponentName)
+                        setTotalRow(1, opponentName, opponentTag, 29)
+                        checkTotalRowError(null, opponentName)
 
                         checkSetResult(1, HeadToHeadResult.WIN)
                         clickNextEnd()
                         checkRunningTotals(2, 0)
 
                         checkSetResult(2, HeadToHeadResult.INCOMPLETE)
-                        setArrowRow(0, archerName, listOf("1", "10", "10"), 21)
+                        setArrowRow(0, archerName, archerTag, listOf("1", "10", "10"), 21)
                         checkSetResult(2, HeadToHeadResult.INCOMPLETE)
-                        setTotalRow(1, opponentName, 29)
+                        setTotalRow(1, opponentName, opponentTag, 29)
                         checkSetResult(2, HeadToHeadResult.LOSS)
                         clickNextEnd()
                         checkRunningTotals(2, 2)
 
-                        setArrowRow(0, archerName, listOf("1", "10", "10"), 21)
-                        setTotalRow(1, opponentName, 29)
+                        setArrowRow(0, archerName, archerTag, listOf("1", "10", "10"), 21)
+                        setTotalRow(1, opponentName, opponentTag, 29)
                         checkSetResult(3, HeadToHeadResult.LOSS)
                         clickNextEnd()
                         checkRunningTotals(2, 4)
 
-                        setArrowRow(0, archerName, listOf("9", "10", "10"), 29)
-                        setTotalRow(1, opponentName, 29)
+                        setArrowRow(0, archerName, archerTag, listOf("9", "10", "10"), 29)
+                        setTotalRow(1, opponentName, opponentTag, 29)
                         checkSetResult(4, HeadToHeadResult.TIE)
                         clickNextEnd()
                         checkRunningTotals(3, 5)
 
-                        setArrowRow(0, archerName, listOf("10", "10", "10"), 30)
-                        setTotalRow(1, opponentName, 29)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10", "10"), 30)
+                        setTotalRow(1, opponentName, opponentTag, 29)
                         checkSetResult(5, HeadToHeadResult.WIN)
                         clickNextEnd()
                         checkRunningTotals(5, 5)
 
                         tapIsShootOff(true)
-                        checkShootOffWinChipNotShown()
-                        setArrowRow(0, archerName, listOf("10"), 10)
-                        setTotalRow(1, opponentName, 9)
-                        checkShootOffWinChipNotShown()
+                        checkShootOffWinChip(2, null)
+                        setArrowRow(0, archerName, archerTag, listOf("10"), 10)
+                        setTotalRow(1, opponentName, opponentTag, 9)
+                        checkShootOffWinChip(2, null)
                         checkShootOffSetResult(HeadToHeadResult.WIN)
 
-                        setTotalRow(1, opponentName, 10)
-                        checkShootOffWinChip(false)
+                        setTotalRow(1, opponentName, opponentTag, 10)
+                        checkShootOffWinChip(2, false)
                         checkShootOffSetResult(HeadToHeadResult.LOSS)
-                        tapIsShootOffWin(true)
+                        tapIsShootOffWin(2, true)
                         checkShootOffSetResult(HeadToHeadResult.WIN)
-                        tapIsShootOffWin(false)
+                        tapIsShootOffWin(2, null)
+                        checkShootOffSetResult(HeadToHeadResult.TIE)
+                        tapIsShootOffWin(2, false)
                         checkShootOffSetResult(HeadToHeadResult.LOSS)
                         clickNextEnd()
                         clickCreateNextMatch { }
@@ -1109,28 +1144,29 @@ class HeadToHeadE2eTest {
                         checkMatchDetails(1, "quarter-final (1/4)", 18, null, null)
                         checkGrid(2, HeadToHeadResult.LOSS) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.LOSS, "2-2", 2) {
-                                checkRow(0, archerName, Value("1-10-10"), 21, NoColumn, Value(0))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(2))
+                                checkRow(0, archerName, archerTag, Value("1-10-10"), 21, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(2))
                             }
                             checkEnd(3, HeadToHeadResult.LOSS, "2-4", 2) {
-                                checkRow(0, archerName, Value("1-10-10"), 21, NoColumn, Value(0))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(2))
+                                checkRow(0, archerName, archerTag, Value("1-10-10"), 21, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(2))
                             }
                             checkEnd(4, HeadToHeadResult.TIE, "3-5", 2) {
-                                checkRow(0, archerName, Value("9-10-10"), 29, NoColumn, Value(1))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(1))
+                                checkRow(0, archerName, archerTag, Value("9-10-10"), 29, NoColumn, Value(1))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(1))
                             }
                             checkEnd(5, HeadToHeadResult.WIN, "5-5", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
-                            checkEnd(6, HeadToHeadResult.LOSS, "5-6", 2) {
-                                checkRow(0, archerName, Value("10"), 10, NoColumn, Value(0))
-                                checkRow(1, opponentName, Empty, 10, NoColumn, Value(1))
+                            checkEnd(6, HeadToHeadResult.LOSS, "5-6", 3) {
+                                checkRow(0, archerName, archerTag, Value("10"), 10, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 10, NoColumn, Value(1))
+                                checkShootOffRow(2, false)
                             }
                         }
                         clickNavBarItem<HeadToHeadAddEndRobot> {
@@ -1147,13 +1183,13 @@ class HeadToHeadE2eTest {
                     checkOpponentRank(1)
                     setOpponent("Emma Fitzgerald", 1)
                     clickStartMatch {
-                        setArrowRow(0, archerName, listOf("10", "10", "10"), 30)
-                        setTotalRow(1, opponentName, 29)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10", "10"), 30)
+                        setTotalRow(1, opponentName, opponentTag, 29)
                         clickNextEnd()
                         checkRunningTotals(2, 0)
 
-                        setArrowRow(0, archerName, listOf("10", "10", "10"), 30)
-                        setTotalRow(1, opponentName, 29)
+                        setArrowRow(0, archerName, archerTag, listOf("10", "10", "10"), 30)
+                        setTotalRow(1, opponentName, opponentTag, 29)
                         clickNextEnd()
                         checkRunningTotals(4, 0)
                     }
@@ -1163,21 +1199,22 @@ class HeadToHeadE2eTest {
                         checkMatchDetails(1, "quarter-final (1/4)", 18, null, null)
 
                         checkGrid(2, HeadToHeadResult.LOSS) {
-                            checkEnd(6, HeadToHeadResult.LOSS, "5-6", 2) {
-                                checkRow(0, archerName, Value("10"), 10, NoColumn, Value(0))
-                                checkRow(1, opponentName, Empty, 10, NoColumn, Value(1))
+                            checkEnd(6, HeadToHeadResult.LOSS, "5-6", 3) {
+                                checkRow(0, archerName, archerTag, Value("10"), 10, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 10, NoColumn, Value(1))
+                                checkShootOffRow(2, false)
                             }
                         }
 
                         checkMaxRank(3, 3)
                         checkGrid(3, HeadToHeadResult.INCOMPLETE) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.WIN, "4-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                         }
                     }
@@ -1220,7 +1257,7 @@ class HeadToHeadE2eTest {
                         }
                         checkRows(3, archerName to true)
 
-                        setTotalRow(0, archerName, 30, arrows = NoColumn)
+                        setTotalRow(0, archerName, archerTag, 30, arrows = NoColumn)
                         clickNextEnd()
                         checkNoRunningTotals()
                         checkRows(3, archerName to true)
@@ -1229,21 +1266,30 @@ class HeadToHeadE2eTest {
                     clickNavBarItem<HeadToHeadScorePadRobot> {
                         checkGrid(3, HeadToHeadResult.UNKNOWN) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.WIN, "4-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(3, HeadToHeadResult.UNKNOWN, "-", 1) {
-                                checkRow(0, archerName, Empty, 30, NoColumn, Empty)
+                                checkRow(0, archerName, archerTag, Empty, 30, NoColumn, Empty)
                             }
                         }
 
                         openEditEnd(3, 3) {
                             checkRows(3, archerName to true)
-                            gridSetDsl.checkRow(0, archerName, NoColumn, 30, NoColumn, NoColumn, isEditable = true)
+                            gridSetDsl.checkRow(
+                                    0,
+                                    archerName,
+                                    archerTag,
+                                    NoColumn,
+                                    30,
+                                    NoColumn,
+                                    NoColumn,
+                                    isEditable = true
+                            )
 
                             clickEditRows {
                                 checkEditRowsDialog(
@@ -1262,7 +1308,16 @@ class HeadToHeadE2eTest {
                             }
 
                             checkRows(3, archerName to true, "Result" to true)
-                            gridSetDsl.checkRow(0, archerName, NoColumn, 30, NoColumn, NoColumn, isEditable = true)
+                            gridSetDsl.checkRow(
+                                    0,
+                                    archerName,
+                                    archerTag,
+                                    NoColumn,
+                                    30,
+                                    NoColumn,
+                                    NoColumn,
+                                    isEditable = true
+                            )
                             checkResultRow(1, HeadToHeadResult.LOSS)
                             clickResultRow(1, HeadToHeadResult.TIE)
                             clickResultRow(1, HeadToHeadResult.WIN)
@@ -1273,16 +1328,16 @@ class HeadToHeadE2eTest {
 
                         checkGrid(3, HeadToHeadResult.WIN) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.WIN, "4-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(3, HeadToHeadResult.WIN, "6-0", 2) {
-                                checkRow(0, archerName, Empty, 30, NoColumn, Value(2))
-                                checkResultsRow(1, "Win", Value(2))
+                                checkRow(0, archerName, archerTag, Empty, 30, NoColumn, Value(2))
+                                checkResultsRow(1, "Win")
                             }
                         }
                     }
@@ -1378,35 +1433,35 @@ class HeadToHeadE2eTest {
                         deleteEnd(3, 2)
                         checkGrid(3, HeadToHeadResult.INCOMPLETE) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.WIN, "4-0", 2) {
-                                checkRow(0, archerName, Empty, 30, NoColumn, Value(2))
-                                checkResultsRow(1, "Win", Value(2))
+                                checkRow(0, archerName, archerTag, Empty, 30, NoColumn, Value(2))
+                                checkResultsRow(1, "Win")
                             }
                         }
 
                         insertEnd(3, 2) {
                             checkRows(3, archerName to false, opponentName to true)
-                            setArrowRow(0, archerName, listOf("8", "7", "6"), 21)
-                            setTotalRow(1, opponentName, 25)
+                            setArrowRow(0, archerName, archerTag, listOf("8", "7", "6"), 21)
+                            setTotalRow(1, opponentName, opponentTag, 25)
                             clickInsertEnd()
                         }
                         checkScreenIsShown()
 
                         checkGrid(3, HeadToHeadResult.INCOMPLETE) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.LOSS, "2-2", 2) {
-                                checkRow(0, archerName, Value("8-7-6"), 21, NoColumn, Value(0))
-                                checkRow(1, opponentName, Empty, 25, NoColumn, Value(2))
+                                checkRow(0, archerName, archerTag, Value("8-7-6"), 21, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 25, NoColumn, Value(2))
                             }
                             checkEnd(3, HeadToHeadResult.WIN, "4-2", 2) {
-                                checkRow(0, archerName, Empty, 30, NoColumn, Value(2))
-                                checkResultsRow(1, "Win", Value(2))
+                                checkRow(0, archerName, archerTag, Empty, 30, NoColumn, Value(2))
+                                checkResultsRow(1, "Win")
                             }
                         }
 
@@ -1417,16 +1472,16 @@ class HeadToHeadE2eTest {
 
                         checkGrid(2, HeadToHeadResult.INCOMPLETE) {
                             checkEnd(1, HeadToHeadResult.WIN, "2-0", 2) {
-                                checkRow(0, archerName, Value("10-10-10"), 30, NoColumn, Value(2))
-                                checkRow(1, opponentName, Empty, 29, NoColumn, Value(0))
+                                checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
+                                checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
                             checkEnd(2, HeadToHeadResult.LOSS, "2-2", 2) {
-                                checkRow(0, archerName, Value("8-7-6"), 21, NoColumn, Value(0))
-                                checkRow(1, opponentName, Empty, 25, NoColumn, Value(2))
+                                checkRow(0, archerName, archerTag, Value("8-7-6"), 21, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 25, NoColumn, Value(2))
                             }
                             checkEnd(3, HeadToHeadResult.WIN, "4-2", 2) {
-                                checkRow(0, archerName, Empty, 30, NoColumn, Value(2))
-                                checkResultsRow(1, "Win", Value(2))
+                                checkRow(0, archerName, archerTag, Empty, 30, NoColumn, Value(2))
+                                checkResultsRow(1, "Win")
                             }
                         }
 

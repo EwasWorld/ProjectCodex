@@ -23,27 +23,24 @@ data class FullHeadToHead(
                 val endSize = headToHead.endSize
                         ?: HeadToHeadUseCase.endSize(headToHead.teamSize, false)
                 matches.map { match ->
-                    val shootOffSet = HeadToHeadUseCase.shootOffSet(headToHead.teamSize)
                     FullHeadToHeadMatch(
                             match = match,
                             sets = (grouped[match.matchNumber] ?: emptyList())
                                     .groupBy { it.setNumber }
                                     .map { (setNumber, details) ->
-                                        val isShootOffWin = match.shootOffSets[setNumber]
+                                        val setEndSize =
+                                                if (details.any { it.type == HeadToHeadArcherType.SHOOT_OFF }) 1
+                                                else endSize
                                         FullHeadToHeadSet(
                                                 setNumber = setNumber,
                                                 data = details.asRowData(
-                                                        endSize = HeadToHeadUseCase.endSize(
-                                                                teamSize = headToHead.teamSize,
-                                                                isShootOff = setNumber == shootOffSet,
-                                                        ),
+                                                        endSize = setEndSize,
                                                         teamSize = headToHead.teamSize,
                                                         isEditable = isEditable,
                                                 ),
                                                 teamSize = headToHead.teamSize,
                                                 isSetPointsFormat = headToHead.isSetPointsFormat,
-                                                isShootOffWin = isShootOffWin,
-                                                endSize = if (isShootOffWin == null) endSize else 1
+                                                endSize = setEndSize
                                         )
                                     }
                                     .sortedBy { it.setNumber },
@@ -95,7 +92,15 @@ data class FullHeadToHead(
                     val expectedArrowCount = type.expectedArrowCount(endSize, teamSize)
                     require(group.distinctBy { it.isTotal }.size == 1) { "Cannot have total and arrows" }
 
-                    if (group[0].isTotal) {
+                    if (group[0].type == HeadToHeadArcherType.RESULT) {
+                        require(group.size == 1) { "Cannot have more than one result" }
+                        Result.fromDbValue(group[0].score, group[0].headToHeadArrowScoreId)
+                    }
+                    else if (group[0].type == HeadToHeadArcherType.SHOOT_OFF) {
+                        require(group.size == 1) { "Cannot have more than one shoot off row" }
+                        ShootOff.fromDbValue(group[0].score, group[0].headToHeadArrowScoreId)
+                    }
+                    else if (group[0].isTotal) {
                         require(group.size == 1) { "Cannot have more than one total" }
 
                         val score = group[0].score
@@ -104,9 +109,7 @@ data class FullHeadToHead(
                                     type = type,
                                     expectedArrowCount = expectedArrowCount,
                                     dbId = group[0].headToHeadArrowScoreId.takeIf { it != 0 },
-                            ).let {
-                                if (score == null) it else it.copy(text = it.text.copy(score.toString()))
-                            }
+                            ).let { it.copy(text = it.text.copy(score.toString())) }
                         }
                         else {
                             Total(
@@ -121,7 +124,7 @@ data class FullHeadToHead(
                         Arrows(
                                 type = type,
                                 expectedArrowCount = expectedArrowCount,
-                                arrows = group.mapNotNull { dbArrow -> dbArrow.score?.let { Arrow(it, dbArrow.isX) } },
+                                arrows = group.map { dbArrow -> Arrow(dbArrow.score, dbArrow.isX) },
                                 dbIds = group.map { it.headToHeadArrowScoreId }
                                         .takeWhile { it != 0 }.takeIf { it.isNotEmpty() },
                         )

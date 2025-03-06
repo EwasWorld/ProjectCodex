@@ -41,10 +41,6 @@ data class FullHeadToHeadSet(
         val setNumber: Int,
         val data: List<HeadToHeadGridRowData>,
         val teamSize: Int,
-        /**
-         * Has a value if and only if the set is a shoot off, else null
-         */
-        val isShootOffWin: Boolean?,
         val isSetPointsFormat: Boolean,
         val endSize: Int,
 ) {
@@ -63,9 +59,11 @@ data class FullHeadToHeadSet(
         get() = opponent.left
     val teamEndScore
         get() = team.left ?: team.right?.let { (it as? HeadToHeadNoResult.Partial)?.score }
+    val shootOffRow: HeadToHeadGridRowData.ShootOff? =
+            data.find { it is HeadToHeadGridRowData.ShootOff }?.let { it as HeadToHeadGridRowData.ShootOff }
     val result = result()
     val isShootOff
-        get() = isShootOffWin != null
+        get() = shootOffRow != null
 
     fun arrowsShot(type: HeadToHeadArcherType) =
             if (result == HeadToHeadResult.INCOMPLETE) 0
@@ -129,28 +127,26 @@ data class FullHeadToHeadSet(
             .let { it.contains(HeadToHeadArcherType.SELF) && it.contains(HeadToHeadArcherType.TEAM_MATE) }
 
     private fun result(): HeadToHeadResult {
-        val result = data.find { it.type == HeadToHeadArcherType.RESULT }
+        val result = data
+                .find { it.type == HeadToHeadArcherType.RESULT }
+                ?.let { it as HeadToHeadGridRowData.Result }
+
         if (result != null) {
             if (!isSetPointsFormat) throw IllegalStateException("Cannot give results for non-recurve style matches")
-            if (!result.isComplete) return HeadToHeadResult.INCOMPLETE
-            if (!result.isTotalRow) throw IllegalStateException("Result must be total row")
-
-            val finalResult = getResult(result.totalScore)
-            if (finalResult == HeadToHeadResult.TIE && isShootOff) {
-                throw IllegalStateException("Shoot-off result cannot be a tie")
+            if (shootOffRow?.result != null) {
+                check(shootOffRow.result == result.result) { "Result and shoot off row should agree" }
             }
-            return finalResult
+            return result.result
         }
 
-        if (team.right == HeadToHeadNoResult.Unknown || opponent.right == HeadToHeadNoResult.Unknown) {
-            return HeadToHeadResult.UNKNOWN
-        }
-        if (opponent.left == null || team.left == null) return HeadToHeadResult.INCOMPLETE
         return when {
+            team.right == HeadToHeadNoResult.Unknown || opponent.right == HeadToHeadNoResult.Unknown ->
+                HeadToHeadResult.UNKNOWN
+
+            opponent.left == null || team.left == null -> HeadToHeadResult.INCOMPLETE
             team.left!! > opponent.left!! -> HeadToHeadResult.WIN
             team.left!! < opponent.left!! -> HeadToHeadResult.LOSS
-            isShootOff && isShootOffWin!! -> HeadToHeadResult.WIN
-            isShootOff -> HeadToHeadResult.LOSS
+            shootOffRow != null -> shootOffRow.result!!
             else -> HeadToHeadResult.TIE
         }
     }
@@ -248,17 +244,27 @@ data class FullHeadToHeadSet(
                                             isX = false,
                                     ),
                             )
+
+                        is HeadToHeadGridRowData.Result ->
+                            listOf(
+                                    typeData.copy(
+                                            headToHeadArrowScoreId = rowData.dbId ?: 0,
+                                            arrowNumber = 1,
+                                            score = rowData.dbScoreValue,
+                                            isX = false,
+                                    ),
+                            )
+
+                        is HeadToHeadGridRowData.ShootOff ->
+                            listOf(
+                                    typeData.copy(
+                                            headToHeadArrowScoreId = rowData.dbId ?: 0,
+                                            arrowNumber = 1,
+                                            score = rowData.dbScoreValue,
+                                            isX = false,
+                                    ),
+                            )
                     }
                 }
             }
-
-    companion object {
-        fun getResult(key: Int) =
-                when (key) {
-                    0 -> HeadToHeadResult.LOSS
-                    1 -> HeadToHeadResult.TIE
-                    2 -> HeadToHeadResult.WIN
-                    else -> throw IllegalStateException("Points must be 0, 1, or 2")
-                }
-    }
 }

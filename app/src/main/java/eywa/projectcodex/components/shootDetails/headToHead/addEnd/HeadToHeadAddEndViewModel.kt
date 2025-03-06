@@ -20,7 +20,6 @@ import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndIntent.*
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData.*
-import eywa.projectcodex.database.shootData.headToHead.setShootOffResult
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -78,14 +77,14 @@ class HeadToHeadAddEndViewModel @Inject constructor(
         val editingSet = editingMatch?.sets?.find { it.setNumber == editingSetNumber }
                 ?.let { fullSet ->
                     val data = fullSet.data.map {
-                        when {
-                            it is Arrows || it.type == RESULT -> it
-                            it is Total -> {
+                        when (it) {
+                            is Total -> {
                                 val field = EditableTotal(it.type, it.expectedArrowCount, dbId = it.dbId)
                                 field.copy(text = field.text.copy(text = it.total?.toString() ?: ""))
                             }
 
-                            else -> throw IllegalStateException()
+                            is EditableTotal -> throw IllegalStateException()
+                            else -> it
                         }
                     }
                     fullSet.copy(data = data)
@@ -109,13 +108,11 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             )
         }
 
-        val isStandardFormat = fullH2hInfo.headToHead.isStandardFormat
         val blankSet = FullHeadToHeadSet(
                 setNumber = 0,
                 data = listOf(),
                 teamSize = fullH2hInfo.headToHead.teamSize,
                 isSetPointsFormat = fullH2hInfo.headToHead.isSetPointsFormat,
-                isShootOffWin = null,
                 endSize = endSize,
         )
 
@@ -124,11 +121,13 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             check(editingMatch != null)
 
             if (extras == null || extras.set.setNumber != editingSetNumber) {
-                val isShootOff = isStandardFormat && HeadToHeadUseCase.shootOffSet(teamSize) == editingSetNumber
                 val data = generateEmptyDataRows(
                         endSize = endSize,
                         teamSize = teamSize,
-                        previous = editingMatch.sets.find { it.setNumber == editingSetNumber - 1 }?.data,
+                        previous = editingMatch.sets
+                                .find { it.setNumber == editingSetNumber - 1 }
+                                ?.data
+                                ?.filter { it !is ShootOff },
                 )
 
                 extraState.update {
@@ -181,16 +180,18 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     ?.maxByOrNull { it.setNumber }
                     ?.data
 
-            val set = blankSet.copy(
-                    setNumber = setNumber,
-                    data = generateEmptyDataRows(
-                            endSize = endSize,
-                            teamSize = teamSize,
-                            previous = lastSet?.data ?: getPreviousMatchFinalSetData(),
-                    ),
-            ).setIsShootOff(fullH2hInfo.headToHead.endSize)
 
-            if (extras == null || extras.set.setNumber != set.setNumber) {
+            if (extras == null || extras.set.setNumber != setNumber) {
+                val set = blankSet.copy(
+                        setNumber = setNumber,
+                        data = generateEmptyDataRows(
+                                endSize = endSize,
+                                teamSize = teamSize,
+                                previous = (lastSet?.data ?: getPreviousMatchFinalSetData())
+                                        ?.filter { it !is ShootOff },
+                        ),
+                ).setIsShootOff(fullH2hInfo.headToHead.endSize)
+
                 extraState.update { HeadToHeadAddEndExtras(set = set, selected = SELF) }
             }
 
@@ -234,8 +235,15 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             teamSize: Int
     ): HeadToHeadGridRowData {
         val expectedArrowCount = type.expectedArrowCount(endSize = endSize, teamSize = teamSize)
-        return if (isTotal) EditableTotal(type = type, expectedArrowCount = expectedArrowCount)
-        else Arrows(type = type, expectedArrowCount = expectedArrowCount)
+        return when {
+            type == RESULT -> Result()
+            type == SHOOT_OFF -> {
+                ShootOff(null)
+            }
+
+            isTotal -> EditableTotal(type = type, expectedArrowCount = expectedArrowCount)
+            else -> Arrows(type = type, expectedArrowCount = expectedArrowCount)
+        }
     }
 
     /**
@@ -271,11 +279,26 @@ class HeadToHeadAddEndViewModel @Inject constructor(
     )
 
     private fun FullHeadToHeadSet.setIsShootOff(matchEndSize: Int?): FullHeadToHeadSet {
-        val isShootOff = matchEndSize == null && HeadToHeadUseCase.shootOffSet(teamSize) == setNumber
+        val isShootOff = matchEndSize == null && HeadToHeadUseCase.shootOffSet(teamSize) <= setNumber
+        val endSize = if (isShootOff) 1 else (matchEndSize ?: HeadToHeadUseCase.endSize(teamSize, false))
         return copy(
-                isShootOffWin = if (isShootOff) false else null,
-                endSize = if (isShootOff) 1 else (matchEndSize ?: HeadToHeadUseCase.endSize(teamSize, false))
+                endSize = endSize,
+                data = if (!isShootOff) data else generateEmptyDataRows(endSize, teamSize, data + ShootOff(null)),
         )
+    }
+
+    private fun FullHeadToHeadSet.updateShootOffRow(shootOffRow: ShootOff? = null): FullHeadToHeadSet {
+        val shootOff = shootOffRow ?: data.find { it is ShootOff } ?: return this
+        shootOff as ShootOff
+
+        val without = this.copy(data = data.filter { it !is ShootOff })
+
+        val result =
+                if (without.result == HeadToHeadResult.TIE) shootOff.result ?: HeadToHeadResult.LOSS
+                else if (without.result.isComplete) null
+                else shootOff.result
+
+        return without.copy(data = without.data + shootOff.copy(result))
     }
 
     fun handle(action: HeadToHeadAddEndIntent) {
@@ -311,7 +334,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                                         .filter { it.type != currentState.extras.selected }
                                         .plus(row.copy(arrows = arrows))
                                 s.copy(
-                                        set = s.set.copy(data = data),
+                                        set = s.set.copy(data = data).updateShootOffRow(),
                                         arrowInputsError = error?.let { s.arrowInputsError.plus(error) }
                                                 ?: s.arrowInputsError,
                                 )
@@ -326,33 +349,52 @@ class HeadToHeadAddEndViewModel @Inject constructor(
             SightersHandled -> updateState { it.copy(openSighters = false) }
             is GridRowClicked -> {
                 if (action.row == RESULT) {
-                    val currentState = extraState.value ?: return
-                    val resultRow = currentState.set.data.find { it.type == RESULT } ?: return
-                    val newResult = (resultRow.totalScore + 1) % 3
-                    handle(GridTextValueChanged(RESULT, newResult.toString()))
+                    updateState { currentState ->
+                        val resultRow = currentState.set.data
+                                .find { it.type == RESULT }
+                                ?.let { it as Result }
+                                ?: return@updateState currentState
+                        val newData = currentState.set.data.minus(resultRow).plus(resultRow.next())
+                        currentState.copy(set = currentState.set.copy(data = newData).updateShootOffRow())
+                    }
+                }
+                else if (action.row == SHOOT_OFF) {
+                    updateState { currentState ->
+                        val resultRow = currentState.set.data
+                                .find { it.type == SHOOT_OFF }
+                                ?.let { it as ShootOff }
+                                ?.takeIf { it.result != null }
+                                ?: return@updateState currentState
+                        val newData = currentState.set.data.minus(resultRow).plus(resultRow.next())
+                        currentState.copy(set = currentState.set.copy(data = newData))
+                    }
                 }
                 updateState { it.copy(selected = action.row) }
             }
 
-            ToggleShootOffWin -> updateState {
-                if (it.set.isShootOffWin == null) return@updateState it
-                it.copy(set = it.set.copy(isShootOffWin = !it.set.isShootOffWin))
-            }
+            ToggleShootOff -> updateState { s ->
+                val isShootOff = !s.set.isShootOff
+                val endSize = if (isShootOff) 1 else state.value.getData()!!.roundInfo.endSize
 
-            ToggleShootOff -> updateState {
-                val currentState = state.value.getData()!!
-                val isShootOffWin = if (it.set.isShootOffWin == null) false else null
-                val endSize = if (isShootOffWin == null) currentState.roundInfo.endSize else 1
-                it.copy(
-                        set = it.set.copy(
-                                isShootOffWin = isShootOffWin,
+                // Add or remove shoot off row
+                val previous =
+                        if (!isShootOff) {
+                            s.set.data.filter { it !is ShootOff }
+                        }
+                        else {
+                            val dbId = state.value.getData()!!.editingSet?.shootOffRow?.dbId
+                            s.set.data + ShootOff(null, dbId)
+                        }
+
+                s.copy(
+                        set = s.set.copy(
                                 endSize = endSize,
                                 data = generateEmptyDataRows(
                                         endSize = endSize,
-                                        teamSize = it.set.teamSize,
-                                        it.set.data,
+                                        teamSize = s.set.teamSize,
+                                        previous = previous,
                                 ),
-                        )
+                        ).updateShootOffRow()
                 )
             }
 
@@ -367,25 +409,12 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     return
                 }
                 viewModelScope.launch {
-                    // Only respect isShootOffWin if it's a tie
-                    val isShootOffWin =
-                            if (!set.isShootOff) null
-                            // Result will not be complete if result is unknown
-                            else if (!set.result.isComplete || set.result == HeadToHeadResult.TIE) set.isShootOffWin
-                            else set.result == HeadToHeadResult.WIN
-                    val shootOffSets = state.match.shootOffSets
-                            .setShootOffResult(set.setNumber, isShootOffWin)
-
                     if (state.editingSet == null || isInserting) {
-                        h2hRepo.insert(
-                                shootOffSets = shootOffSets,
-                                details = state.setToDbDetails().toTypedArray()
-                        )
+                        h2hRepo.insert(details = state.setToDbDetails().toTypedArray())
                     }
                     else h2hRepo.update(
                             newDetails = state.setToDbDetails(),
                             oldDetails = state.editingToDbDetails()!!,
-                            shootOffSets = shootOffSets,
                     )
 
                     if (state.editingSet != null || isInserting) {
@@ -398,8 +427,13 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 val row = s.set.data.find { it.type == action.type } ?: return@updateState s
                 if (row !is EditableTotal) return@updateState s
 
-                val newData = s.set.data.minus(row).plus(row.copy(text = row.text.onTextChanged(action.text)))
-                s.copy(set = s.set.copy(data = newData))
+                val shootOffRow = s.set.shootOffRow
+                var newData = s.set.data.minus(row).plus(row.copy(text = row.text.onTextChanged(action.text)))
+                if (shootOffRow != null) {
+                    newData = newData.minus(shootOffRow)
+                }
+
+                s.copy(set = s.set.copy(data = newData).updateShootOffRow(shootOffRow))
             }
 
             CreateNextMatchClicked -> updateState { it.copy(openCreateNextMatch = true) }
@@ -431,7 +465,6 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                         },
                         teamSize = it.set.teamSize,
                         isSetPointsFormat = it.set.isSetPointsFormat,
-                        isShootOffWin = it.set.isShootOffWin,
                         endSize = it.set.endSize,
                 )
 

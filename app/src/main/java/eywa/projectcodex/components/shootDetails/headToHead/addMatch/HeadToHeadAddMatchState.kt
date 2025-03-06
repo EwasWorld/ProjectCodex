@@ -31,7 +31,6 @@ data class HeadToHeadAddMatchState(
                     sightersCount = 0,
                     maxPossibleRank = extras.maxPossibleRank.parsed,
                     isBye = extras.isBye,
-                    shootOffSets = mapOf(),
             )
 
     data class PreviousMatch(
