@@ -105,7 +105,6 @@ class HeadToHeadE2eTest {
 
                 checkIsH2hSetPoints(true)
                 checkIsH2hStandardFormat(true)
-                // TODO Check separately
                 setHeadToHeadFields(-1, -1, -1)
                 checkHeadToHeadFieldsAreError()
                 setHeadToHeadFields(1, 2, 6)
@@ -249,7 +248,11 @@ class HeadToHeadE2eTest {
                         checkShootOffSetResult(HeadToHeadResult.WIN)
                         tapIsShootOffWin(2, null)
                         checkShootOffSetResult(HeadToHeadResult.TIE)
-                        tapIsShootOffWin(2, false)
+                        clickNextEnd()
+
+                        setArrowRow(0, archerName, archerTag, listOf("10"), 10)
+                        setTotalRow(1, opponentName, opponentTag, 10)
+                        checkShootOffWinChip(2, false)
                         checkShootOffSetResult(HeadToHeadResult.LOSS)
                         clickNextEnd { }
                     }
@@ -278,7 +281,12 @@ class HeadToHeadE2eTest {
                                 checkRow(0, archerName, archerTag, Value("10-10-10"), 30, NoColumn, Value(2))
                                 checkRow(1, opponentName, opponentTag, Empty, 29, NoColumn, Value(0))
                             }
-                            checkEnd(6, HeadToHeadResult.LOSS, "5-6", 3) {
+                            checkEnd(6, HeadToHeadResult.TIE, "5-5", 3) {
+                                checkRow(0, archerName, archerTag, Value("10"), 10, NoColumn, Value(0))
+                                checkRow(1, opponentName, opponentTag, Empty, 10, NoColumn, Value(0))
+                                checkShootOffRow(2, null)
+                            }
+                            checkEnd(7, HeadToHeadResult.LOSS, "5-6", 3) {
                                 checkRow(0, archerName, archerTag, Value("10"), 10, NoColumn, Value(0))
                                 checkRow(1, opponentName, opponentTag, Empty, 10, NoColumn, Value(1))
                                 checkShootOffRow(2, false)
@@ -312,7 +320,7 @@ class HeadToHeadE2eTest {
                         checkMatchDetails(1, "quarter-final (1/4)", 18, null, null)
 
                         checkGrid(2, HeadToHeadResult.LOSS) {
-                            checkEnd(6, HeadToHeadResult.LOSS, "5-6", 3) {
+                            checkEnd(7, HeadToHeadResult.LOSS, "5-6", 3) {
                                 checkRow(0, archerName, archerTag, Value("10"), 10, NoColumn, Value(0))
                                 checkRow(1, opponentName, opponentTag, Empty, 10, NoColumn, Value(1))
                                 checkShootOffRow(2, false)
@@ -472,19 +480,17 @@ class HeadToHeadE2eTest {
                         handicapAndClassificationRobot.checkHandicap(14)
 
                         checkNumbersBreakdown(3, HandicapType.SELF, listOf(SELF, OPPONENT, DIFFERENCE)) {
-                            checkRow(0, "Semi", 22.5f)
-                            // 2.6 isn't exactly correct, rounding error?
-                            checkEndAverages(0, SELF to 26.4f, OPPONENT to 29.1f, DIFFERENCE to -2.6f)
-                            checkArrowAverages(0, SELF to 8.8f, OPPONENT to 9.7f, DIFFERENCE to -0.9f)
+                            checkRow(0, "Semi", 21.3f)
+                            checkEndAverages(0, SELF to 26.6f, OPPONENT to 29.1f, DIFFERENCE to -2.5f)
+                            checkArrowAverages(0, SELF to 8.9f, OPPONENT to 9.7f, DIFFERENCE to -0.8f)
 
                             checkRow(1, "Final", 0f)
                             checkEndAverages(1, SELF to 30.0f, OPPONENT to 29.0f, DIFFERENCE to 1.0f)
                             checkArrowAverages(1, SELF to 10.0f, OPPONENT to 9.7f, DIFFERENCE to 0.3f)
 
-                            checkRow(2, "Total", 14f)
-                            checkEndAverages(2, SELF to 27.7f, OPPONENT to 29.0f, DIFFERENCE to -1.3f)
-                            // 0.4 isn't exactly correct, rounding error?
-                            checkArrowAverages(2, SELF to 9.2f, OPPONENT to 9.7f, DIFFERENCE to -0.4f)
+                            checkRow(2, "Total", 13.7f)
+                            checkEndAverages(2, SELF to 27.8f, OPPONENT to 29.1f, DIFFERENCE to -1.3f)
+                            checkArrowAverages(2, SELF to 9.3f, OPPONENT to 9.7f, DIFFERENCE to -0.4f)
                         }
                     }
 

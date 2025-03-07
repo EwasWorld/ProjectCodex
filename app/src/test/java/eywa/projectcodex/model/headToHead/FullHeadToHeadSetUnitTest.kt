@@ -19,12 +19,18 @@ class FullHeadToHeadSetUnitTest {
             isRecurveStyle: Boolean = true,
     ): FullHeadToHeadSet {
         val teamSize = if (isTeam) 2 else 1
+        var data: List<HeadToHeadGridRowData> = map { (type, total) -> HeadToHeadGridRowData.Total(type, 1, total) }
+        if (isShootOff) {
+            data = data.plus(
+                    HeadToHeadGridRowData.ShootOff(if (isShootOffWin) HeadToHeadResult.WIN else HeadToHeadResult.LOSS),
+            )
+        }
         return FullHeadToHeadSet(
                 setNumber = if (!isShootOff) 1 else HeadToHeadUseCase.shootOffSet(teamSize),
-                data = map { (type, total) -> HeadToHeadGridRowData.Total(type, 1, total) },
+                data = data,
                 teamSize = teamSize,
-                isShootOffWin = isShootOffWin,
                 isSetPointsFormat = isRecurveStyle,
+                endSize = if (isShootOff) 1 else 3,
         )
     }
 
@@ -248,8 +254,8 @@ class FullHeadToHeadSetUnitTest {
                             setNumber = 1,
                             data = listOf(input),
                             teamSize = 1,
-                            isShootOffWin = false,
                             isSetPointsFormat = true,
+                            endSize = 3,
                     ).asDatabaseDetails(1, 0),
             )
         }
@@ -278,8 +284,8 @@ class FullHeadToHeadSetUnitTest {
                                 ),
                         ),
                         teamSize = 1,
-                        isShootOffWin = false,
                         isSetPointsFormat = true,
+                        endSize = 3,
                 ).asDatabaseDetails(3, 4),
         )
     }

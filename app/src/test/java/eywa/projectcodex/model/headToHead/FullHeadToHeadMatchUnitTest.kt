@@ -16,7 +16,7 @@ class FullHeadToHeadMatchUnitTest {
                         teamSize = teamSize,
                         isRecurveStyle = true,
                         matchNumber = 1,
-                        isStandardFormat = true,
+                        endSize = null,
                 )
 
         fun getData(teamSize: Int): List<Pair<HeadToHeadMatchPreviewHelperDsl, List<HeadToHeadRunningTotal>>> =
@@ -55,7 +55,6 @@ class FullHeadToHeadMatchUnitTest {
                                 Either.Left<Pair<Int, Int>, HeadToHeadNoResult>(4 to 5).takeIf { teamSize != 1 },
                         ),
                         dsl(teamSize).apply {
-                            match = match.copy(isShootOffWin = true)
                             addSet { addRows(result = HeadToHeadResult.WIN) }
                             addSet { addRows(result = HeadToHeadResult.LOSS) }
                             addSet { addRows(result = HeadToHeadResult.LOSS) }
@@ -63,7 +62,9 @@ class FullHeadToHeadMatchUnitTest {
                             if (teamSize == 1) {
                                 addSet { addRows(result = HeadToHeadResult.TIE) }
                             }
-                            addSet { addRows(result = HeadToHeadResult.WIN, winnerScore = 10, loserScore = 1) }
+                            addSet(isShootOff = true) {
+                                addRows(result = HeadToHeadResult.WIN, winnerScore = 10, loserScore = 1)
+                            }
                         } to listOfNotNull(
                                 Either.Left(2 to 0),
                                 Either.Left(2 to 2),
@@ -91,7 +92,7 @@ class FullHeadToHeadMatchUnitTest {
                         teamSize = teamSize,
                         isRecurveStyle = false,
                         matchNumber = 1,
-                        isStandardFormat = true,
+                        endSize = null,
                 )
 
         fun getData(teamSize: Int): List<Pair<HeadToHeadMatchPreviewHelperDsl, List<HeadToHeadRunningTotal>>> =
@@ -130,7 +131,6 @@ class FullHeadToHeadMatchUnitTest {
                                 Either.Left<Pair<Int, Int>, HeadToHeadNoResult>(101 to 110).takeIf { teamSize != 1 },
                         ),
                         dsl(teamSize).apply {
-                            match = match.copy(isShootOffWin = true)
                             addSet { addRows(result = HeadToHeadResult.WIN) }
                             addSet { addRows(result = HeadToHeadResult.LOSS) }
                             addSet { addRows(result = HeadToHeadResult.LOSS) }
@@ -138,7 +138,9 @@ class FullHeadToHeadMatchUnitTest {
                             if (teamSize == 1) {
                                 addSet { addRows(result = HeadToHeadResult.TIE) }
                             }
-                            addSet { addRows(result = HeadToHeadResult.WIN, winnerScore = 10, loserScore = 1) }
+                            addSet(isShootOff = true) {
+                                addRows(result = HeadToHeadResult.WIN, winnerScore = 10, loserScore = 1)
+                            }
                         } to listOfNotNull(
                                 Either.Left(30 to 20),
                                 Either.Left(50 to 50),
@@ -166,7 +168,7 @@ class FullHeadToHeadMatchUnitTest {
                         teamSize = teamSize,
                         isRecurveStyle = isRecurve,
                         matchNumber = 1,
-                        isStandardFormat = true,
+                        endSize = null,
                 )
 
         fun getData(isRecurve: Boolean, dsl: () -> HeadToHeadMatchPreviewHelperDsl) =

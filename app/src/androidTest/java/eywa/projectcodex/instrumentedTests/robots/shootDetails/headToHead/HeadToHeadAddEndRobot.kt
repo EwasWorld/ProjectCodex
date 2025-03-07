@@ -244,6 +244,7 @@ class HeadToHeadAddEndRobot(
             +CodexNodeMatcher.HasTestTag(HeadToHeadGridColumnTestTag.ARROW_CELL.get(1, 1, type))
             +CodexNodeInteraction.AssertHasError(error)
         }
+        checkElementTextOrDoesNotExist(HeadToHeadAddEndTestTag.GRID_ERROR_TEXT, error)
     }
 
     fun checkTotalRowError(error: String?, type: String) {
@@ -255,6 +256,7 @@ class HeadToHeadAddEndRobot(
             )
             +CodexNodeInteraction.AssertHasError(error)
         }
+        checkElementTextOrDoesNotExist(HeadToHeadAddEndTestTag.GRID_ERROR_TEXT, error)
     }
 
     fun checkSetResult(set: Int, result: HeadToHeadResult) {

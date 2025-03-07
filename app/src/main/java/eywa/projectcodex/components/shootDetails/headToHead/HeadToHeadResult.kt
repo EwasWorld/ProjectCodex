@@ -44,8 +44,4 @@ enum class HeadToHeadResult(
         LOSS -> WIN
         else -> this
     }
-
-    companion object {
-        val defaultPointsBackwardsMap = entries.associateBy { it.defaultPoints }
-    }
 }

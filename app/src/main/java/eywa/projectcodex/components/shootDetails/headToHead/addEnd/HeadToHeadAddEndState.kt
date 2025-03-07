@@ -1,9 +1,11 @@
 package eywa.projectcodex.components.shootDetails.headToHead.addEnd
 
+import eywa.projectcodex.R
 import eywa.projectcodex.common.sharedUi.previewHelpers.HeadToHeadMatchPreviewHelperDsl
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsError
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
+import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowDataPreviewHelper
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridState
 import eywa.projectcodex.database.RoundFace
@@ -35,6 +37,18 @@ data class HeadToHeadAddEndState(
 
     fun setToDbDetails() = extras.set.asDatabaseDetails(match.shootId, match.matchNumber)
     fun editingToDbDetails() = editingSet?.asDatabaseDetails(match.shootId, match.matchNumber)
+
+    val gridError: ResOrActual<String>?
+        get() {
+            val data = extras.set.data
+
+            val invalidError = data.firstNotNullOfOrNull { (it as? HeadToHeadGridRowData.EditableTotal)?.text?.error }
+            val requiredField =
+                    if (!extras.incompleteError || data.all { it.isComplete }) null
+                    else ResOrActual.StringResource(R.string.err__required_field)
+
+            return invalidError ?: requiredField
+        }
 }
 
 data class HeadToHeadRoundInfo(

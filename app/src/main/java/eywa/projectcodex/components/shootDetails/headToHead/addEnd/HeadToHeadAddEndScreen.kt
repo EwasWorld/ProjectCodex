@@ -76,6 +76,7 @@ import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndIntent.*
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGrid
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData
+import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowDataPreviewHelper.toArrows
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 
 @Composable
@@ -328,7 +329,7 @@ private fun MatchTransitiveInfo(
                         "Unknown"
                     },
                     textStyle = (if (state.teamRunningTotal != null) CodexTypography.LARGE else CodexTypography.NORMAL).copy(
-                            color = CodexTheme.colors.onAppBackground
+                            color = CodexTheme.colors.onAppBackground,
                     ),
                     titleStyle = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground),
                     modifier = Modifier
@@ -509,11 +510,23 @@ private fun ColumnScope.SetInfo(
                 helpListener = helpListener,
                 itemClickedListener = { _, _ -> },
                 closeDropdownMenuListener = {},
-                modifier = Modifier.padding(vertical = 10.dp),
+                modifier = Modifier.padding(vertical = 10.dp)
         )
 
+        state.gridError?.get()?.let { errorMessage ->
+            Text(
+                    text = errorMessage,
+                    style = CodexTypography.SMALL_PLUS,
+                    color = CodexTheme.colors.errorOnAppBackground,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                            .testTag(HeadToHeadAddEndTestTag.GRID_ERROR_TEXT)
+//                                    .clearAndSetSemantics { }
+            )
+        }
+
         FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (!state.roundInfo.isStandardFormat) {
                 CodexChip(
@@ -601,7 +614,7 @@ private fun EditButtons(
                 title = stringResource(R.string.head_to_head_add_end__delete_dialog_title),
                 message = stringResource(
                         R.string.head_to_head_add_end__delete_dialog_body,
-                        state.editingSet.setNumber.toString()
+                        state.editingSet.setNumber.toString(),
                 ),
                 positiveButton = ButtonState(
                         text = stringResource(R.string.general_delete),
@@ -681,6 +694,7 @@ enum class HeadToHeadAddEndTestTag : CodexTestTag {
     SAVE_BUTTON,
     EDIT_ROW_TYPES_DIALOG_ITEM,
     EDIT_ROW_TYPES_DIALOG_WARNING,
+    GRID_ERROR_TEXT,
     ;
 
     override val screenName: String
@@ -707,21 +721,36 @@ fun HeadToHeadAddScreen_Preview() {
 @Preview
 @Composable
 fun Editing_HeadToHeadAddScreen_Preview() {
+    val data = HeadToHeadSetPreviewHelperDsl(
+            setNumber = 1,
+            teamSize = 1,
+            isShootOff = false,
+            isRecurveStyle = true,
+            endSize = 3,
+    ).apply {
+        addRow(
+                HeadToHeadGridRowData.Arrows(
+                        HeadToHeadArcherType.SELF,
+                        3,
+                        listOf(10, 10, 10).toArrows(),
+                ),
+        )
+        addRow(
+                HeadToHeadGridRowData.EditableTotal(
+                        HeadToHeadArcherType.OPPONENT,
+                        3,
+                ).let { it.copy(text = it.text.onTextChanged("50")) },
+        )
+    }.asFull()
+
     CodexTheme {
         HeadToHeadAddEndScreen(
                 state = HeadToHeadAddEndState(
                         match = HeadToHeadMatchPreviewHelperDsl.data,
                         teamRunningTotal = 0,
                         opponentRunningTotal = 0,
-                        editingSet = HeadToHeadSetPreviewHelperDsl(
-                                setNumber = 1,
-                                teamSize = 1,
-                                isShootOff = false,
-                                isRecurveStyle = true,
-                                endSize = 3,
-                        ).apply {
-                            addRows(isEditable = true)
-                        }.asFull(),
+                        editingSet = data,
+                        extras = HeadToHeadAddEndExtras(set = data),
                 ),
         ) {}
     }
@@ -745,13 +774,7 @@ fun ShootOff_HeadToHeadAddScreen_Preview() {
                                         endSize = 1,
                                 ).apply {
                                     addRows(winnerScore = 10, loserScore = 10, isEditable = true)
-                                    addRow(
-                                            HeadToHeadGridRowData.Total(
-                                                    type = HeadToHeadArcherType.SHOOT_OFF,
-                                                    expectedArrowCount = 1,
-                                                    total = 2,
-                                            )
-                                    )
+                                    addRow(HeadToHeadGridRowData.ShootOff(HeadToHeadResult.WIN))
                                 }.asFull()
                         ),
                         roundInfo = HeadToHeadRoundInfo(isStandardFormat = false)

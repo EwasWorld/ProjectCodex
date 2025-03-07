@@ -45,8 +45,11 @@ data class FullHeadToHeadMatch(
             }
 
     val isComplete
-        get() = isStandardFormat &&
-                (result.isComplete || (sets.lastOrNull()?.let { it.isShootOff && it.isComplete } == true))
+        get() = isStandardFormat && sets.isNotEmpty() && (
+                (result.isComplete && result != HeadToHeadResult.TIE)
+                        // If result is UNKNOWN, check if last match is a shoot off with a known result
+                        || sets.last().let { it.isShootOff && it.isComplete && it.result != HeadToHeadResult.TIE }
+                )
 
     /**
      * @return for each set in [sets], provide cumulative team/opponent score.
