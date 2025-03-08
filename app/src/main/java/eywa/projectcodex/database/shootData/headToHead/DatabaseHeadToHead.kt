@@ -22,7 +22,7 @@ data class DatabaseHeadToHead(
         /**
          * Set points (usually recurve matches) vs total score (usually compound matches)
          */
-        val isSetPointsFormat: Boolean,
+        val isSetPoints: Boolean,
         val teamSize: Int,
         val qualificationRank: Int?,
         /**

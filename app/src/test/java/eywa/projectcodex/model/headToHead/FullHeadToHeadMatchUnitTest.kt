@@ -14,7 +14,7 @@ class FullHeadToHeadMatchUnitTest {
                 HeadToHeadMatchPreviewHelperDsl(
                         shootId = 1,
                         teamSize = teamSize,
-                        isRecurveStyle = true,
+                        isSetPoints = true,
                         matchNumber = 1,
                         endSize = null,
                 )
@@ -90,7 +90,7 @@ class FullHeadToHeadMatchUnitTest {
                 HeadToHeadMatchPreviewHelperDsl(
                         shootId = 1,
                         teamSize = teamSize,
-                        isRecurveStyle = false,
+                        isSetPoints = false,
                         matchNumber = 1,
                         endSize = null,
                 )
@@ -162,16 +162,16 @@ class FullHeadToHeadMatchUnitTest {
 
     @Test
     fun testResult() {
-        fun dsl(teamSize: Int, isRecurve: Boolean) =
+        fun dsl(teamSize: Int, isSetPoints: Boolean) =
                 HeadToHeadMatchPreviewHelperDsl(
                         shootId = 1,
                         teamSize = teamSize,
-                        isRecurveStyle = isRecurve,
+                        isSetPoints = isSetPoints,
                         matchNumber = 1,
                         endSize = null,
                 )
 
-        fun getData(isRecurve: Boolean, dsl: () -> HeadToHeadMatchPreviewHelperDsl) =
+        fun getData(isSetPoints: Boolean, dsl: () -> HeadToHeadMatchPreviewHelperDsl) =
                 listOf(
                         /*
                          * Edge cases
@@ -202,7 +202,7 @@ class FullHeadToHeadMatchUnitTest {
                             addSet { addRows(result = HeadToHeadResult.LOSS) }
                             addSet { addRows(result = HeadToHeadResult.WIN) }
                             addSet { addRows(result = HeadToHeadResult.WIN) }
-                            if (!isRecurveStyle && teamSize == 1) {
+                            if (!this.isSetPoints && teamSize == 1) {
                                 addSet { addRows(result = HeadToHeadResult.TIE) }
                             }
                         } to HeadToHeadResult.WIN,
@@ -210,12 +210,12 @@ class FullHeadToHeadMatchUnitTest {
                             addSet { addRows(result = HeadToHeadResult.WIN) }
                             addSet { addRows(result = HeadToHeadResult.WIN) }
                             addSet { addRows(result = HeadToHeadResult.WIN) }
-                        } to if (isRecurve) HeadToHeadResult.WIN else HeadToHeadResult.INCOMPLETE,
+                        } to if (isSetPoints) HeadToHeadResult.WIN else HeadToHeadResult.INCOMPLETE,
                         dsl().apply {
                             addSet { addRows(result = HeadToHeadResult.LOSS) }
                             addSet { addRows(result = HeadToHeadResult.LOSS) }
                             addSet { addRows(result = HeadToHeadResult.LOSS) }
-                            if (!isRecurveStyle) {
+                            if (!this.isSetPoints) {
                                 addSet { addRows(result = HeadToHeadResult.TIE) }
                                 if (teamSize == 1) {
                                     addSet { addRows(result = HeadToHeadResult.TIE) }
@@ -247,12 +247,12 @@ class FullHeadToHeadMatchUnitTest {
                         } to HeadToHeadResult.LOSS,
                 )
 
-        listOf(1 to true, 2 to true, 1 to false, 2 to false).forEach { (teamSize, isRecurve) ->
-            getData(isRecurve) { dsl(teamSize, isRecurve) }.forEachIndexed { i, (dsl, expected) ->
-                assertEquals("$teamSize $isRecurve $i", expected, dsl.asFull().result)
+        listOf(1 to true, 2 to true, 1 to false, 2 to false).forEach { (teamSize, isSetPoints) ->
+            getData(isSetPoints) { dsl(teamSize, isSetPoints) }.forEachIndexed { i, (dsl, expected) ->
+                assertEquals("$teamSize $isSetPoints $i", expected, dsl.asFull().result)
             }
             assertThrows(IllegalStateException::class.java) {
-                dsl(teamSize, isRecurve).apply {
+                dsl(teamSize, isSetPoints).apply {
                     match = match.copy(isBye = true)
                     addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
                 }.asFull().result

@@ -41,7 +41,7 @@ data class FullHeadToHeadSet(
         val setNumber: Int,
         val data: List<HeadToHeadGridRowData>,
         val teamSize: Int,
-        val isSetPointsFormat: Boolean,
+        val isSetPoints: Boolean,
         val endSize: Int,
 ) {
     init {
@@ -132,7 +132,7 @@ data class FullHeadToHeadSet(
                 ?.let { it as HeadToHeadGridRowData.Result }
 
         if (result != null) {
-            if (!isSetPointsFormat) throw IllegalStateException("Cannot give results for non-recurve style matches")
+            if (!isSetPoints) throw IllegalStateException("Cannot give results for non-recurve style matches")
             if (shootOffRow?.result != null) {
                 check(shootOffRow.result == result.result) { "Result and shoot off row should agree" }
             }

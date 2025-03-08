@@ -16,7 +16,7 @@ class FullHeadToHeadSetUnitTest {
             isTeam: Boolean = false,
             isShootOff: Boolean = false,
             isShootOffWin: Boolean = false,
-            isRecurveStyle: Boolean = true,
+            isSetPoints: Boolean = true,
     ): FullHeadToHeadSet {
         val teamSize = if (isTeam) 2 else 1
         var data: List<HeadToHeadGridRowData> = map { (type, total) -> HeadToHeadGridRowData.Total(type, 1, total) }
@@ -29,7 +29,7 @@ class FullHeadToHeadSetUnitTest {
                 setNumber = if (!isShootOff) 1 else HeadToHeadUseCase.shootOffSet(teamSize),
                 data = data,
                 teamSize = teamSize,
-                isSetPointsFormat = isRecurveStyle,
+                isSetPoints = isSetPoints,
                 endSize = if (isShootOff) 1 else 3,
         )
     }
@@ -126,7 +126,7 @@ class FullHeadToHeadSetUnitTest {
 
         // Incorrect result
         assertThrows(IllegalStateException::class.java) {
-            listOf(RESULT to 5, TEAM to 1, OPPONENT to 10).asData(isRecurveStyle = true).result
+            listOf(RESULT to 5, TEAM to 1, OPPONENT to 10).asData(isSetPoints = true).result
         }
         // Result tie on shoot off
         assertThrows(IllegalStateException::class.java) {
@@ -134,7 +134,7 @@ class FullHeadToHeadSetUnitTest {
         }
         // Result in compound match
         assertThrows(IllegalStateException::class.java) {
-            listOf(RESULT to 2, TEAM to 10, OPPONENT to 1).asData(isRecurveStyle = false).result
+            listOf(RESULT to 2, TEAM to 10, OPPONENT to 1).asData(isSetPoints = false).result
         }
     }
 
@@ -254,7 +254,7 @@ class FullHeadToHeadSetUnitTest {
                             setNumber = 1,
                             data = listOf(input),
                             teamSize = 1,
-                            isSetPointsFormat = true,
+                            isSetPoints = true,
                             endSize = 3,
                     ).asDatabaseDetails(1, 0),
             )
@@ -284,7 +284,7 @@ class FullHeadToHeadSetUnitTest {
                                 ),
                         ),
                         teamSize = 1,
-                        isSetPointsFormat = true,
+                        isSetPoints = true,
                         endSize = 3,
                 ).asDatabaseDetails(3, 4),
         )

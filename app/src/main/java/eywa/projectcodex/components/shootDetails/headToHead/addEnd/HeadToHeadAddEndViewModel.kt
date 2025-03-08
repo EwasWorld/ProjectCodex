@@ -101,7 +101,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     roundInfo = roundInfo,
                     extras = extras ?: HeadToHeadAddEndExtras().resetEditInfo(editingSet),
                     match = editingMatch.match,
-                    isRecurveStyle = fullH2hInfo.headToHead.isSetPointsFormat,
+                    isSetPoints = fullH2hInfo.headToHead.isSetPoints,
                     teamRunningTotal = null,
                     opponentRunningTotal = null,
                     editingSet = editingSet,
@@ -112,7 +112,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 setNumber = 0,
                 data = listOf(),
                 teamSize = fullH2hInfo.headToHead.teamSize,
-                isSetPointsFormat = fullH2hInfo.headToHead.isSetPointsFormat,
+                isSetPoints = fullH2hInfo.headToHead.isSetPoints,
                 endSize = endSize,
         )
 
@@ -148,7 +148,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     roundInfo = roundInfo,
                     extras = extras ?: HeadToHeadAddEndExtras(),
                     match = editingMatch.match,
-                    isRecurveStyle = fullH2hInfo.headToHead.isSetPointsFormat,
+                    isSetPoints = fullH2hInfo.headToHead.isSetPoints,
                     // Default to zeros on the first set only
                     teamRunningTotal = scores?.first ?: 0.takeIf { editingSetNumber == 1 },
                     // Default to zeros on the first set only
@@ -200,7 +200,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                     roundInfo = roundInfo,
                     extras = extras ?: HeadToHeadAddEndExtras(),
                     match = match.match,
-                    isRecurveStyle = fullH2hInfo.headToHead.isSetPointsFormat,
+                    isSetPoints = fullH2hInfo.headToHead.isSetPoints,
                     // Default to zeros on the first set only
                     teamRunningTotal = scores?.first ?: 0.takeIf { setNumber == 1 },
                     // Default to zeros on the first set only
@@ -220,7 +220,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                 roundInfo = roundInfo,
                 extras = extras ?: HeadToHeadAddEndExtras(),
                 match = match.match,
-                isRecurveStyle = fullH2hInfo.headToHead.isSetPointsFormat,
+                isSetPoints = fullH2hInfo.headToHead.isSetPoints,
                 // Default to zeros on the first set only
                 teamRunningTotal = scores?.first ?: 0.takeIf { extras?.set?.setNumber == 1 },
                 // Default to zeros on the first set only
@@ -464,7 +464,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                             getRow(type, isTotal, it.set.endSize, it.set.teamSize)
                         },
                         teamSize = it.set.teamSize,
-                        isSetPointsFormat = it.set.isSetPointsFormat,
+                        isSetPoints = it.set.isSetPoints,
                         endSize = it.set.endSize,
                 )
 

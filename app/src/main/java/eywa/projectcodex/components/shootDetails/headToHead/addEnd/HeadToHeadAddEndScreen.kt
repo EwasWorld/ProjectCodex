@@ -370,7 +370,7 @@ private fun EditRowTypesDialog(
             ) {
                 val isTeam = state.extras.set.teamSize > 1
                 HeadToHeadArcherType.entries.forEach {
-                    if (it.showForSelectorDialog(isTeam, state.isRecurveStyle)) {
+                    if (it.showForSelectorDialog(isTeam, state.isSetPoints)) {
                         val enabled = it.enabledOnSelectorDialog(isTeam, dialogState.keys.toList())
                         val text =
                                 if (!enabled) {
@@ -442,7 +442,7 @@ private fun ColumnScope.SetInfo(
                         result.title.get(),
                 )
             }
-            else if (state.isRecurveStyle) {
+            else if (state.isSetPoints) {
                 stringResource(
                         R.string.head_to_head_add_end__set,
                         state.extras.set.setNumber,
@@ -725,7 +725,7 @@ fun Editing_HeadToHeadAddScreen_Preview() {
             setNumber = 1,
             teamSize = 1,
             isShootOff = false,
-            isRecurveStyle = true,
+            isSetPoints = true,
             endSize = 3,
     ).apply {
         addRow(
@@ -770,7 +770,7 @@ fun ShootOff_HeadToHeadAddScreen_Preview() {
                                         setNumber = 1,
                                         teamSize = 1,
                                         isShootOff = false,
-                                        isRecurveStyle = true,
+                                        isSetPoints = true,
                                         endSize = 1,
                                 ).apply {
                                     addRows(winnerScore = 10, loserScore = 10, isEditable = true)
@@ -810,7 +810,7 @@ fun EditRowTypes_HeadToHeadAddScreen_Preview() {
                                         setNumber = 1,
                                         data = listOf(),
                                         teamSize = 2,
-                                        isSetPointsFormat = true,
+                                        isSetPoints = true,
                                         endSize = 3,
                                 ),
                                 selectRowTypesDialogState = mapOf(
@@ -837,7 +837,7 @@ fun Unknown_HeadToHeadAddScreen_Preview() {
                                         setNumber = 3,
                                         teamSize = 1,
                                         isShootOff = false,
-                                        isRecurveStyle = true,
+                                        isSetPoints = true,
                                         endSize = 3,
                                 ).apply {
                                     addRows(HeadToHeadResult.WIN, isEditable = true)

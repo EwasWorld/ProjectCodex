@@ -16,7 +16,7 @@ import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 class HeadToHeadPreviewHelperDsl(shootId: Int) {
     var headToHead = DatabaseHeadToHead(
             shootId = shootId,
-            isSetPointsFormat = true,
+            isSetPoints = true,
             endSize = null,
             teamSize = 1,
             qualificationRank = null,
@@ -29,7 +29,7 @@ class HeadToHeadPreviewHelperDsl(shootId: Int) {
                 matchNumber = matches.size + 1,
                 shootId = headToHead.shootId,
                 teamSize = headToHead.teamSize,
-                isRecurveStyle = headToHead.isSetPointsFormat,
+                isSetPoints = headToHead.isSetPoints,
                 endSize = headToHead.endSize,
                 heat = matches.mapNotNull { it.match.heat }.minOrNull()?.minus(1) ?: 3,
         ).apply(config).asFull()
@@ -45,7 +45,7 @@ class HeadToHeadMatchPreviewHelperDsl(
         shootId: Int,
         matchNumber: Int,
         val teamSize: Int,
-        val isRecurveStyle: Boolean,
+        val isSetPoints: Boolean,
         val endSize: Int?,
         heat: Int = 3,
 ) {
@@ -67,7 +67,7 @@ class HeadToHeadMatchPreviewHelperDsl(
         val set = HeadToHeadSetPreviewHelperDsl(
                 setNumber = setNumber,
                 teamSize = teamSize,
-                isRecurveStyle = isRecurveStyle,
+                isSetPoints = isSetPoints,
                 isShootOff = isShootOff,
                 endSize = endSize,
         ).apply(config).asFull()
@@ -85,7 +85,7 @@ class HeadToHeadMatchPreviewHelperDsl(
                     match = match,
                     sets = sets,
                     teamSize = teamSize,
-                    isSetPointsFormat = isRecurveStyle,
+                    isSetPoints = isSetPoints,
                     isStandardFormat = endSize == null,
             )
 
@@ -107,7 +107,7 @@ class HeadToHeadMatchPreviewHelperDsl(
 class HeadToHeadSetPreviewHelperDsl(
         private val setNumber: Int,
         private val teamSize: Int,
-        private val isRecurveStyle: Boolean,
+        private val isSetPoints: Boolean,
         private val isShootOff: Boolean,
         endSize: Int?,
 ) {
@@ -181,7 +181,7 @@ class HeadToHeadSetPreviewHelperDsl(
                     setNumber = setNumber,
                     data = data,
                     teamSize = teamSize,
-                    isSetPointsFormat = isRecurveStyle,
+                    isSetPoints = isSetPoints,
                     endSize = actualEndSize,
             )
 }

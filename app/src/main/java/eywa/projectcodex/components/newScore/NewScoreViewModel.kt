@@ -77,7 +77,7 @@ class NewScoreViewModel @Inject constructor(
             is DateChanged -> _state.update { it.copy(dateShot = action.info.updateCalendar(it.dateShot)) }
 
             TypeChanged -> _state.update { it.copy(type = it.type.next()) }
-            H2hStyleChanged -> _state.update { it.copy(h2hStyleIsRecurve = !it.h2hStyleIsRecurve) }
+            H2hStyleChanged -> _state.update { it.copy(h2hIsSetPoints = !it.h2hIsSetPoints) }
             H2hFormatChanged -> _state.update { it.copy(h2hFormatIsStandard = !it.h2hFormatIsStandard) }
             is H2hQualiRankChanged ->
                 _state.update { it.copy(h2hQualificationRank = it.h2hQualificationRank.onTextChanged(action.value)) }
@@ -177,7 +177,7 @@ class NewScoreViewModel @Inject constructor(
 
         newState = if (roundBeingEdited.h2h != null) {
             newState.copy(
-                    h2hStyleIsRecurve = roundBeingEdited.h2h.headToHead.isSetPointsFormat,
+                    h2hIsSetPoints = roundBeingEdited.h2h.headToHead.isSetPoints,
                     h2hEndSize = h2hEndSize
                             .copy(text = roundBeingEdited.h2h.headToHead.endSize?.toString() ?: ""),
                     h2hTeamSize = h2hTeamSize
@@ -189,7 +189,7 @@ class NewScoreViewModel @Inject constructor(
         }
         else {
             newState.copy(
-                    h2hStyleIsRecurve = true,
+                    h2hIsSetPoints = true,
                     h2hTeamSize = h2hTeamSize.copy(text = "1"),
                     h2hQualificationRank = h2hQualificationRank.copy(text = ""),
             )

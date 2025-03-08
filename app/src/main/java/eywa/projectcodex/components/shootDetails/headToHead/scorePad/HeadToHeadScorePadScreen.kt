@@ -467,7 +467,7 @@ fun HeadToHeadScorePadScreen_Preview() {
                 HeadToHeadScorePadState(
                         entries = HeadToHeadPreviewHelperDsl(1).apply {
                             headToHead = headToHead.copy(
-                                    isSetPointsFormat = true,
+                                    isSetPoints = true,
                                     teamSize = 1,
                             )
 

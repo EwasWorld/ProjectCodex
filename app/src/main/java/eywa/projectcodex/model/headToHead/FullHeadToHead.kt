@@ -39,13 +39,13 @@ data class FullHeadToHead(
                                                         isEditable = isEditable,
                                                 ),
                                                 teamSize = headToHead.teamSize,
-                                                isSetPointsFormat = headToHead.isSetPointsFormat,
+                                                isSetPoints = headToHead.isSetPoints,
                                                 endSize = setEndSize
                                         )
                                     }
                                     .sortedBy { it.setNumber },
                             teamSize = headToHead.teamSize,
-                            isSetPointsFormat = headToHead.isSetPointsFormat,
+                            isSetPoints = headToHead.isSetPoints,
                             isStandardFormat = headToHead.isStandardFormat,
                     )
                 }
@@ -55,7 +55,7 @@ data class FullHeadToHead(
     init {
         check(
                 matches.all {
-                    it.isSetPointsFormat == headToHead.isSetPointsFormat
+                    it.isSetPoints == headToHead.isSetPoints
                             && it.isStandardFormat == (headToHead.endSize == null)
                             && it.teamSize == headToHead.teamSize
                 },

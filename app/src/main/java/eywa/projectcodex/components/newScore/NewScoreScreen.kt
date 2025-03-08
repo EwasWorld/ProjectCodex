@@ -167,7 +167,7 @@ private fun HeadToHeadSection(
             DataRow(
                     title = stringResource(R.string.create_round__h2h_style),
                     text = stringResource(
-                            if (state.h2hStyleIsRecurve) R.string.create_round__h2h_style_recurve
+                            if (state.h2hIsSetPoints) R.string.create_round__h2h_style_recurve
                             else R.string.create_round__h2h_style_compound,
                     ),
                     helpState = HelpShowcaseItem(
