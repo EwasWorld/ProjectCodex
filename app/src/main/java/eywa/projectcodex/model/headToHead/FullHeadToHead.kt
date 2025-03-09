@@ -3,6 +3,7 @@ package eywa.projectcodex.model.headToHead
 import eywa.projectcodex.components.referenceTables.headToHead.HeadToHeadUseCase
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData.*
+import eywa.projectcodex.database.shootData.headToHead.DatabaseFullHeadToHead
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHead
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
@@ -50,6 +51,16 @@ data class FullHeadToHead(
                     )
                 }
             },
+    )
+
+    constructor(
+            dbH2h: DatabaseFullHeadToHead,
+            isEditable: Boolean
+    ) : this(
+            headToHead = dbH2h.headToHead,
+            matches = dbH2h.matches.orEmpty(),
+            details = dbH2h.details.orEmpty(),
+            isEditable = isEditable,
     )
 
     init {

@@ -163,7 +163,7 @@ interface ShootDao {
                         (TOTAL(scores.count) 
                             + TOTAL(counts.shotCount)
                             + TOTAL(rounds.sightersCount) 
-                            + TOTAL(h2hHeats.count)
+                            + TOTAL(h2hMatches.count)
                             + TOTAL(h2hDetails.count)) as count
                 FROM $TABLE_NAME as shoot
                 LEFT JOIN (
@@ -185,23 +185,25 @@ interface ShootDao {
                     SELECT h.shootId, SUM(h.sightersCount) as count
                     FROM ${DatabaseHeadToHeadMatch.TABLE_NAME} as h
                     GROUP BY h.shootId
-                ) as h2hHeats ON shoot.shootId = h2hHeats.shootId
+                ) as h2hMatches ON shoot.shootId = h2hMatches.shootId
                 LEFT JOIN (
-                    SELECT x.shootId, SUM(x.count) as count
+                    SELECT x.shootId, 
+                        SUM(
+                            -- Each shoot-off set will be a single arrow
+                            x.shootOffSetCount 
+                            -- Non shoot-off sets
+                            + (x.totalSetCount - x.shootOffSetCount)
+                            -- Either use the custom end size or the standard 2 or 3 for teams or individuals
+                            * IFNULL(i.endSize, CASE WHEN i.teamSize == 1 THEN 3 ELSE 2 END)) as count
                     FROM (
                         SELECT 
-                            d.shootId,
-                            -- Assumes all sets are complete
-                            CASE
-                                WHEN i.teamSize = 1 AND MAX(d.setNumber) = 6 THEN 16 -- 5 sets of 3 arrows + 1 shoot off arrow
-                                WHEN i.teamSize = 1 THEN MAX(d.setNumber) * 3 -- X sets of 3 arrows
-                                WHEN MAX(d.setNumber) = 5 THEN 11 -- 5 sets of 2 arrows + 1 shoot off arrow
-                                ELSE MAX(d.setNumber) * 2 -- X sets of 2 arrows
-                            END as count
-                        FROM ${DatabaseHeadToHeadDetail.TABLE_NAME} as d
-                        LEFT JOIN ${DatabaseHeadToHead.TABLE_NAME} as i ON i.shootId = i.shootId
-                        GROUP BY d.shootId, d.matchNumber
+                            shootId,
+                            COUNT(DISTINCT d.matchNumber || '-' || d.setNumber) as totalSetCount,
+                            SUM(CASE WHEN d.type == "SHOOT_OFF" THEN 1 ELSE 0 END) as shootOffSetCount
+                            FROM ${DatabaseHeadToHeadDetail.TABLE_NAME} as d
+                            GROUP BY d.shootId
                     ) as x
+                    LEFT JOIN ${DatabaseHeadToHead.TABLE_NAME} as i ON x.shootId = i.shootId
                 ) as h2hDetails ON shoot.shootId = h2hDetails.shootId
                 WHERE shoot.dateShot >= :fromDate AND shoot.dateShot <= :toDate
                 GROUP BY dateString

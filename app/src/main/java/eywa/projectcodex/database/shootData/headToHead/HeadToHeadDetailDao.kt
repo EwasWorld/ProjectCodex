@@ -12,14 +12,31 @@ import kotlinx.coroutines.flow.Flow
 interface HeadToHeadDetailDao {
     @Query(
             """
-                SELECT COUNT(rowId)
+                SELECT *
                 FROM $TABLE_NAME
                 WHERE shootId = :shootId 
                     AND matchNumber = :matchNumber 
-                    AND setNumber = :setNumber
+                    AND setNumber >= :setNumbersAboveAndIncluding
             """
     )
-    fun getDetailsCount(shootId: Int, matchNumber: Int, setNumber: Int): Flow<Int>
+    fun getSetNumberGreaterThanOrEqualTo(
+            shootId: Int,
+            matchNumber: Int,
+            setNumbersAboveAndIncluding: Int,
+    ): Flow<List<DatabaseHeadToHeadDetail>>
+
+    @Query(
+            """
+                SELECT *
+                FROM $TABLE_NAME
+                WHERE shootId = :shootId 
+                    AND matchNumber >= :matchNumbersAboveAndIncluding 
+            """
+    )
+    fun getMatchNumberGreaterThanOrEqualTo(
+            shootId: Int,
+            matchNumbersAboveAndIncluding: Int,
+    ): Flow<List<DatabaseHeadToHeadDetail>>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(vararg shootDetail: DatabaseHeadToHeadDetail)
@@ -38,22 +55,4 @@ interface HeadToHeadDetailDao {
 
     @Query("DELETE FROM $TABLE_NAME WHERE headToHeadArrowScoreId = :headToHeadArrowScoreId")
     suspend fun delete(headToHeadArrowScoreId: Int)
-
-    @Query(
-            """
-                UPDATE $TABLE_NAME
-                SET setNumber = setNumber + :increment
-                WHERE shootId = :shootId AND matchNumber = :matchNumber AND setNumber >= :setNumbersAboveAndIncluding
-            """
-    )
-    suspend fun incrementSetNumber(shootId: Int, matchNumber: Int, setNumbersAboveAndIncluding: Int, increment: Int)
-
-    @Query(
-            """
-                UPDATE $TABLE_NAME
-                SET matchNumber = matchNumber + :increment
-                WHERE shootId = :shootId AND matchNumber >= :matchNumbersAboveAndIncluding
-            """
-    )
-    suspend fun incrementMatchNumber(shootId: Int, matchNumbersAboveAndIncluding: Int, increment: Int)
 }

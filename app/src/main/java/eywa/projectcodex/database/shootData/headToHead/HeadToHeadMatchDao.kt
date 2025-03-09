@@ -1,6 +1,7 @@
 package eywa.projectcodex.database.shootData.headToHead
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -12,15 +13,19 @@ import kotlinx.coroutines.flow.Flow
 interface HeadToHeadMatchDao {
     @Query(
             """
-                SELECT COUNT(rowId)
+                SELECT *
                 FROM $TABLE_NAME
-                WHERE shootId = :shootId AND matchNumber = :matchNumber 
+                WHERE shootId = :shootId 
+                    AND matchNumber >= :matchNumbersAboveAndIncluding 
             """
     )
-    fun getMatchCount(shootId: Int, matchNumber: Int): Flow<Int>
+    fun getMatchNumberGreaterThanOrEqualTo(
+            shootId: Int,
+            matchNumbersAboveAndIncluding: Int,
+    ): Flow<List<DatabaseHeadToHeadMatch>>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(shootDetail: DatabaseHeadToHeadMatch)
+    suspend fun insert(vararg shootDetail: DatabaseHeadToHeadMatch)
 
     @Update
     suspend fun update(vararg matches: DatabaseHeadToHeadMatch)
@@ -31,12 +36,6 @@ interface HeadToHeadMatchDao {
     @Query("DELETE FROM $TABLE_NAME WHERE shootId = :shootId AND matchNumber = :matchNumber")
     suspend fun delete(shootId: Int, matchNumber: Int)
 
-    @Query(
-            """
-                UPDATE $TABLE_NAME
-                SET matchNumber = matchNumber + :increment
-                WHERE shootId = :shootId AND matchNumber >= :matchNumbersAboveAndIncluding
-            """
-    )
-    suspend fun incrementMatchNumber(shootId: Int, matchNumbersAboveAndIncluding: Int, increment: Int)
+    @Delete
+    suspend fun delete(vararg match: DatabaseHeadToHeadMatch)
 }

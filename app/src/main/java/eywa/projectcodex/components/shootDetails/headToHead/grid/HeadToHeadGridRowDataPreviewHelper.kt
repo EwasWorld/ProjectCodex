@@ -92,12 +92,14 @@ object HeadToHeadGridRowDataPreviewHelper {
             val total = when (type) {
                 HeadToHeadArcherType.SELF -> selfTotal
                 HeadToHeadArcherType.OPPONENT -> opponentTotal
-                HeadToHeadArcherType.TEAM_MATE -> teamTotal - selfTotal
+                HeadToHeadArcherType.TEAM_MATE -> {
+                    require(teamTotal >= selfTotal)
+                    teamTotal - selfTotal
+                }
                 HeadToHeadArcherType.TEAM -> teamTotal
                 HeadToHeadArcherType.RESULT -> -1
                 HeadToHeadArcherType.SHOOT_OFF -> -1
             }
-            require(total >= 0)
             val expectedArrowCount = type.expectedArrowCount(endSize, teamSize)
             val indexes = dbIds?.getOrNull(i)
             if (type == HeadToHeadArcherType.RESULT) {

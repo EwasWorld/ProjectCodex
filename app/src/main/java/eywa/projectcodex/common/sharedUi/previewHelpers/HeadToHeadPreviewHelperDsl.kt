@@ -105,7 +105,7 @@ class HeadToHeadMatchPreviewHelperDsl(
 
 @CodexPreviewHelperDsl
 class HeadToHeadSetPreviewHelperDsl(
-        private val setNumber: Int,
+        var setNumber: Int,
         private val teamSize: Int,
         private val isSetPoints: Boolean,
         private val isShootOff: Boolean,
