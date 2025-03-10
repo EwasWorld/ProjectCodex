@@ -13,6 +13,7 @@ import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.migrations.DatabaseMigrations
 import eywa.projectcodex.database.migrations.MIGRATION_10_11
+import eywa.projectcodex.database.migrations.MIGRATION_13_14
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,6 +40,7 @@ class DatabaseModule {
                         DatabaseMigrations.MIGRATION_3_4,
                         DatabaseMigrations.MIGRATION_4_5,
                         MIGRATION_10_11,
+                        MIGRATION_13_14,
                 )
                 .addCallback(
                         object : RoomDatabase.Callback() {

@@ -14,15 +14,15 @@ object DatabaseMigrations {
      */
     @Suppress("unused") // Quick copy paste template
     val MIGRATION_BLANK = object : Migration(1, 1) {
-        override fun migrate(database: SupportSQLiteDatabase) {
+        override fun migrate(db: SupportSQLiteDatabase) {
             val sqlStrings = mutableListOf<String>()
 
-            executeMigrations(sqlStrings, database, startVersion, endVersion)
+            executeMigrations(sqlStrings, db, startVersion, endVersion)
         }
     }
 
     val MIGRATION_1_2 = object : Migration(1, 2) {
-        override fun migrate(database: SupportSQLiteDatabase) {
+        override fun migrate(db: SupportSQLiteDatabase) {
             val sqlStrings = mutableListOf<String>()
             /*
              * Delete arrow_value_table (don't need the data from it)
@@ -38,7 +38,7 @@ object DatabaseMigrations {
                             `isX` INTEGER NOT NULL, 
                             CONSTRAINT PK_arrow_values PRIMARY KEY (archerRoundId, arrowNumber)
                         )
-                    """
+                    """,
             )
 
             /*
@@ -51,7 +51,7 @@ object DatabaseMigrations {
                             `name` TEXT NOT NULL, 
                             PRIMARY KEY(`archerId`)
                         )
-                    """
+                    """,
             )
             sqlStrings.add(
                     """
@@ -67,7 +67,7 @@ object DatabaseMigrations {
                             `countsTowardsHandicap` INTEGER NOT NULL, 
                             PRIMARY KEY(`archerRoundId`)
                         )
-                    """
+                    """,
             )
             sqlStrings.add(
                     """
@@ -79,7 +79,7 @@ object DatabaseMigrations {
                             `arrowCount` INTEGER, 
                             PRIMARY KEY(`roundDistanceId`)
                         )
-                    """
+                    """,
             )
             sqlStrings.add(
                     """
@@ -92,15 +92,15 @@ object DatabaseMigrations {
                             `innerTenScoring` INTEGER NOT NULL, 
                             PRIMARY KEY(`roundReferenceId`)
                         )
-                    """
+                    """,
             )
 
-            executeMigrations(sqlStrings, database, startVersion, endVersion)
+            executeMigrations(sqlStrings, db, startVersion, endVersion)
         }
     }
 
     val MIGRATION_2_3 = object : Migration(2, 3) {
-        override fun migrate(database: SupportSQLiteDatabase) {
+        override fun migrate(db: SupportSQLiteDatabase) {
             val sqlStrings = mutableListOf<String>()
 
             /*
@@ -124,7 +124,7 @@ object DatabaseMigrations {
                             `isDefaultRound` INTEGER NOT NULL, 
                             PRIMARY KEY(`roundId`)
                         )
-                    """
+                    """,
             )
             sqlStrings.add(
                     """
@@ -135,7 +135,7 @@ object DatabaseMigrations {
                             `arrowCount` INTEGER NOT NULL, 
                             CONSTRAINT PK_round_arrow_counts PRIMARY KEY(roundId, distanceNumber)
                         )
-                    """
+                    """,
             )
             sqlStrings.add(
                     """
@@ -147,7 +147,7 @@ object DatabaseMigrations {
                             `ladies` INTEGER, 
                             CONSTRAINT PK_round_sub_types PRIMARY KEY(roundId, subTypeId)
                         )
-                    """
+                    """,
             )
             sqlStrings.add(
                     """
@@ -158,15 +158,15 @@ object DatabaseMigrations {
                             `distance` INTEGER NOT NULL, 
                             CONSTRAINT PK_round_sub_type_counts PRIMARY KEY(roundId, distanceNumber, subTypeId)
                         )
-                    """
+                    """,
             )
 
-            executeMigrations(sqlStrings, database, startVersion, endVersion)
+            executeMigrations(sqlStrings, db, startVersion, endVersion)
         }
     }
 
     val MIGRATION_3_4 = object : Migration(3, 4) {
-        override fun migrate(database: SupportSQLiteDatabase) {
+        override fun migrate(db: SupportSQLiteDatabase) {
             val sqlStrings = mutableListOf<String>()
 
             // All the other round tables were remade, so delete all the records in here to maintain consistency
@@ -185,7 +185,7 @@ object DatabaseMigrations {
                             `distance` INTEGER NOT NULL, 
                             CONSTRAINT PK_round_sub_type_counts PRIMARY KEY(roundId, distanceNumber, subTypeId)
                         )
-                    """
+                    """,
             )
 
             /*
@@ -201,7 +201,7 @@ object DatabaseMigrations {
                             `arrowCount` INTEGER NOT NULL, 
                             CONSTRAINT PK_round_arrow_counts PRIMARY KEY(roundId, distanceNumber)
                         )
-                    """
+                    """,
             )
 
             /*
@@ -221,7 +221,7 @@ object DatabaseMigrations {
                             `isDefaultRound` INTEGER NOT NULL, 
                             PRIMARY KEY(`roundId`)
                         )
-                    """
+                    """,
             )
 
             /*
@@ -243,7 +243,7 @@ object DatabaseMigrations {
                             `countsTowardsHandicap` INTEGER NOT NULL, 
                             PRIMARY KEY(`archerRoundId`)
                         )
-                    """
+                    """,
             )
             sqlStrings.add(
                     """
@@ -253,15 +253,15 @@ object DatabaseMigrations {
                         SELECT `archerRoundId`, `dateShot`, `archerId`, `bowId`, `roundReferenceId`, 
                                `roundDistanceId`, `goalScore`, `shootStatus`, `countsTowardsHandicap`
                         FROM archer_rounds_old;
-                    """
+                    """,
             )
             sqlStrings.add("DROP TABLE `archer_rounds_old`")
-            executeMigrations(sqlStrings, database, startVersion, endVersion)
+            executeMigrations(sqlStrings, db, startVersion, endVersion)
         }
     }
 
     val MIGRATION_4_5 = object : Migration(4, 5) {
-        override fun migrate(database: SupportSQLiteDatabase) {
+        override fun migrate(db: SupportSQLiteDatabase) {
             val sqlStrings = mutableListOf<String>()
 
             sqlStrings.add(
@@ -270,7 +270,7 @@ object DatabaseMigrations {
                         WHERE NOT archerRoundId IN (
                             SELECT archerRoundId FROM archer_rounds
                         )
-                    """
+                    """,
             )
 
             // Remove roundSubTypeId if round has no subtypes
@@ -283,7 +283,7 @@ object DatabaseMigrations {
                             LEFT JOIN round_sub_types as st ON r.roundId = st.roundId
                             WHERE st.roundId IS NULL
                         )
-                    """
+                    """,
             )
 
             // Remove roundId and roundSubTypeId if roundId or roundSubTypeId is invalid
@@ -297,7 +297,7 @@ object DatabaseMigrations {
                             SELECT st.subTypeId FROM round_sub_types as st 
                             WHERE st.roundId = roundId
                         )
-                    """
+                    """,
             )
 
             sqlStrings.add(
@@ -306,7 +306,7 @@ object DatabaseMigrations {
                         WHERE NOT roundId IN (
                             SELECT roundId FROM rounds
                         )
-                    """
+                    """,
             )
 
             sqlStrings.add(
@@ -315,7 +315,7 @@ object DatabaseMigrations {
                         WHERE NOT roundId IN (
                             SELECT roundId FROM rounds
                         )
-                    """
+                    """,
             )
 
             sqlStrings.add(
@@ -324,10 +324,10 @@ object DatabaseMigrations {
                         WHERE NOT roundId IN (
                             SELECT roundId FROM rounds
                         )
-                    """
+                    """,
             )
 
-            executeMigrations(sqlStrings, database, startVersion, endVersion)
+            executeMigrations(sqlStrings, db, startVersion, endVersion)
         }
     }
 
@@ -338,8 +338,10 @@ object DatabaseMigrations {
     class Migration9To10 : AutoMigrationSpec
 
     internal fun executeMigrations(
-            sqlStrings: List<String>, database: SupportSQLiteDatabase,
-            startVersion: Int, endVersion: Int
+            sqlStrings: List<String>,
+            database: SupportSQLiteDatabase,
+            startVersion: Int,
+            endVersion: Int,
     ) {
         CustomLogger.customLogger.i(MIGRATION_LOG_TAG, "migrating from $startVersion to $endVersion")
         for (sqlStatement in sqlStrings) {

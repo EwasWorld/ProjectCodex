@@ -64,6 +64,6 @@ data class DatabaseHeadToHeadMatch(
             }
 
     companion object {
-        const val TABLE_NAME = "head_to_head_heat"
+        const val TABLE_NAME = "head_to_head_match"
     }
 }

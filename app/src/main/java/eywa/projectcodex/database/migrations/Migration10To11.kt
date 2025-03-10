@@ -32,13 +32,13 @@ private fun DbMigrationDsl.bowMigration() {
         singlePrimaryKey("bowId")
     }
 
-    customQuery(
+    customSql(
             //language=RoomSql
             """
                 INSERT INTO `bows` (`bowId`, `name`, `description`, `type`, `isSightMarkDiagramHighestAtTop`)
                 SELECT `id`, "Default", NULL, 0, `isSightMarkDiagramHighestAtTop` 
                 FROM bows_old;
-            """
+            """,
     )
 
     dropTable("bows_old")
@@ -61,7 +61,7 @@ private fun DbMigrationDsl.archerMigration() {
                         foreignTableName = "archers",
                         foreignTableColumn = listOf("archerId"),
                         tableColumn = listOf("archerId"),
-                )
+                ),
         )
         addForeignKey(
                 DbTableForeignKey(
@@ -69,7 +69,7 @@ private fun DbMigrationDsl.archerMigration() {
                         foreignTableColumn = listOf("shootId"),
                         tableColumn = listOf("shootId"),
                         onDelete = ForeignKey.SET_NULL,
-                )
+                ),
         )
         singlePrimaryKey("archerHandicapId")
     }
@@ -90,7 +90,7 @@ private fun DbMigrationDsl.shootSubTablesMigration() {
                         foreignTableName = "shoots",
                         foreignTableColumn = listOf("shootId"),
                         tableColumn = listOf("shootId"),
-                )
+                ),
         )
         addForeignKey(
                 DbTableForeignKey(
@@ -98,7 +98,7 @@ private fun DbMigrationDsl.shootSubTablesMigration() {
                         foreignTableColumn = listOf("roundId", "subTypeId"),
                         tableColumn = listOf("roundId", "roundSubTypeId"),
                         onDelete = ForeignKey.SET_NULL,
-                )
+                ),
         )
         addForeignKey(
                 DbTableForeignKey(
@@ -106,11 +106,11 @@ private fun DbMigrationDsl.shootSubTablesMigration() {
                         foreignTableColumn = listOf("roundId"),
                         tableColumn = listOf("roundId"),
                         onDelete = ForeignKey.SET_NULL,
-                )
+                ),
         )
     }
 
-    customQuery(
+    customSql(
             //language=RoomSql
             """
                 INSERT INTO `shoot_rounds` (`shootId`, `roundId`, `roundSubTypeId`, `faces`, `sightersCount`)
@@ -118,7 +118,7 @@ private fun DbMigrationDsl.shootSubTablesMigration() {
                 FROM archer_rounds
                 WHERE NOT roundId IS NULL 
                 ;
-            """
+            """,
     )
 
     createTable("shoot_details") {
@@ -135,11 +135,11 @@ private fun DbMigrationDsl.shootSubTablesMigration() {
                         foreignTableName = "shoots",
                         foreignTableColumn = listOf("shootId"),
                         tableColumn = listOf("shootId"),
-                )
+                ),
         )
     }
 
-    customQuery(
+    customSql(
             //language=RoomSql
             """
                 INSERT INTO `shoot_details` (`shootId`, `face`, `distance`, `isDistanceInMeters`, `faceSizeInCm`)
@@ -147,7 +147,7 @@ private fun DbMigrationDsl.shootSubTablesMigration() {
                 FROM archer_rounds
                 WHERE roundId IS NULL AND NOT faces IS NULL  
                 ;
-            """
+            """,
     )
 
 }
@@ -171,7 +171,7 @@ private fun DbMigrationDsl.shootMigration() {
                         foreignTableColumn = listOf("bowId"),
                         tableColumn = listOf("bowId"),
                         onDelete = ForeignKey.SET_NULL,
-                )
+                ),
         )
         addForeignKey(
                 DbTableForeignKey(
@@ -179,17 +179,17 @@ private fun DbMigrationDsl.shootMigration() {
                         foreignTableColumn = listOf("archerId"),
                         tableColumn = listOf("archerId"),
                         onDelete = ForeignKey.SET_NULL,
-                )
+                ),
         )
     }
 
-    customQuery(
+    customSql(
             //language=RoomSql
             """
                 INSERT INTO `shoots` (`shootId`, `dateShot`, `archerId`, `countsTowardsHandicap`, `bowId`, `goalScore`, `shootStatus`, `joinWithPrevious`)
                 SELECT `archerRoundId`, `dateShot`, `archerId`, `countsTowardsHandicap`, `bowId`, `goalScore`, `shootStatus`, `joinWithPrevious` 
                 FROM archer_rounds;
-            """
+            """,
     )
 
     dropTable("archer_rounds")
@@ -207,7 +207,7 @@ private fun DbMigrationDsl.arrowMigration() {
                         foreignTableName = "shoots",
                         foreignTableColumn = listOf("shootId"),
                         tableColumn = listOf("shootId"),
-                )
+                ),
         )
     }
 
@@ -224,23 +224,23 @@ private fun DbMigrationDsl.arrowMigration() {
                         foreignTableName = "shoots",
                         foreignTableColumn = listOf("shootId"),
                         tableColumn = listOf("shootId"),
-                )
+                ),
         )
     }
 
-    customQuery(
+    customSql(
             //language=RoomSql
             """
                 INSERT INTO `arrow_scores` (`shootId`, `arrowNumber`, `score`, `isX`)
                 SELECT `archerRoundId`, `arrowNumber`, `score`, `isX` 
                 FROM arrow_values;
-            """
+            """,
     )
 
     dropTable("arrow_values")
 }
 
-fun DbMigrationDsl.sightMarkMigration() {
+private fun DbMigrationDsl.sightMarkMigration() {
     renameTable("sight_marks", "sight_marks_old")
 
     createTable("sight_marks") {
@@ -263,11 +263,11 @@ fun DbMigrationDsl.sightMarkMigration() {
                         foreignTableColumn = listOf("bowId"),
                         tableColumn = listOf("bowId"),
                         onDelete = ForeignKey.CASCADE,
-                )
+                ),
         )
 
     }
-    customQuery(
+    customSql(
             //language=RoomSql
             """
                 INSERT INTO `sight_marks` (
@@ -278,7 +278,7 @@ fun DbMigrationDsl.sightMarkMigration() {
                     `id`, `bowId`, `distance`, `isMetric`, `dateSet`, `sightMark`, 
                     `note`, `isMarked`, `isArchived`, `useInPredictions` 
                 FROM sight_marks_old;
-            """
+            """,
     )
 
     dropTable("sight_marks_old")
@@ -287,10 +287,10 @@ fun DbMigrationDsl.sightMarkMigration() {
 // Note the view migration seems to be sensitive to whitespace changes, copy directly from new schema
 //language=RoomSql
 private fun DbMigrationDsl.createViews() {
-    customQuery(
-            "CREATE VIEW `shoots_with_score` AS SELECT \n                    shoot.*, \n                    arrows.score,\n                    shootRound.roundId,\n                    (CASE WHEN roundSubTypeId IS NULL THEN 1 else roundSubTypeId END) as nonNullSubTypeId,\n                    ((NOT shootRound.roundId IS NULL) AND arrows.count = roundCount.count) as isComplete,\n                    ( \n                        -- Find the latest date earlier than or equal to this one that doesn't join with previous\n                        -- This will be the first round (inclusive) in the sequence\n                        SELECT MAX(dateShot)\n                        FROM shoots\n                        WHERE dateShot <= shoot.dateShot AND NOT joinWithPrevious\n                    ) as joinedDate\n                FROM shoots as shoot\n                LEFT JOIN shoot_rounds as shootRound \n                        ON shootRound.shootId = shoot.shootId\n                LEFT JOIN (\n                    SELECT SUM(arrowCount) as count, roundId\n                    FROM round_arrow_counts\n                    GROUP BY roundId\n                ) as roundCount ON shootRound.roundId = roundCount.roundId\n                LEFT JOIN (\n                    SELECT COUNT(*) as count, SUM(score) as score, shootId\n                    FROM arrow_scores\n                    GROUP BY shootId\n                ) as arrows ON shoot.shootId = arrows.shootId"
+    customSql(
+            "CREATE VIEW `shoots_with_score` AS SELECT \n                    shoot.*, \n                    arrows.score,\n                    shootRound.roundId,\n                    (CASE WHEN roundSubTypeId IS NULL THEN 1 else roundSubTypeId END) as nonNullSubTypeId,\n                    ((NOT shootRound.roundId IS NULL) AND arrows.count = roundCount.count) as isComplete,\n                    ( \n                        -- Find the latest date earlier than or equal to this one that doesn't join with previous\n                        -- This will be the first round (inclusive) in the sequence\n                        SELECT MAX(dateShot)\n                        FROM shoots\n                        WHERE dateShot <= shoot.dateShot AND NOT joinWithPrevious\n                    ) as joinedDate\n                FROM shoots as shoot\n                LEFT JOIN shoot_rounds as shootRound \n                        ON shootRound.shootId = shoot.shootId\n                LEFT JOIN (\n                    SELECT SUM(arrowCount) as count, roundId\n                    FROM round_arrow_counts\n                    GROUP BY roundId\n                ) as roundCount ON shootRound.roundId = roundCount.roundId\n                LEFT JOIN (\n                    SELECT COUNT(*) as count, SUM(score) as score, shootId\n                    FROM arrow_scores\n                    GROUP BY shootId\n                ) as arrows ON shoot.shootId = arrows.shootId",
     )
-    customQuery(
-            "CREATE VIEW `personal_bests` AS SELECT\n                    pbs.roundId as roundId,\n                    pbs.roundSubTypeId as roundSubTypeId,\n                    pbs.pbScore as score,\n                    COUNT(*) > 1 as isTiedPb\n                FROM shoots_with_score as shoot\n                LEFT JOIN (\n                    SELECT\n                        roundId,\n                        nonNullSubTypeId as roundSubTypeId,\n                        MAX(score) as pbScore\n                    FROM shoots_with_score\n                    WHERE isComplete AND NOT roundId IS NULL\n                    GROUP BY roundId, roundSubTypeId\n                ) as pbs ON shoot.roundId = pbs.roundId AND shoot.nonNullSubTypeId = pbs.roundSubTypeId\n                WHERE shoot.score = pbs.pbScore\n                GROUP BY pbs.roundId, pbs.roundSubTypeId"
+    customSql(
+            "CREATE VIEW `personal_bests` AS SELECT\n                    pbs.roundId as roundId,\n                    pbs.roundSubTypeId as roundSubTypeId,\n                    pbs.pbScore as score,\n                    COUNT(*) > 1 as isTiedPb\n                FROM shoots_with_score as shoot\n                LEFT JOIN (\n                    SELECT\n                        roundId,\n                        nonNullSubTypeId as roundSubTypeId,\n                        MAX(score) as pbScore\n                    FROM shoots_with_score\n                    WHERE isComplete AND NOT roundId IS NULL\n                    GROUP BY roundId, roundSubTypeId\n                ) as pbs ON shoot.roundId = pbs.roundId AND shoot.nonNullSubTypeId = pbs.roundSubTypeId\n                WHERE shoot.score = pbs.pbScore\n                GROUP BY pbs.roundId, pbs.roundSubTypeId",
     )
 }

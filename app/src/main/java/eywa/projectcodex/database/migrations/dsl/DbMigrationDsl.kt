@@ -9,7 +9,9 @@ annotation class DbMigrationDslMarker
 
 //language=RoomSql
 @DbMigrationDslMarker
-class DbMigrationDsl {
+class DbMigrationDsl(
+        private val db: SupportSQLiteDatabase,
+) {
     private val sqlStrings = mutableListOf<String>()
 
     fun renameTable(oldName: String, newName: String) {
@@ -28,12 +30,16 @@ class DbMigrationDsl {
         sqlStrings.add("DROP VIEW `$name`")
     }
 
-    fun customQuery(sqlString: String) {
+    fun customSql(sqlString: String) {
         sqlStrings.add(sqlString)
     }
 
     fun addColumn(tableName: String, column: DbTableColumn) {
         sqlStrings.add("ALTER TABLE `$tableName` ADD ${column.getDefinition()}")
+    }
+
+    fun removeColumn(tableName: String, columnName: String) {
+        sqlStrings.add("ALTER TABLE `$tableName` DROP COLUMN $columnName")
     }
 
     fun renameColumn(tableName: String, oldColumnName: String, newColumnName: String) {
@@ -44,14 +50,28 @@ class DbMigrationDsl {
         throw UnsupportedOperationException()
     }
 
+    fun addIndex(tableName: String, isUnique: Boolean, columnNames: List<String>) {
+        //language=
+        val uniqueString = if (isUnique) " UNIQUE" else null
+        val indexName = listOf("index", tableName).plus(columnNames).joinToString("_")
+        //language=RoomSql
+        sqlStrings.add("CREATE$uniqueString INDEX $indexName ON $tableName (${columnNames.joinToString()})")
+    }
+
+    fun runQueryImmediately(sqlString: String) = db.query(sqlString)
+
     companion object {
-        fun createMigration(from: Int, to: Int, config: DbMigrationDsl.() -> Unit) = object : Migration(from, to) {
-            override fun migrate(database: SupportSQLiteDatabase) {
+        fun createMigration(
+                from: Int,
+                to: Int,
+                config: DbMigrationDsl.() -> Unit,
+        ) = object : Migration(from, to) {
+            override fun migrate(db: SupportSQLiteDatabase) {
                 DatabaseMigrations.executeMigrations(
-                        DbMigrationDsl().apply(config).sqlStrings,
-                        database,
-                        startVersion,
-                        endVersion,
+                        sqlStrings = DbMigrationDsl(db).apply(config).sqlStrings,
+                        database = db,
+                        startVersion = startVersion,
+                        endVersion = endVersion,
                 )
             }
         }

@@ -87,6 +87,7 @@ interface ScoresRoomDatabase {
             AutoMigration(from = 9, to = 10, spec = DatabaseMigrations.Migration9To10::class),
             AutoMigration(from = 11, to = 12),
             AutoMigration(from = 12, to = 13),
+            AutoMigration(from = 12, to = 14),
         ],
         exportSchema = true, // Needs a schema location in the build.gradle too to export!
 )

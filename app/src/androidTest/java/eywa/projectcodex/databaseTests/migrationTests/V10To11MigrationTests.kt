@@ -1,21 +1,15 @@
 package eywa.projectcodex.databaseTests.migrationTests
 
 import android.content.ContentValues
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import androidx.core.database.getIntOrNull
-import androidx.core.database.getStringOrNull
-import androidx.room.migration.AutoMigrationSpec
 import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.migrations.MIGRATION_10_11
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -85,7 +79,7 @@ class V10To11MigrationTests {
                 "useInPredictions" to 1,
         )
 
-        checkValues(response, newValues)
+        MigrationTestHelpers.checkValues(response, newValues)
     }
 
     @Test
@@ -112,7 +106,7 @@ class V10To11MigrationTests {
                 "type" to 0, // Recurve
         )
 
-        checkValues(response, newValues)
+        MigrationTestHelpers.checkValues(response, newValues)
     }
 
     @Test
@@ -138,7 +132,7 @@ class V10To11MigrationTests {
                 "age" to 1, // Senior
         )
 
-        checkValues(response, newValues)
+        MigrationTestHelpers.checkValues(response, newValues)
     }
 
     @Test
@@ -166,7 +160,7 @@ class V10To11MigrationTests {
         assertEquals(2, response.count)
 
         response.moveToFirst()
-        checkValues(
+        MigrationTestHelpers.checkValues(
                 response,
                 mapOf(
                         "shootId" to 1,
@@ -177,7 +171,7 @@ class V10To11MigrationTests {
         )
 
         response.moveToNext()
-        checkValues(
+        MigrationTestHelpers.checkValues(
                 response,
                 mapOf(
                         "shootId" to 1,
@@ -276,7 +270,7 @@ class V10To11MigrationTests {
         assertEquals(3, response.count)
 
         response.moveToFirst()
-        checkValues(
+        MigrationTestHelpers.checkValues(
                 response,
                 mapOf(
                         "shootId" to 3,
@@ -288,7 +282,7 @@ class V10To11MigrationTests {
         )
 
         response.moveToNext()
-        checkValues(
+        MigrationTestHelpers.checkValues(
                 response,
                 mapOf(
                         "shootId" to 4,
@@ -300,7 +294,7 @@ class V10To11MigrationTests {
         )
 
         response.moveToNext()
-        checkValues(
+        MigrationTestHelpers.checkValues(
                 response,
                 mapOf(
                         "shootId" to 5,
@@ -316,7 +310,7 @@ class V10To11MigrationTests {
         assertEquals(2, response.count)
 
         response.moveToFirst()
-        checkValues(
+        MigrationTestHelpers.checkValues(
                 response,
                 mapOf(
                         "shootId" to 2,
@@ -328,7 +322,7 @@ class V10To11MigrationTests {
         )
 
         response.moveToNext()
-        checkValues(
+        MigrationTestHelpers.checkValues(
                 response,
                 mapOf(
                         "shootId" to 6,
@@ -387,7 +381,7 @@ class V10To11MigrationTests {
         assertEquals(3, response.count)
 
         response.moveToFirst()
-        checkValues(
+        MigrationTestHelpers.checkValues(
                 response,
                 mapOf(
                         "shootId" to 2,
@@ -402,7 +396,7 @@ class V10To11MigrationTests {
         )
 
         response.moveToNext()
-        checkValues(
+        MigrationTestHelpers.checkValues(
                 response,
                 mapOf(
                         "shootId" to 3,
@@ -417,7 +411,7 @@ class V10To11MigrationTests {
         )
 
         response.moveToNext()
-        checkValues(
+        MigrationTestHelpers.checkValues(
                 response,
                 mapOf(
                         "shootId" to 8,
@@ -430,24 +424,5 @@ class V10To11MigrationTests {
                         "joinWithPrevious" to 1,
                 ),
         )
-    }
-
-    private fun checkValues(cursor: Cursor, expectedValues: Map<String, Any?>) {
-        expectedValues.forEach { (columnName, expectedValue) ->
-            checkValue(cursor, columnName, expectedValue)
-        }
-    }
-
-    private fun checkValue(cursor: Cursor, columnName: String, expectedValue: Any?) {
-        when (expectedValue) {
-            is Int -> assertEquals(columnName, expectedValue, cursor.getIntOrNull(cursor.getColumnIndex(columnName)))
-            is String -> assertEquals(
-                    columnName,
-                    expectedValue,
-                    cursor.getStringOrNull(cursor.getColumnIndex(columnName))
-            )
-
-            null -> assertTrue(columnName, cursor.isNull(cursor.getColumnIndex(columnName)))
-        }
     }
 }
