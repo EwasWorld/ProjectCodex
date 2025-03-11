@@ -4,6 +4,7 @@ import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.newScore.NewScoreType
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersTypes
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.arrows.ArrowCounterRepo
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
@@ -64,10 +65,10 @@ class ShootsRepo(
 
         var actualFilters = filters
         if (actualFilters.contains(ShootFilter.ScoreRange::class)) {
-            actualFilters += ShootFilter.ArrowCounts(false)
+            actualFilters += ShootFilter.Type(ViewScoresFiltersTypes.SCORE)
         }
         if (actualFilters.contains(ShootFilter.PersonalBests::class)) {
-            actualFilters += ShootFilter.ArrowCounts(false)
+            actualFilters += ShootFilter.Type(ViewScoresFiltersTypes.SCORE)
             actualFilters += ShootFilter.CompleteRounds
         }
 
@@ -93,9 +94,14 @@ class ShootsRepo(
                 is ShootFilter.DateRange -> filter.handle("$shootAlias.dateShot")
                 is ShootFilter.ScoreRange -> filter.handle("$shootAlias.score")
 
-                is ShootFilter.ArrowCounts -> {
-                    val truth = if (filter.only) "" else "NOT"
-                    "$truth $shootAlias.shootId IN (SELECT shootId FROM ${DatabaseArrowCounter.TABLE_NAME})"
+                is ShootFilter.Type -> {
+                    val countBool = if (filter.type == ViewScoresFiltersTypes.COUNT) "" else "NOT"
+                    val count =
+                            "$countBool $shootAlias.shootId IN (SELECT shootId FROM ${DatabaseArrowCounter.TABLE_NAME})"
+                    val h2hBool = if (filter.type == ViewScoresFiltersTypes.HEAD_TO_HEAD) "" else "NOT"
+                    val h2h =
+                            "$h2hBool $shootAlias.shootId IN (SELECT shootId FROM ${DatabaseHeadToHead.TABLE_NAME})"
+                    ("(($count) AND ($h2h))")
                 }
 
                 ShootFilter.PersonalBests -> "isPersonalBest = 1"

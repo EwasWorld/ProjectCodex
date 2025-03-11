@@ -106,7 +106,7 @@ object ViewScoresBottomSheetFilters : BottomSheetNavRoute {
                 helpShowcaseListener = {
                     // TODO_CURRENT Fix
 //                    listener(ViewScoresFiltersIntent.HelpShowcaseAction(it, ViewScoresBottomSheetFilters::class))
-                }
+                },
         )
 
         LaunchedEffect(state.shouldCloseDialog) {
@@ -418,6 +418,7 @@ private fun ColumnScope.DateFilters(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun DateFilter(
         title: String,
@@ -443,8 +444,9 @@ private fun DateFilter(
             ),
     )
 
-    Row(
-            verticalAlignment = Alignment.CenterVertically,
+    FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
             modifier = modifier
     ) {
         if (date == null) {
@@ -457,6 +459,7 @@ private fun DateFilter(
                                 this.contentDescription = contentDescription
                             }
                             .testTag(testTag)
+                            .align(Alignment.CenterVertically)
             )
         }
         else {
@@ -473,6 +476,7 @@ private fun DateFilter(
                             .clickable { datePicker.show() }
                             .testTag(testTag)
                             .padding(end = 3.dp)
+                            .align(Alignment.CenterVertically)
             )
             if (error != null) {
                 CodexIconInfo.VectorIcon(
@@ -483,9 +487,10 @@ private fun DateFilter(
                                 .clearAndSetSemantics { }
                                 .scale(0.7f)
                                 .padding(start = 3.dp)
+                                .align(Alignment.CenterVertically)
                 )
             }
-            ClearIcon(onClear, clearTestTag)
+            ClearIcon(onClear, clearTestTag, Modifier.align(Alignment.CenterVertically))
         }
     }
 }
@@ -498,7 +503,7 @@ private fun ColumnScope.ScoreFilters(
         helpShowcaseListener: (HelpShowcaseIntent) -> Unit,
 ) {
     FlowRow(
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically),
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             modifier = Modifier.updateHelpDialogPosition(
                     helpState = HelpShowcaseItem(
@@ -510,7 +515,9 @@ private fun ColumnScope.ScoreFilters(
     ) {
         Text(
                 text = stringResource(R.string.view_scores__filters_scores),
-                modifier = Modifier.clearAndSetSemantics { }
+                modifier = Modifier
+                        .clearAndSetSemantics { }
+                        .align(Alignment.CenterVertically)
         )
 
         ScoreFilters(
@@ -521,10 +528,13 @@ private fun ColumnScope.ScoreFilters(
                 contentDescription = stringResource(R.string.view_scores__filters_scores_min_content_description),
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateScoreMinFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearScoreMinFilter) },
+                modifier = Modifier.align(Alignment.CenterVertically)
         )
         Text(
                 text = stringResource(R.string.view_scores__filters_range_separator),
-                modifier = Modifier.clearAndSetSemantics { }
+                modifier = Modifier
+                        .clearAndSetSemantics { }
+                        .align(Alignment.CenterVertically)
         )
         ScoreFilters(
                 value = state.maxScore,
@@ -536,6 +546,7 @@ private fun ColumnScope.ScoreFilters(
                         .takeIf { !state.scoreRangeIsValid },
                 onUpdate = { listener(ViewScoresFiltersIntent.UpdateScoreMaxFilter(it)) },
                 onClear = { listener(ViewScoresFiltersIntent.ClearScoreMaxFilter) },
+                modifier = Modifier.align(Alignment.CenterVertically)
         )
     }
 
@@ -565,6 +576,7 @@ private fun ScoreFilters(
         clearTestTag: ViewScoresFiltersTestTag,
         placeholder: String,
         contentDescription: String,
+        modifier: Modifier = Modifier,
         error: ResOrActual<String>? = null,
         onUpdate: (String?) -> Unit,
         onClear: () -> Unit,
@@ -577,7 +589,7 @@ private fun ScoreFilters(
     )
     val trailingIcon: (@Composable () -> Unit)? =
             if (value.text.isNotEmpty()) {
-                { ClearIcon(onClear, clearTestTag, CodexTheme.colors.textFieldIcon) }
+                { ClearIcon(onClear, clearTestTag, tint = CodexTheme.colors.textFieldIcon) }
             }
             else {
                 null
@@ -592,7 +604,7 @@ private fun ScoreFilters(
             onValueChanged = onUpdate,
             trailingIcon = trailingIcon,
             colors = CodexTextField.transparentOutlinedTextFieldColorsOnDialog(),
-            modifier = Modifier.semantics {
+            modifier = modifier.semantics {
                 this.customActions = customActions
             }
     )
@@ -752,13 +764,14 @@ enum class ViewScoresFiltersHelpPriority { BEFORE_ROUNDS, ROUNDS, AFTER_ROUNDS }
 private fun ClearIcon(
         onClear: () -> Unit,
         testTag: ViewScoresFiltersTestTag,
+        modifier: Modifier = Modifier,
         tint: Color = CodexTheme.colors.onDialogBackground,
 ) {
     CodexIconInfo.VectorIcon(
             imageVector = Icons.Default.Close,
             tint = tint,
     ).CodexIcon(
-            modifier = Modifier
+            modifier = modifier
                     .testTag(testTag)
                     .clearAndSetSemantics { }
                     .clickable { onClear() }

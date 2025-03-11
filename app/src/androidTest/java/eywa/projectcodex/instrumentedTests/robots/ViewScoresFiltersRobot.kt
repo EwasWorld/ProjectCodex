@@ -135,6 +135,7 @@ class ViewScoresFiltersRobot(
             ViewScoresFiltersTypes.ALL -> "All"
             ViewScoresFiltersTypes.SCORE -> "Score"
             ViewScoresFiltersTypes.COUNT -> "Count"
+            ViewScoresFiltersTypes.HEAD_TO_HEAD -> "Head to head"
         }
         perform {
             singleNode {

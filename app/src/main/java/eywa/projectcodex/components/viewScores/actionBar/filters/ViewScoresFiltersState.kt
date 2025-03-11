@@ -7,12 +7,7 @@ import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogStat
 import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsState
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.shootData.ShootFilter
-import eywa.projectcodex.database.shootData.ShootFilter.CompleteRounds
-import eywa.projectcodex.database.shootData.ShootFilter.DateRange
-import eywa.projectcodex.database.shootData.ShootFilter.FirstRoundOfDay
-import eywa.projectcodex.database.shootData.ShootFilter.PersonalBests
-import eywa.projectcodex.database.shootData.ShootFilter.Round
-import eywa.projectcodex.database.shootData.ShootFilter.ScoreRange
+import eywa.projectcodex.database.shootData.ShootFilter.*
 import java.util.Calendar
 
 data class ViewScoresFiltersState(
@@ -63,7 +58,7 @@ data class ViewScoresFiltersState(
                     Round(
                             selectRoundDialogState.selectedRoundId,
                             selectRoundDialogState.selectedSubTypeId,
-                    )
+                    ),
             )
         }
         if (personalBestsFilter) {
@@ -79,8 +74,8 @@ data class ViewScoresFiltersState(
             activeFilters = activeFilters
                     .plus(ScoreRange(minScore.parsed, maxScore.parsed.takeIf { scoreRangeIsValid }))
         }
-        typeFilter.filter?.let {
-            activeFilters = activeFilters.plus(it)
+        if (typeFilter != ViewScoresFiltersTypes.ALL) {
+            activeFilters = activeFilters.plus(ShootFilter.Type(typeFilter))
         }
 
         filters = activeFilters

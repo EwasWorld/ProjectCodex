@@ -7,6 +7,7 @@ import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
+import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersTypes
 import eywa.projectcodex.database.Filters
 import eywa.projectcodex.database.ScoresRoomDatabaseImpl
 import eywa.projectcodex.database.shootData.DatabaseArrowCountCalendarData
@@ -248,6 +249,25 @@ class ShootsTest {
                     shoot = DatabaseShoot(10, "07/03/17 11:00".parseDate())
                     addArrowCounter(72)
                 },
+                ShootPreviewHelperDsl.create {
+                    shoot = DatabaseShoot(11, "07/03/17 11:00".parseDate())
+                    round = rounds[3]
+                    addH2h {
+                        addMatch {
+                            addSet { addRows() }
+                            addSet { addRows() }
+                            addSet { addRows() }
+                        }
+                    }
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = DatabaseShoot(12, "07/03/17 11:00".parseDate())
+                    addH2h {
+                        addMatch {
+                            addSet { addRows() }
+                        }
+                    }
+                },
         )
 
         rounds.forEach { db.add(it) }
@@ -273,11 +293,11 @@ class ShootsTest {
         check(setOf(1, 3, 4, 8), listOf(ShootFilter.Round(1, 1)))
         check(setOf(7), listOf(ShootFilter.Round(1, 2)))
         check(setOf(2, 5), listOf(ShootFilter.Round(2, null)))
-        check(setOf(6, 10), listOf(ShootFilter.Round(null, null)))
+        check(setOf(6, 10, 12), listOf(ShootFilter.Round(null, null)))
 
         // Date
         fun getDate(year: Int) = Calendar.getInstance().apply { set(year, 1, 1) }
-        check((5..10).toSet(), listOf(ShootFilter.DateRange(from = getDate(2015))))
+        check((5..12).toSet(), listOf(ShootFilter.DateRange(from = getDate(2015))))
         check((1..4).toSet(), listOf(ShootFilter.DateRange(to = getDate(2015))))
         check((2..4).toSet(), listOf(ShootFilter.DateRange(from = getDate(2012), to = getDate(2015))))
 
@@ -292,8 +312,9 @@ class ShootsTest {
         )
 
         // Arrow Counts
-        check(setOf(9, 10), listOf(ShootFilter.ArrowCounts(true)))
-        check((1..8).toSet(), listOf(ShootFilter.ArrowCounts(false)))
+        check(setOf(9, 10), listOf(ShootFilter.Type(ViewScoresFiltersTypes.COUNT)))
+        check((1..8).toSet(), listOf(ShootFilter.Type(ViewScoresFiltersTypes.SCORE)))
+        check(setOf(11, 12), listOf(ShootFilter.Type(ViewScoresFiltersTypes.HEAD_TO_HEAD)))
 
         // Score range
         check((1..6).toSet(), listOf(ShootFilter.ScoreRange(from = 200)))

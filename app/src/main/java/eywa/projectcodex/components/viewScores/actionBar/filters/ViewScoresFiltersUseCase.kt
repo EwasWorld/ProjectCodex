@@ -6,7 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
 import eywa.projectcodex.common.sharedUi.UpdateCalendarInfo
-import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.*
+import eywa.projectcodex.common.sharedUi.selectRoundDialog.SelectRoundDialogIntent.RoundIntent
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersIntent.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,7 +68,7 @@ class ViewScoresFiltersUseCase(
         ClickCompleteFilter -> state.copy(completedRoundsFilter = !state.completedRoundsFilter)
         ClickFirstOfDayFilter -> state.copy(firstRoundOfDayFilter = !state.firstRoundOfDayFilter)
         ClickTypeFilter -> {
-            val all = ViewScoresFiltersTypes.values()
+            val all = ViewScoresFiltersTypes.entries.toTypedArray()
             state.copy(typeFilter = all[(state.typeFilter.ordinal + 1) % all.size])
         }
 
