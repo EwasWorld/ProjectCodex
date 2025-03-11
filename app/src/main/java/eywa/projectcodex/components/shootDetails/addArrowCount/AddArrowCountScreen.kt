@@ -1,5 +1,6 @@
 package eywa.projectcodex.components.shootDetails.addArrowCount
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -164,15 +165,30 @@ fun AddArrowCountScreen(
                     helpListener = helpListener,
             )
 
-            SightMark(
-                    fullShootInfo = state.fullShootInfo,
-                    sightMark = state.sightMark,
-                    helpListener = helpListener,
-                    onExpandClicked = { listener(FullSightMarksClicked) },
-                    onEditClicked = { listener(EditSightMarkClicked) },
-                    modifier = Modifier
-            )
-            RemainingArrowsIndicator(state.fullShootInfo, helpListener)
+            Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    modifier = Modifier.horizontalScroll(rememberScrollState())
+            ) {
+                SightMark(
+                        fullShootInfo = state.fullShootInfo,
+                        sightMark = state.sightMark,
+                        helpListener = helpListener,
+                        onExpandClicked = { listener(FullSightMarksClicked) },
+                        onEditClicked = { listener(EditSightMarkClicked) },
+                        modifier = Modifier
+                )
+                if (!state.isEditingSighters) {
+                    state.fullShootInfo.remainingArrowsAtDistances?.let {
+                        Text(
+                                text = stringResource(R.string.input_end__section_delimiter),
+                                style = CodexTypography.NORMAL,
+                                color = CodexTheme.colors.onAppBackground,
+                        )
+                        RemainingArrowsIndicator(state.fullShootInfo, helpListener)
+                    }
+                }
+            }
             ShotCount(
                     state = state,
                     helpListener = helpListener,
