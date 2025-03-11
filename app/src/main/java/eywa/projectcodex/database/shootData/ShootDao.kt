@@ -188,13 +188,14 @@ interface ShootDao {
                 ) as h2hMatches ON shoot.shootId = h2hMatches.shootId
                 LEFT JOIN (
                     SELECT x.shootId, 
-                        SUM(
-                            -- Each shoot-off set will be a single arrow
-                            x.shootOffSetCount 
-                            -- Non shoot-off sets
-                            + (x.totalSetCount - x.shootOffSetCount)
-                            -- Either use the custom end size or the standard 2 or 3 for teams or individuals
-                            * IFNULL(i.endSize, CASE WHEN i.teamSize == 1 THEN 3 ELSE 2 END)) as count
+                            (
+                                -- Each shoot-off set will be a single arrow
+                                x.shootOffSetCount 
+                                -- Non shoot-off sets
+                                + (x.totalSetCount - x.shootOffSetCount)
+                                -- Either use the custom end size or the standard 2 or 3 for teams or individuals
+                                * IFNULL(i.endSize, CASE WHEN i.teamSize == 1 THEN 3 ELSE 2 END) 
+                            ) as count
                     FROM (
                         SELECT 
                             shootId,

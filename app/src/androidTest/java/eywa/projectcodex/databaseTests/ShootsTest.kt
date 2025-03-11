@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import eywa.projectcodex.common.TestUtils
 import eywa.projectcodex.common.TestUtils.parseDate
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.database.Filters
@@ -568,6 +569,109 @@ class ShootsTest {
                         List(8) { "${(it + 1).pad()}-04" },
                 ).flatten(),
                 shootsRepo.getCountsForCalendar("05/03/20 10:00".parseDate()).first().map { it.dateString }
+        )
+    }
+
+    @Test
+    fun testGetCountsForCalendar_RepoMultipleH2hs() = runTest {
+        db.add(RoundPreviewHelper.wa18RoundData)
+
+        listOf(
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 1, dateShot = "8/3/20 10:00".parseDate())
+                    addRound(RoundPreviewHelper.wa18RoundData, 7)
+                    completeRound(9, false)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 2, dateShot = "8/3/20 10:00".parseDate())
+                    addRound(RoundPreviewHelper.wa18RoundData, 0)
+                    addH2h {
+                        headToHead = headToHead.copy(qualificationRank = 2)
+                        addMatch {
+                            match = match.copy(heat = 1, opponent = "Test", opponentQualificationRank = 3)
+                            addSet {
+                                addRows(result = HeadToHeadResult.WIN)
+                            }
+                            addSet {
+                                addRows(result = HeadToHeadResult.WIN)
+                            }
+                            addSet {
+                                addRows(result = HeadToHeadResult.LOSS)
+                            }
+                            addSet {
+                                addRows(result = HeadToHeadResult.WIN)
+                            }
+                        }
+                        addMatch {
+                            match = match.copy(heat = 0, opponent = "Test 2", opponentQualificationRank = 1)
+                            addSet {
+                                addRows(result = HeadToHeadResult.LOSS)
+                            }
+                            addSet {
+                                addRows(result = HeadToHeadResult.LOSS)
+                            }
+                            addSet {
+                                addRows(result = HeadToHeadResult.LOSS)
+                            }
+                        }
+                    }
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 3, dateShot = "8/5/20 10:00".parseDate())
+                    addRound(RoundPreviewHelper.wa18RoundData, 7)
+                    completeRound(9, false)
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 4, dateShot = "8/5/20 10:00".parseDate())
+                    addRound(RoundPreviewHelper.wa18RoundData, 0)
+                    addH2h {
+                        headToHead = headToHead.copy(qualificationRank = 2)
+                        addMatch {
+                            match = match.copy(heat = 1, opponent = "Test", opponentQualificationRank = 3)
+                            addSet {
+                                addRows(result = HeadToHeadResult.WIN)
+                            }
+                            addSet {
+                                addRows(result = HeadToHeadResult.WIN)
+                            }
+                            addSet {
+                                addRows(result = HeadToHeadResult.LOSS)
+                            }
+                            addSet {
+                                addRows(result = HeadToHeadResult.WIN)
+                            }
+                        }
+                        addMatch {
+                            match = match.copy(heat = 0, opponent = "Test 2", opponentQualificationRank = 1)
+                            addSet {
+                                addRows(result = HeadToHeadResult.LOSS)
+                            }
+                            addSet {
+                                addRows(result = HeadToHeadResult.LOSS)
+                            }
+                            addSet {
+                                addRows(result = HeadToHeadResult.LOSS)
+                            }
+                        }
+                    }
+                },
+        ).forEach { db.add(it) }
+
+        assertEquals(
+                listOf(
+                        DatabaseArrowCountCalendarData("08-03", 88),
+                ),
+                db.shootsRepo().getCountsForCalendar(
+                        date = "7/3/20 02:00".parseDate(),
+                ).first()
+        )
+        assertEquals(
+                listOf(
+                        DatabaseArrowCountCalendarData("08-05", 88),
+                ),
+                db.shootsRepo().getCountsForCalendar(
+                        date = "7/5/20 02:00".parseDate(),
+                ).first()
         )
     }
 

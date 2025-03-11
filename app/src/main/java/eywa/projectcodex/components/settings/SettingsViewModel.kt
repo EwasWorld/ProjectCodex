@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseUseCase
+import eywa.projectcodex.common.logging.CustomLogger
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.components.settings.SettingsIntent.*
 import eywa.projectcodex.database.DbBackupHelpers
@@ -66,6 +67,10 @@ class SettingsViewModel @Inject constructor(
                             backupDb = false,
                             dbMessage = when (action.outcome) {
                                 DbBackupHelpers.DbResult.Success -> Message.BACKUP_SUCCESS
+                                is DbBackupHelpers.DbResult.UnknownError -> {
+                                    CustomLogger.customLogger.e("DB_ERROR", action.outcome.error?.message ?: "")
+                                    Message.BACKUP_ERROR
+                                }
                                 else -> Message.BACKUP_ERROR
                             },
                             permissionRequest = it.permissionRequest?.takeIf { r -> r.isReadPermission },
