@@ -85,6 +85,49 @@ class HeadToHeadStatsRobot(
         facesRobot.checkFaces(expectedFacesString)
     }
 
+    fun checkIsSimpleView(showAdvancedToggleButton: Boolean) {
+        performGroup {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadStatsTestTag.MATCHES_TABLE_MATCH_CELL)
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.AssertIsDisplayed()
+            }
+        }
+        handicapAndClassificationRobot.checkHandicapDoesNotExist()
+        handicapAndClassificationRobot.checkClassificationDoesNotExist()
+        performGroup {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_MATCH_CELL)
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.AssertDoesNotExist()
+            }
+        }
+        checkElementIsDisplayedOrDoesNotExist(HeadToHeadStatsTestTag.SIMPLE_ADVANCED_SWITCH, showAdvancedToggleButton)
+        if (showAdvancedToggleButton) {
+            checkElementText(HeadToHeadStatsTestTag.SIMPLE_ADVANCED_SWITCH, "Show advanced stats")
+        }
+    }
+
+    fun checkIsAdvancedView() {
+        performGroup {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadStatsTestTag.MATCHES_TABLE_MATCH_CELL)
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.AssertIsDisplayed()
+            }
+        }
+        handicapAndClassificationRobot.checkHandicapIsDisplayed()
+        handicapAndClassificationRobot.checkClassificationIsDisplayed()
+        performGroup {
+            +CodexNodeMatcher.HasTestTag(HeadToHeadStatsTestTag.NUMBERS_BREAKDOWN_TABLE_MATCH_CELL)
+            toSingle(CodexNodeGroupToOne.First) {
+                +CodexNodeInteraction.AssertIsDisplayed()
+            }
+        }
+        checkElementText(HeadToHeadStatsTestTag.SIMPLE_ADVANCED_SWITCH, "Show simple stats")
+    }
+
+    fun clickSimpleAdvancedToggle() {
+        clickElement(HeadToHeadStatsTestTag.SIMPLE_ADVANCED_SWITCH)
+    }
+
     @RobotDslMarker
     class NumbersBreakdownRobot(
             private val performFn: PerformFn,

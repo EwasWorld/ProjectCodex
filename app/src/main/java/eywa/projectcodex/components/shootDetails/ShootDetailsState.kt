@@ -12,11 +12,13 @@ import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.SightMark
 import eywa.projectcodex.model.scorePadData.ScorePadData
 import eywa.projectcodex.model.scorePadData.ScorePadRow
+import eywa.projectcodex.model.user.CodexUser
 
 const val DEFAULT_END_SIZE = 6
 
 data class ShootDetailsState(
         val shootId: Int,
+        val user: CodexUser,
 
         /*
          * Pulled from repos

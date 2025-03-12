@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -16,10 +17,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import eywa.projectcodex.R
 import eywa.projectcodex.common.helpShowcase.HelpShowcaseIntent
 import eywa.projectcodex.common.navigation.CodexNavRoute
 import eywa.projectcodex.common.navigation.NavArgument
@@ -31,6 +34,7 @@ import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.sharedUi.testTag
 import eywa.projectcodex.common.utils.CodexTestTag
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesPreviewHelper
+import eywa.projectcodex.components.shootDetails.ShootDetailsIntent
 import eywa.projectcodex.components.shootDetails.commonUi.HandleMainEffects
 import eywa.projectcodex.components.shootDetails.commonUi.ShootDetailsMainScreen
 import eywa.projectcodex.components.shootDetails.getData
@@ -57,7 +61,14 @@ fun HeadToHeadStatsScreen(
             currentScreen = CodexNavRoute.HEAD_TO_HEAD_STATS,
             state = state,
             listener = { listener(ShootDetailsAction(it)) },
-    ) { it, modifier -> HeadToHeadStatsScreen(it, modifier, listener) }
+    ) { it, modifier ->
+        if (it.useSimpleView) {
+            HeadToHeadStatsScreenSimple(it, modifier, listener)
+        }
+        else {
+            HeadToHeadStatsScreenFull(it, modifier, listener)
+        }
+    }
 
     HandleMainEffects(
             navController = navController,
@@ -115,7 +126,7 @@ fun HeadToHeadStatsScreen(
 }
 
 @Composable
-fun HeadToHeadStatsScreen(
+fun HeadToHeadStatsScreenSimple(
         state: HeadToHeadStatsState,
         modifier: Modifier = Modifier,
         listener: (HeadToHeadStatsIntent) -> Unit,
@@ -132,9 +143,61 @@ fun HeadToHeadStatsScreen(
         ) {
             DateAndRoundSection(
                     fullShootInfo = state.fullShootInfo,
-                    modifier = Modifier,
                     editClickedListener = { listener(EditMainInfoClicked) },
                     helpListener = helpListener,
+                    modifier = Modifier
+            )
+            MatchInfoTable(
+                    state = state,
+                    listener = listener,
+                    modifier = Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .padding(horizontal = CodexTheme.dimens.screenPadding)
+            )
+
+            if (state.extras.qualifyingRoundId != null) {
+                Text(
+                        text = "View qualifying round",
+                        style = CodexTypography.SMALL_PLUS.asClickableStyle(),
+                        modifier = Modifier.clickable { listener(ViewQuailfyingRoundClicked) }
+                )
+            }
+
+            if (!state.fullShootInfo.h2h?.matches.isNullOrEmpty() && state.hasPermissionToSeeAdvanced) {
+                StatsDivider(modifier = Modifier.padding(top = 10.dp, bottom = 7.dp))
+                Text(
+                        text = stringResource(R.string.archer_round_stats__show_advanced_view),
+                        style = LocalTextStyle.current.asClickableStyle(),
+                        modifier = Modifier
+                                .clickable { listener(ShootDetailsAction(ShootDetailsIntent.ToggleSimpleView)) }
+                                .testTag(HeadToHeadStatsTestTag.SIMPLE_ADVANCED_SWITCH)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun HeadToHeadStatsScreenFull(
+        state: HeadToHeadStatsState,
+        modifier: Modifier = Modifier,
+        listener: (HeadToHeadStatsIntent) -> Unit,
+) {
+    val helpListener = { it: HelpShowcaseIntent -> listener(HelpShowcaseAction(it)) }
+    ProvideTextStyle(CodexTypography.NORMAL.copy(color = CodexTheme.colors.onAppBackground)) {
+        Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                modifier = modifier
+                        .background(CodexTheme.colors.appBackground)
+                        .padding(vertical = CodexTheme.dimens.screenPadding)
+                        .testTag(HeadToHeadStatsTestTag.SCREEN)
+        ) {
+            DateAndRoundSection(
+                    fullShootInfo = state.fullShootInfo,
+                    editClickedListener = { listener(EditMainInfoClicked) },
+                    helpListener = helpListener,
+                    modifier = Modifier
             )
             MatchInfoTable(
                     state = state,
@@ -167,6 +230,16 @@ fun HeadToHeadStatsScreen(
                             .horizontalScroll(rememberScrollState())
                             .padding(horizontal = CodexTheme.dimens.screenPadding)
             )
+            if (!state.fullShootInfo.h2h?.matches.isNullOrEmpty()) {
+                StatsDivider(modifier = Modifier.padding(vertical = 10.dp))
+                Text(
+                        text = stringResource(R.string.archer_round_stats__show_simple_view),
+                        style = LocalTextStyle.current.asClickableStyle(),
+                        modifier = Modifier
+                                .clickable { listener(ShootDetailsAction(ShootDetailsIntent.ToggleSimpleView)) }
+                                .testTag(HeadToHeadStatsTestTag.SIMPLE_ADVANCED_SWITCH)
+                )
+            }
         }
     }
 }
@@ -194,6 +267,7 @@ private fun ColumnScope.HandicapClassification(
                 handicapTablesClicked = { listener(ExpandHandicapsClicked) },
                 classificationTablesClicked = { listener(ExpandClassificationsClicked) },
                 archerCategoryClicked = { listener(EditArcherInfoClicked) },
+                modifier = modifier
         )
     }
 }
@@ -219,6 +293,7 @@ enum class HeadToHeadStatsTestTag : CodexTestTag {
     NUMBERS_BREAKDOWN_TABLE_OPPONENT_END_AVG_CELL,
     NUMBERS_BREAKDOWN_TABLE_DIFF_END_AVG_CELL,
     NO_NUMBERS_BREAKDOWN_TEXT,
+    SIMPLE_ADVANCED_SWITCH,
     ;
 
     override val screenName: String
@@ -231,7 +306,7 @@ enum class HeadToHeadStatsTestTag : CodexTestTag {
 @Composable
 fun HeadToHeadStatsScreen_Preview() {
     CodexTheme {
-        HeadToHeadStatsScreen(
+        HeadToHeadStatsScreenFull(
                 state = HeadToHeadStatsState(
                         fullShootInfo = ShootPreviewHelperDsl.create {
                             round = RoundPreviewHelper.wa70RoundData
@@ -263,7 +338,7 @@ fun HeadToHeadStatsScreen_Preview() {
 @Composable
 fun NoMatches_HeadToHeadStatsScreen_Preview() {
     CodexTheme {
-        HeadToHeadStatsScreen(
+        HeadToHeadStatsScreenFull(
                 state = HeadToHeadStatsState(
                         fullShootInfo = ShootPreviewHelperDsl.create {
                             addH2h {
@@ -273,6 +348,40 @@ fun NoMatches_HeadToHeadStatsScreen_Preview() {
                         classificationTablesUseCase = ClassificationTablesPreviewHelper.get(),
                         archerInfo = DatabaseArcherPreviewHelper.default,
                         bow = DatabaseBowPreviewHelper.default,
+                ),
+        ) {}
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun Simple_HeadToHeadStatsScreen_Preview() {
+    CodexTheme {
+        HeadToHeadStatsScreenSimple(
+                state = HeadToHeadStatsState(
+                        fullShootInfo = ShootPreviewHelperDsl.create {
+                            round = RoundPreviewHelper.wa70RoundData
+                            addH2h {
+                                headToHead = headToHead.copy(qualificationRank = 5, totalArchers = 20)
+                                addMatch {
+                                    match = match.copy(opponentQualificationRank = 10, opponent = "Tess", isBye = true)
+                                }
+                                addMatch {
+                                    match = match.copy(opponentQualificationRank = 13, opponent = "Adya")
+                                    addSet { addRows() }
+                                    addSet { addRows() }
+                                    addSet { addRows() }
+                                }
+                            }
+                        },
+                        classificationTablesUseCase = ClassificationTablesPreviewHelper.get(),
+                        archerInfo = DatabaseArcherPreviewHelper.default,
+                        bow = DatabaseBowPreviewHelper.default,
+                        extras = HeadToHeadStatsState.Extras(
+                                qualifyingRoundId = 1,
+                        ),
+                        useSimpleView = true,
+                        hasPermissionToSeeAdvanced = true,
                 ),
         ) {}
     }

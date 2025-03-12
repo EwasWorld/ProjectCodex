@@ -16,6 +16,7 @@ import eywa.projectcodex.instrumentedTests.dsl.assertTextEqualsOrDoesntExist
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddCountRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsAddEndRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsScorePadRobot
+import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadScorePadRobot
 
 class ViewScoresRobot(
         composeTestRule: ComposeTestRule<MainActivity>
@@ -88,6 +89,11 @@ class ViewScoresRobot(
     fun clickRow(rowIndex: Int, block: ShootDetailsScorePadRobot.() -> Unit = {}) {
         performOnRowItem(rowIndex, CodexNodeInteraction.PerformClick())
         createRobot(ShootDetailsScorePadRobot::class, block)
+    }
+
+    fun clickH2hRow(rowIndex: Int, block: HeadToHeadScorePadRobot.() -> Unit = {}) {
+        performOnRowItem(rowIndex, CodexNodeInteraction.PerformClick())
+        createRobot(HeadToHeadScorePadRobot::class, block)
     }
 
     fun clickRowCount(rowIndex: Int, block: ShootDetailsAddCountRobot.() -> Unit = {}) {

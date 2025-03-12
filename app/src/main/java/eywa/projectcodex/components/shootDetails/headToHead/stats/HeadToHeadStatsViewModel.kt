@@ -11,6 +11,8 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.headToHead.stats.HeadToHeadStatsIntent.*
+import eywa.projectcodex.model.user.Capability
+import eywa.projectcodex.model.user.CodexUser
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -30,9 +32,12 @@ class HeadToHeadStatsViewModel @Inject constructor(
         private val repo: ShootDetailsRepo,
         private val helpShowcaseUseCase: HelpShowcaseUseCase,
         private val classificationTablesUseCase: ClassificationTablesUseCase,
+        user: CodexUser,
 ) : ViewModel() {
     private val screen = CodexNavRoute.HEAD_TO_HEAD_STATS
     private val extraState = MutableStateFlow(HeadToHeadStatsState.Extras())
+
+    private val hasPermissionToSeeAdvanced = user.hasCapability(Capability.HEAD_TO_HEAD)
 
     val state = repo.getState(extraState, ::stateConverter)
             .stateIn(
@@ -42,6 +47,7 @@ class HeadToHeadStatsViewModel @Inject constructor(
             )
 
     init {
+        println("ECHDEBUG Has permission: $hasPermissionToSeeAdvanced")
         viewModelScope.launch {
             state
                     .map { s ->
@@ -69,6 +75,8 @@ class HeadToHeadStatsViewModel @Inject constructor(
                 archerInfo = main.archerInfo,
                 bow = main.bow,
                 wa1440FullRoundInfo = main.wa1440FullRoundInfo,
+                useSimpleView = main.useSimpleView || !hasPermissionToSeeAdvanced,
+                hasPermissionToSeeAdvanced = hasPermissionToSeeAdvanced,
         )
     }
 

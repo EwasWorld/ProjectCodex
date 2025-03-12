@@ -29,6 +29,7 @@ import eywa.projectcodex.components.shootDetails.stats.NumbersBreakdownRowStats
 import eywa.projectcodex.components.shootDetails.stats.StatsExtras
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent
 import eywa.projectcodex.components.shootDetails.stats.StatsState
+import eywa.projectcodex.model.user.CodexUser
 
 @Composable
 internal fun NumberBreakdownSection(
@@ -183,6 +184,7 @@ private fun NumberBreakdownSection_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     completeRoundWithFullSet()
@@ -209,6 +211,7 @@ private fun SingleDistance_NumberBreakdownSection_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa25RoundData
                                     completeRoundWithFullSet()

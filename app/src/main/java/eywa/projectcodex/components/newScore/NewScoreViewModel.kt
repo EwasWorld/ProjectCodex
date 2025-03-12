@@ -14,6 +14,8 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTas
 import eywa.projectcodex.components.newScore.NewScoreIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.model.FullShootInfo
+import eywa.projectcodex.model.user.Capability
+import eywa.projectcodex.model.user.CodexUser
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,13 +30,14 @@ class NewScoreViewModel @Inject constructor(
         updateDefaultRoundsTask: UpdateDefaultRoundsTask,
         private val helpShowcase: HelpShowcaseUseCase,
         savedStateHandle: SavedStateHandle,
+        user: CodexUser,
 ) : ViewModel() {
     private val _state = MutableStateFlow(NewScoreState())
     val state = _state.asStateFlow()
 
     private val shootsRepo = db.shootsRepo()
-
     private var editingRoundJob: Job? = null
+    private val hasHeadToHeadCapability = user.hasCapability(Capability.HEAD_TO_HEAD)
 
     init {
         initialiseRoundBeingEdited(savedStateHandle.get<Int>(NavArgument.SHOOT_ID))
@@ -76,7 +79,7 @@ class NewScoreViewModel @Inject constructor(
         when (action) {
             is DateChanged -> _state.update { it.copy(dateShot = action.info.updateCalendar(it.dateShot)) }
 
-            TypeChanged -> _state.update { it.copy(type = it.type.next()) }
+            TypeChanged -> _state.update { it.copy(type = it.type.next(hasHeadToHeadCapability)) }
             H2hStyleChanged -> _state.update { it.copy(h2hIsSetPoints = !it.h2hIsSetPoints) }
             H2hFormatChanged -> _state.update { it.copy(h2hFormatIsStandard = !it.h2hFormatIsStandard) }
             is H2hQualiRankChanged ->

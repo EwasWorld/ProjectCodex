@@ -44,6 +44,7 @@ import eywa.projectcodex.database.archer.DatabaseArcher
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.database.bow.DatabaseBow
 import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
+import eywa.projectcodex.model.user.CodexUser
 
 @Composable
 internal fun HandicapAndClassificationSection(
@@ -312,6 +313,7 @@ fun HandicapAndClassificationSection_Preview() {
                         state = StatsState(
                                 main = ShootDetailsState(
                                         shootId = 1,
+                                        user = CodexUser(),
                                         fullShootInfo = ShootPreviewHelperDsl.create {
                                             round = RoundPreviewHelper.wa1440RoundData
                                             completeRoundWithFinalScore(finalScore + 1)
@@ -364,6 +366,7 @@ fun PredictedUnofficial_HandicapAndClassificationSection_Preview() {
                         state = StatsState(
                                 main = ShootDetailsState(
                                         shootId = 1,
+                                        user = CodexUser(),
                                         fullShootInfo = shootInfo,
                                         archerInfo = DatabaseArcherPreviewHelper.default
                                                 .copy(isGent = false, age = ClassificationAge.OVER_50),
@@ -395,6 +398,7 @@ fun NoArrows_HandicapAndClassificationSection_Preview() {
                 state = StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                 },
@@ -427,6 +431,7 @@ fun Prefixed_HandicapAndClassificationSection_Preview() {
                     state = StatsState(
                             main = ShootDetailsState(
                                     shootId = 1,
+                                    user = CodexUser(),
                                     fullShootInfo = ShootPreviewHelperDsl.create {
                                         round = RoundPreviewHelper.wa1440RoundData
                                         addIdenticalArrows(6, 9)

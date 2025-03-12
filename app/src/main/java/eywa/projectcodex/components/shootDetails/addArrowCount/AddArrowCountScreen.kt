@@ -58,6 +58,7 @@ import eywa.projectcodex.components.shootDetails.addEnd.RemainingArrowsIndicator
 import eywa.projectcodex.components.shootDetails.addEnd.SightMark
 import eywa.projectcodex.components.shootDetails.getData
 import eywa.projectcodex.components.shootDetails.stats.ui.DateAndRoundSection
+import eywa.projectcodex.model.user.CodexUser
 
 @Composable
 fun AddArrowCountScreen(
@@ -328,6 +329,7 @@ fun AddArrowCountScreen_Preview() {
                 AddArrowCountState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     addRound(RoundPreviewHelper.yorkRoundData, 12)
                                     addArrowCounter(30)
@@ -351,6 +353,7 @@ fun NoRound_AddArrowCountScreen_Preview() {
                 AddArrowCountState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     addArrowCounter(24)
                                 },
@@ -373,6 +376,7 @@ fun RoundComplete_AddArrowCountScreen_Preview() {
                 AddArrowCountState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     completeRoundWithCounter()
@@ -396,6 +400,7 @@ fun Error_AddArrowCountScreen_Preview() {
                 AddArrowCountState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     addArrowCounter(24)
@@ -419,6 +424,7 @@ fun Sighters_AddArrowCountScreen_Preview() {
                 AddArrowCountState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     addRound(RoundPreviewHelper.yorkRoundData, 12)
                                     completeRoundWithCounter()

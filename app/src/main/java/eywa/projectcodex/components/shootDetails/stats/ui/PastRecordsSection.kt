@@ -44,6 +44,7 @@ import eywa.projectcodex.components.shootDetails.stats.StatsExtras
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent
 import eywa.projectcodex.components.shootDetails.stats.StatsState
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
+import eywa.projectcodex.model.user.CodexUser
 import java.util.Calendar
 
 @Composable
@@ -199,6 +200,7 @@ fun Closed_PastRecordsSection_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     shoot = shoot.copy(shootId = 18)
                                 },
@@ -233,6 +235,7 @@ fun Best_PastRecordsSection_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     shoot = shoot.copy(shootId = 18)
                                 },
@@ -267,6 +270,7 @@ fun Recent_PastRecordsSection_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     shoot = shoot.copy(shootId = 3)
                                 },

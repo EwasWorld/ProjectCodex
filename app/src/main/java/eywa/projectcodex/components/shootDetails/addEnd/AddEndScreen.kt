@@ -58,6 +58,7 @@ import eywa.projectcodex.database.rounds.getDistanceUnitRes
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.SightMark
+import eywa.projectcodex.model.user.CodexUser
 
 @Composable
 fun AddEndScreen(
@@ -521,6 +522,7 @@ fun CompleteAddEndScreen_Preview() {
                 AddEndState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     completeRoundWithFinalScore(1200)
@@ -565,6 +567,7 @@ fun NoRound_AddEndScreen_Preview() {
                 AddEndState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create { },
                         ).copy(addEndArrows = List(6) { Arrow(10) }),
                         extras = AddEndExtras(),

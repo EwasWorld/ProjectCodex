@@ -52,6 +52,7 @@ import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
 import eywa.projectcodex.database.shootData.DatabaseShootShortRecord
+import eywa.projectcodex.model.user.CodexUser
 import java.util.Calendar
 
 @Composable
@@ -332,6 +333,7 @@ fun NoRound_StatsScreen_Preview() {
                         extras = StatsExtras(),
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     addFullSetOfArrows()
                                 },
@@ -354,6 +356,7 @@ fun RoundIncomplete_StatsScreen_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                     addIdenticalArrows(20, 7)
@@ -391,6 +394,7 @@ fun RoundComplete_StatsScreen_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                     completeRound(arrowScore = 8, isX = false)
@@ -427,6 +431,7 @@ fun NoArrows_StatsScreen_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                 },
@@ -461,6 +466,7 @@ fun SimpleRoundIncomplete_StatsScreen_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                     addIdenticalArrows(20, 7)
@@ -497,6 +503,7 @@ fun SimpleRoundComplete_StatsScreen_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                     completeRound(arrowScore = 8, isX = false)
@@ -533,6 +540,7 @@ fun SimpleNoArrows_StatsScreen_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.wa1440RoundData
                                 },
@@ -567,6 +575,7 @@ fun PastRecords_StatsScreen_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.outdoorImperialRoundData
                                     completeRound(arrowScore = 7, isX = false)

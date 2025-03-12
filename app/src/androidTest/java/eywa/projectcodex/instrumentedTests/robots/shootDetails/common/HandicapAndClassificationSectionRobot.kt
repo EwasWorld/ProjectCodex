@@ -27,6 +27,11 @@ class HandicapAndClassificationSectionRobot(
         checkElementDoesNotExist(StatsTestTag.HANDICAP_TABLES, true)
     }
 
+    fun checkHandicapIsDisplayed() {
+        checkElementIsDisplayed(StatsTestTag.HANDICAP_TEXT, true)
+        checkElementIsDisplayed(StatsTestTag.HANDICAP_TABLES, true)
+    }
+
     fun checkClassificationCategory(value: String) {
         checkElementText(StatsTestTag.CLASSIFICATION_CATEGORY, value, true)
     }
@@ -52,6 +57,12 @@ class HandicapAndClassificationSectionRobot(
         checkElementDoesNotExist(StatsTestTag.CLASSIFICATION)
         checkElementDoesNotExist(StatsTestTag.CLASSIFICATION_CATEGORY)
         checkElementDoesNotExist(StatsTestTag.CLASSIFICATION_TABLES)
+    }
+
+    fun checkClassificationIsDisplayed() {
+        checkElementIsDisplayed(StatsTestTag.CLASSIFICATION)
+        checkElementIsDisplayed(StatsTestTag.CLASSIFICATION_CATEGORY)
+        checkElementIsDisplayed(StatsTestTag.CLASSIFICATION_TABLES)
     }
 
     fun openHandicapTablesInFull(block: HandicapTablesRobot.() -> Unit) {

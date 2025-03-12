@@ -53,6 +53,7 @@ import eywa.projectcodex.components.shootDetails.scorePad.ScorePadIntent.*
 import eywa.projectcodex.model.scorePadData.ScorePadColumn
 import eywa.projectcodex.model.scorePadData.ScorePadData.ScorePadColumnType
 import eywa.projectcodex.model.scorePadData.ScorePadRow
+import eywa.projectcodex.model.user.CodexUser
 
 
 private val COLUMN_ORDER = listOf(
@@ -329,7 +330,7 @@ fun York_ScorePadScreen_Preview() {
     CodexTheme {
         ScorePadScreen(
                 ScorePadState(
-                        main = ShootDetailsState(fullShootInfo = data, shootId = 1),
+                        main = ShootDetailsState(fullShootInfo = data, shootId = 1, user = CodexUser()),
                         extras = ScorePadExtras(),
                 ),
         ) {}
@@ -350,7 +351,7 @@ fun WA70_ScorePadScreen_Preview() {
     CodexTheme {
         ScorePadScreen(
                 ScorePadState(
-                        main = ShootDetailsState(fullShootInfo = data, shootId = 1),
+                        main = ShootDetailsState(fullShootInfo = data, shootId = 1, user = CodexUser()),
                         extras = ScorePadExtras(),
                 ),
         ) {}

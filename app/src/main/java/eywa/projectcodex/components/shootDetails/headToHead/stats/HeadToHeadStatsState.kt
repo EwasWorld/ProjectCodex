@@ -17,6 +17,8 @@ data class HeadToHeadStatsState(
         val archerInfo: DatabaseArcher? = null,
         val bow: DatabaseBow? = null,
         val wa1440FullRoundInfo: FullRoundInfo? = null,
+        val useSimpleView: Boolean = false,
+        val hasPermissionToSeeAdvanced: Boolean = false,
 ) {
     val classification = getClassification(
             classificationTables = classificationTablesUseCase,

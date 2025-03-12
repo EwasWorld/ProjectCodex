@@ -15,6 +15,7 @@ import eywa.projectcodex.datastore.get
 import eywa.projectcodex.datastore.retrieve
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.SightMark
+import eywa.projectcodex.model.user.CodexUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -48,8 +49,9 @@ class ShootDetailsRepo @Inject constructor(
         val db: ScoresRoomDatabase,
         private val datastore: CodexDatastore,
         private val helpShowcase: HelpShowcaseUseCase,
+        user: CodexUser,
 ) {
-    private val state: MutableStateFlow<ShootDetailsState> = MutableStateFlow(ShootDetailsState(shootId))
+    private val state: MutableStateFlow<ShootDetailsState> = MutableStateFlow(ShootDetailsState(shootId, user))
 
     init {
         shootScope.launch {
@@ -87,7 +89,7 @@ class ShootDetailsRepo @Inject constructor(
         shootScope.launch {
             db.shootsRepo().getFullShootInfo(shootId).collectLatest { dbInfo ->
                 if (dbInfo == null) {
-                    state.update { ShootDetailsState(shootId = shootId, isError = true) }
+                    state.update { ShootDetailsState(shootId = shootId, user = user, isError = true) }
                     return@collectLatest
                 }
 

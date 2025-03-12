@@ -39,6 +39,7 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.stats.StatsExtras
 import eywa.projectcodex.components.shootDetails.stats.StatsIntent
 import eywa.projectcodex.components.shootDetails.stats.StatsState
+import eywa.projectcodex.model.user.CodexUser
 
 val separatorMargin = 10.dp
 
@@ -322,6 +323,7 @@ private fun AllowanceSection_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     completeRoundWithFinalScore(1000)
@@ -347,6 +349,7 @@ private fun Predicted_AllowanceSection_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     addIdenticalArrows(1, 9)
@@ -372,6 +375,7 @@ private fun NoHandicap_AllowanceSection_Preview() {
                 StatsState(
                         main = ShootDetailsState(
                                 shootId = 1,
+                                user = CodexUser(),
                                 fullShootInfo = ShootPreviewHelperDsl.create {
                                     round = RoundPreviewHelper.yorkRoundData
                                     addIdenticalArrows(1, 9)

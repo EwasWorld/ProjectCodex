@@ -7,9 +7,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azimolabs.conditionwatcher.ConditionWatcher
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import eywa.projectcodex.UserTestModule
 import eywa.projectcodex.common.CommonSetupTeardownFns
 import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
+import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.classificationTables.model.Classification
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
@@ -28,6 +30,7 @@ import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadTo
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadStatsRobot.NumbersBreakdownRobot.Column.*
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.headToHead.HeadToHeadStatsRobot.NumbersBreakdownRobot.HandicapType
 import eywa.projectcodex.model.SightMark
+import eywa.projectcodex.model.user.Capability
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
@@ -56,6 +59,7 @@ class HeadToHeadE2eTest {
      * Set up [scenario] with desired fragment in the resumed state, and [db] with all desired information
      */
     private fun setup() {
+        UserTestModule.capabilities = listOf(Capability.HEAD_TO_HEAD)
         hiltRule.inject()
 
         // Start initialised so we can add to the database before the onCreate methods are called
@@ -81,6 +85,56 @@ class HeadToHeadE2eTest {
     @After
     fun afterEach() {
         CommonSetupTeardownFns.teardownScenario(scenario)
+    }
+
+    @Test
+    fun testNoCapabilities() {
+        hiltRule.inject()
+
+        // Start initialised so we can add to the database before the onCreate methods are called
+        scenario = composeTestRule.activityRule.scenario
+        scenario.onActivity {
+            db = LocalDatabaseModule.scoresRoomDatabase!!
+
+            /*
+             * Fill default rounds
+             */
+            runBlocking {
+                ShootPreviewHelperDsl.create {
+                    addH2h {
+                        addMatch {
+                            addSet {
+                                addRows()
+                            }
+                            addSet {
+                                addRows()
+                            }
+                            addSet {
+                                addRows()
+                            }
+                        }
+                    }
+                }.let { db.add(it) }
+
+                db.bowRepo().insertDefaultBowIfNotExist()
+            }
+        }
+
+        composeTestRule.mainMenuRobot {
+            clickNewScore {
+                clickType(NewScoreRobot.Type.COUNT)
+                clickType(NewScoreRobot.Type.SCORE)
+                pressBack()
+            }
+            clickViewScores {
+                waitForRowCount(1)
+                clickH2hRow(0) {
+                    clickNavBarItem<HeadToHeadStatsRobot> {
+                        checkIsSimpleView(false)
+                    }
+                }
+            }
+        }
     }
 
     @Test
@@ -469,6 +523,10 @@ class HeadToHeadE2eTest {
                         checkH2hInfo("Individual, Set points, Rank 2 of 6")
                         checkFaces("Full")
 
+                        checkIsSimpleView(true)
+                        clickSimpleAdvancedToggle()
+                        checkIsAdvancedView()
+
                         checkMatchRow(0, "1/4", "-", "-", "Bye")
                         checkMatchRow(1, "Semi", "Claire Davids", "3", "5-6 Loss")
                         checkMatchRow(2, "Final", "Emma Fitzgerald", "1", "6-0 Win")
@@ -843,6 +901,7 @@ class HeadToHeadE2eTest {
                                 checkRound("Head to head")
                                 checkH2hInfo("Teams of 2, Total score, Rank 2")
                                 checkFaces("Full")
+                                clickSimpleAdvancedToggle()
 
                                 checkMatchRow(0, "1/8", "-", "-", "145-128 Win")
                                 checkMatchRow(1, "2", "-", "-", "180-180 Loss")
@@ -961,6 +1020,7 @@ class HeadToHeadE2eTest {
                             checkRound("H2H: WA 70")
                             checkH2hInfo("Teams of 2, Total score, Rank 2")
                             checkFaces("Full")
+                            clickSimpleAdvancedToggle()
 
                             handicapAndClassificationRobot.checkClassification(
                                     Classification.BOWMAN_1ST_CLASS,
@@ -1353,6 +1413,7 @@ class HeadToHeadE2eTest {
                         checkRound("H2H: WA 70")
                         checkH2hInfo("Individual, Set points, Rank 2 of 6\nNon-standard format")
                         checkFaces("Full")
+                        clickSimpleAdvancedToggle()
 
                         checkMatchRow(0, "1/4", "-", "-", "Bye")
                         checkMatchRow(1, "Semi", "Claire Davids", "3", "5-6 Loss")

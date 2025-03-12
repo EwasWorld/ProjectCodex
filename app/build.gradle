@@ -127,8 +127,10 @@ android {
     testBuildType 'uiTests'
 
     sourceSets {
-        release.java.srcDirs += "src/nonDebug/java"
-        minified.java.srcDirs += "src/nonDebug/java"
+        release.java.srcDirs += "src/prod/java"
+        minified.java.srcDirs += "src/prod/java"
+        debug.java.srcDirs += "src/nonProd/java"
+        uiTests.java.srcDirs += "src/nonProd/java"
 
         main {
             res {

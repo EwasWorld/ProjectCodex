@@ -160,5 +160,13 @@ enum class NewScoreType(
     HEAD_TO_HEAD(ResOrActual.StringResource(R.string.create_round__score_type_head_to_head)),
     ;
 
-    fun next() = entries[(ordinal + 1) % entries.size]
+    fun next(hasHeadToHeadCapability: Boolean): NewScoreType {
+        val new = entries[(ordinal + 1) % entries.size]
+
+        if (!hasHeadToHeadCapability && new == HEAD_TO_HEAD) {
+            return new.next(false)
+        }
+
+        return new
+    }
 }
