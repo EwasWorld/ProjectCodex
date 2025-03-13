@@ -100,7 +100,32 @@ class EmailScoresE2eTest {
             ShootPreviewHelperDsl.create {
                 shoot = shoot.copy(2, TestUtils.generateDate(2023))
                 round = rounds[0]
-                addFullSetOfArrows()
+                addH2h {
+                    addMatch {
+                        match = match.copy(isBye = true, heat = null)
+                    }
+                    addMatch {
+                        match = match.copy(opponent = "Jess", opponentQualificationRank = 1)
+                        addSet {
+                            addRows()
+                        }
+                        addSet {
+                            addRows()
+                        }
+                        addSet {
+                            addRows()
+                        }
+                    }
+                    addMatch {
+                        match = match.copy(opponent = "Amanda")
+                        addSet {
+                            addRows()
+                        }
+                    }
+                    addMatch {
+                        match = match.copy(heat = 0)
+                    }
+                }
             },
             ShootPreviewHelperDsl.create {
                 shoot = shoot.copy(3, TestUtils.generateDate(2022))
@@ -194,6 +219,68 @@ class EmailScoresE2eTest {
             clickViewScores {
                 waitForDate(0, DateTimeFormat.SHORT_DATE_TIME.format(shoots[0].shoot.dateShot))
                 longClickRow(0)
+                clickEmailDropdownMenuItem {
+                    checkTextFieldText(EmailScoresTextField.SUBJECT, EmailTestData.INITIAL_SUBJECT)
+                    checkScoreText(scoresString)
+                    clickCheckbox(EmailScoresCheckbox.FULL_SCORE_SHEET)
+                    checkCheckboxState(EmailScoresCheckbox.FULL_SCORE_SHEET, true)
+
+                    clickEmailField()
+                    clickEmail(EmailTestData.EMAIL_1)
+                    checkEmailText(EmailTestData.EMAIL_1)
+                    typeEmail("${EmailTestData.EMAIL_1};${EmailTestData.EMAIL_2}")
+
+                    typeText(EmailScoresTextField.SUBJECT, EmailTestData.FINAL_SUBJECT)
+                    typeText(EmailScoresTextField.MESSAGE_HEADER, EmailTestData.START_TEXT)
+                    typeText(EmailScoresTextField.MESSAGE_FOOTER, EmailTestData.END_TEXT)
+                    Espresso.closeSoftKeyboard()
+
+                    intending(expected).respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, null))
+                    clickSend()
+                }
+                checkScreenIsShown()
+                intended(expected)
+            }
+        }
+    }
+
+    @Test
+    fun testEmailScoreWithAttachment_headToHead() {
+        val roundDate = DateTimeFormat.SHORT_DATE.format(shoots[1].shoot.dateShot)
+        val scoresString = """
+            H2H: ${rounds[0].round.displayName} - $roundDate - Individual, Set points
+            Match 1 - Bye
+            Match 2: (rank 1) Jess - Win 6-0
+            Match 3: Amanda - Incomplete 2-0
+            Match 4: final - No sets
+        """.trimIndent()
+        val expected = allOf(
+                hasAction(Intent.ACTION_SEND),
+                hasData(Uri.parse("mailto:")),
+                hasExtra(
+                        `is`(Intent.EXTRA_EMAIL),
+                        `is`(arrayOf(EmailTestData.EMAIL_1, EmailTestData.EMAIL_2))
+                ),
+                hasExtra(
+                        `is`(Intent.EXTRA_SUBJECT),
+                        `is`(EmailTestData.FINAL_SUBJECT)
+                ),
+                hasExtra(
+                        `is`(Intent.EXTRA_TEXT),
+                        `is`(EmailTestData.getMessage(scoresString))
+                ),
+                // TODO URI for attachment is not matching for some reason
+                // TODO Check contents of attachment
+//                hasExtra(
+//                        `is`(Intent.EXTRA_STREAM),
+//                        `is`(EmailTestData.URI)
+//                )
+        )
+
+        composeTestRule.mainMenuRobot {
+            clickViewScores {
+                waitForDate(0, DateTimeFormat.SHORT_DATE_TIME.format(shoots[0].shoot.dateShot))
+                longClickRow(1)
                 clickEmailDropdownMenuItem {
                     checkTextFieldText(EmailScoresTextField.SUBJECT, EmailTestData.INITIAL_SUBJECT)
                     checkScoreText(scoresString)

@@ -39,7 +39,7 @@ data class HeadToHeadReferenceState(
     val meetIn
         get() =
             if (archerRank.parsed == null || opponentRank.parsed == null) null
-            else HeadToHeadUseCase.roundName(HeadToHeadUseCase.meetInRound(archerRank.parsed, opponentRank.parsed))
+            else HeadToHeadUseCase.heatName(HeadToHeadUseCase.meetInHeat(archerRank.parsed, opponentRank.parsed))
 
     val tableData
         get() = listOfNotNull(getOpponents(archerRank.parsed), getOpponents(opponentRank.parsed))

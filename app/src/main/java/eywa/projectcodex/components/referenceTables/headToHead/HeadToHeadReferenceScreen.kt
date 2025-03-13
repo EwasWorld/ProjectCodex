@@ -204,7 +204,7 @@ sealed class HeadToHeadReferenceColumn : CodexGridColumnMetadata<HeadToHeadRefer
 
     data class Round(val round: Int, val totalRounds: Int) : HeadToHeadReferenceColumn() {
         override val primaryTitle: ResOrActual<String>
-            get() = HeadToHeadUseCase.shortRoundName(round)
+            get() = HeadToHeadUseCase.shortHeatName(round)
         override val testTag: CodexTestTag
             get() = HeadToHeadReferenceTestTag.TABLE_ROUND
         override val mapping: (HeadToHeadReferenceRow) -> ResOrActual<String>
@@ -218,7 +218,7 @@ sealed class HeadToHeadReferenceColumn : CodexGridColumnMetadata<HeadToHeadRefer
                         R.string.head_to_head_ref__round_content_desc,
                         listOf(
                                 mapping(entry),
-                                HeadToHeadUseCase.roundName(round),
+                                HeadToHeadUseCase.heatName(round),
                                 entry.rank.toString(),
                         ),
                 )

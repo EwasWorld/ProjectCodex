@@ -28,7 +28,7 @@ data class EmailScoresState(
 
     fun getRoundsText(resources: Resources) =
             if (rounds.isEmpty()) resources.getString(R.string.email_scores__loading)
-            else rounds.joinToString("\n\n") { entry -> entry.getScoreSummary(resources) }
+            else rounds.joinToString("\n\n") { entry -> entry.getScoreSummary().get(resources) }
 
     /**
      * Get the test of the email at the location of the start of the cursor up to surrounding [emailDelimiters]

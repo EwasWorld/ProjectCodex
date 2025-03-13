@@ -302,7 +302,7 @@ fun HeadToHeadScorePadScreen(
                                                 R.string.head_to_head_add_heat__heat,
                                                 entry.match.matchNumber,
                                         ),
-                                        text = HeadToHeadUseCase.roundName(entry.match.heat).get(),
+                                        text = HeadToHeadUseCase.heatName(entry.match.heat).get(),
                                         modifier = Modifier.testTag(MATCH_TEXT)
                                 )
                             }

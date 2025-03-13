@@ -9,10 +9,10 @@ import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadDetail
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.Either
 
-sealed class HeadToHeadNoResult {
-    data object Incomplete : HeadToHeadNoResult()
-    data object Unknown : HeadToHeadNoResult()
-    data class Partial(val score: Int) : HeadToHeadNoResult()
+sealed class HeadToHeadNoResult(val result: HeadToHeadResult) {
+    data object Incomplete : HeadToHeadNoResult(HeadToHeadResult.INCOMPLETE)
+    data object Unknown : HeadToHeadNoResult(HeadToHeadResult.UNKNOWN)
+    data class Partial(val score: Int) : HeadToHeadNoResult(HeadToHeadResult.INCOMPLETE)
 }
 
 sealed class RowArrows {

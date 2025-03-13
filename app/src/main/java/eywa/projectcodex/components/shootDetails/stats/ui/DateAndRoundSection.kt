@@ -70,16 +70,8 @@ fun DateAndRoundSection(
             )
             ProvideTextStyle(value = CodexTypography.SMALL.copy(color = CodexTheme.colors.onAppBackground)) {
                 fullShootInfo.h2h?.headToHead?.let {
-                    val team = if (it.teamSize > 1) "Teams of ${it.teamSize}" else "Individual"
-                    val style = if (it.isSetPoints) "Set points" else "Total score"
-                    val rank = if (it.qualificationRank != null) ", Rank ${it.qualificationRank}" else ""
-                    val format = if (it.isStandardFormat) "" else "\nNon-standard format"
-                    val totalArchers =
-                            if (it.totalArchers == null) ""
-                            else if (it.qualificationRank == null) ", ${it.totalArchers} archers"
-                            else " of ${it.totalArchers}"
                     Text(
-                            text = "$team, $style$rank$totalArchers$format",
+                            text = it.description.get(),
                             textAlign = TextAlign.Center,
                             modifier = Modifier.testTag(StatsTestTag.ROUND_H2H_INFO_TEXT)
                     )

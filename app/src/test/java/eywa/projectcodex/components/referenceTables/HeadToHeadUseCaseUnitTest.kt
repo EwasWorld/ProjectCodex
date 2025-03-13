@@ -32,30 +32,30 @@ class HeadToHeadUseCaseUnitTest {
     }
 
     @Test
-    fun testMeetInRound() {
+    fun testMeetInHeat() {
         assertEquals(
                 5,
-                HeadToHeadUseCase.meetInRound(1, 64),
+                HeadToHeadUseCase.meetInHeat(1, 64),
         )
         assertEquals(
                 0,
-                HeadToHeadUseCase.meetInRound(1, 2),
+                HeadToHeadUseCase.meetInHeat(1, 2),
         )
         assertEquals(
                 1,
-                HeadToHeadUseCase.meetInRound(4, 1),
+                HeadToHeadUseCase.meetInHeat(4, 1),
         )
     }
 
     @Test
-    fun testRoundNames() {
+    fun testHeatNames() {
         assertEquals(
                 ResOrActual.StringResource(R.string.head_to_head_ref__round_name, listOf(8)),
-                HeadToHeadUseCase.roundName(3),
+                HeadToHeadUseCase.heatName(3),
         )
         assertEquals(
                 ResOrActual.StringResource(R.string.head_to_head_ref__round_name, listOf(16)),
-                HeadToHeadUseCase.roundName(4),
+                HeadToHeadUseCase.heatName(4),
         )
     }
 }

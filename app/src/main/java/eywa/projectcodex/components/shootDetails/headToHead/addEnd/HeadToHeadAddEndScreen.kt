@@ -248,7 +248,7 @@ private fun MatchFixedInfo(
         if (state.match.heat != null) {
             DataRow(
                     title = stringResource(R.string.head_to_head_add_heat__heat, state.match.matchNumber),
-                    text = HeadToHeadUseCase.shortRoundName(state.match.heat).get(),
+                    text = HeadToHeadUseCase.shortHeatName(state.match.heat).get(),
                     textStyle = CodexTypography.NORMAL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
                     titleStyle = CodexTypography.SMALL_PLUS.copy(color = CodexTheme.colors.onAppBackground),
             )

@@ -39,7 +39,10 @@ enum class HeadToHeadGridColumn {
                                         ResOrActual.StringResource(R.string.end_to_string_arrow_placeholder)
                                     },
                             )
-                    ResOrActual.JoinToStringResource(text, R.string.end_to_string_arrow_deliminator)
+                    ResOrActual.JoinToStringResource(
+                            strings = text,
+                            delimiter = ResOrActual.StringResource(R.string.end_to_string_arrow_deliminator),
+                    )
                 }
                 else if (data.isFullWidth) {
                     null

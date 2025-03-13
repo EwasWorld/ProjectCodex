@@ -1,8 +1,8 @@
 package eywa.projectcodex.model
 
-import android.content.res.Resources
 import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType.SELF
 import eywa.projectcodex.database.RoundFace
@@ -263,35 +263,106 @@ data class FullShootInfo(
         return ScorePadData(this, endSize, goldsTypes)
     }
 
-    fun getScoreSummary(resources: Resources): String =
-            if (arrowCounter != null) {
-                resources.getString(
-                        R.string.email_round_summary_count,
-                        displayName ?: resources.getString(R.string.create_round__no_round),
-                        DateTimeFormat.SHORT_DATE.format(shoot.dateShot),
-                        arrowCounter.shotCount.toString(),
-                )
-            }
-            else if (arrowsShot > 0) {
-                resources.getString(
-                        R.string.email_round_summary,
-                        displayName ?: resources.getString(R.string.create_round__no_round),
-                        DateTimeFormat.SHORT_DATE.format(shoot.dateShot),
-                        hits,
-                        score,
-                ) + goldsTypes.joinToString("") {
-                    resources.getString(
-                            R.string.email_round_summary_golds,
-                            resources.getString(it.longStringId),
-                            golds(it),
+    fun getScoreSummary(): ResOrActual<String> =
+            when {
+                arrowCounter != null -> {
+                    ResOrActual.StringResource(
+                            R.string.email_round_summary_count,
+                            listOf(
+                                    displayName ?: ResOrActual.StringResource(R.string.create_round__no_round),
+                                    DateTimeFormat.SHORT_DATE.format(shoot.dateShot),
+                                    arrowCounter.shotCount.toString(),
+                            ),
                     )
                 }
-            }
-            else {
-                resources.getString(
-                        R.string.email_round_summary_no_arrows,
-                        displayName ?: resources.getString(R.string.create_round__no_round),
-                        DateTimeFormat.SHORT_DATE.format(shoot.dateShot),
-                )
+
+                h2h != null -> {
+                    ResOrActual.JoinToStringResource(
+                            listOf(
+                                    ResOrActual.StringResource(
+                                            R.string.email_head_to_head_summary,
+                                            listOf(
+                                                    displayName
+                                                            ?: ResOrActual.StringResource(R.string.create_round__no_round),
+                                                    DateTimeFormat.SHORT_DATE.format(shoot.dateShot),
+                                                    h2h.headToHead.description,
+                                            ),
+                                    ),
+                            ).plus(
+                                    if (h2h.matches.isEmpty()) {
+                                        listOf(ResOrActual.StringResource(R.string.email_head_to_head_summary_no_matches))
+                                    }
+                                    else {
+                                        h2h.matches.map { match ->
+                                            val runningTotals = match.runningTotals.lastOrNull()?.left
+                                            val final =
+                                                    if (match.match.isBye) {
+                                                        ResOrActual.StringResource(R.string.head_to_head_ref__bye)
+                                                    }
+                                                    else if (match.sets.isEmpty()) {
+                                                        ResOrActual.StringResource(R.string.email_head_to_head_summary_no_sets)
+                                                    }
+                                                    else if (runningTotals != null) {
+                                                        val rt = "${runningTotals.first}-${runningTotals.second}"
+                                                        ResOrActual.JoinToStringResource(
+                                                                listOf(
+                                                                        match.result.title,
+                                                                        ResOrActual.Actual(rt),
+                                                                ),
+                                                                ResOrActual.Actual(" "),
+                                                        )
+                                                    }
+                                                    else {
+                                                        match.result.title
+                                                    }
+
+                                            ResOrActual.StringResource(
+                                                    R.string.email_head_to_head_match_summary,
+                                                    listOf(match.match.summaryMatch(), final),
+                                            )
+                                        }
+                                    },
+                            ),
+                            ResOrActual.Actual("\n"),
+                    )
+                }
+
+                arrowsShot > 0 -> {
+                    ResOrActual.JoinToStringResource(
+                            listOf(
+                                    ResOrActual.StringResource(
+                                            R.string.email_round_summary,
+                                            listOf(
+                                                    displayName
+                                                            ?: ResOrActual.StringResource(R.string.create_round__no_round),
+                                                    DateTimeFormat.SHORT_DATE.format(shoot.dateShot),
+                                                    hits,
+                                                    score,
+                                            ),
+                                    ),
+                            ).plus(
+                                    goldsTypes.map {
+                                        ResOrActual.StringResource(
+                                                R.string.email_round_summary_golds,
+                                                listOf(
+                                                        ResOrActual.StringResource(it.longStringId),
+                                                        golds(it),
+                                                ),
+                                        )
+                                    },
+                            ),
+                            ResOrActual.Blank,
+                    )
+                }
+
+                else -> {
+                    ResOrActual.StringResource(
+                            R.string.email_round_summary_no_arrows,
+                            listOf(
+                                    displayName ?: ResOrActual.StringResource(R.string.create_round__no_round),
+                                    DateTimeFormat.SHORT_DATE.format(shoot.dateShot),
+                            ),
+                    )
+                }
             }
 }

@@ -430,7 +430,7 @@ enum class HeadToHeadStatsFixedNumbersColumn : CodexGridColumnMetadata<HeadToHea
         override val mapping: (HeadToHeadStatsNumbersBreakdownDataRow) -> ResOrActual<String>
             get() = { match ->
                 if (match is HeadToHeadStatsNumbersBreakdownDataRow.Match) {
-                    match.match.match.heat?.let { HeadToHeadUseCase.shortRoundName(it) }
+                    match.match.match.heat?.let { HeadToHeadUseCase.shortHeatName(it) }
                             ?: ResOrActual.Actual(match.match.match.matchNumber.toString())
                 }
                 else {

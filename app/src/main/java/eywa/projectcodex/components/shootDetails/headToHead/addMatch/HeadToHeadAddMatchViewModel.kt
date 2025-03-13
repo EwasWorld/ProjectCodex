@@ -117,7 +117,7 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
                                 heat = previous?.match?.heat?.minus(1)?.coerceAtLeast(0) ?: estimatedHeat(),
                         )
                                 .setMaxRank(previous)
-                                .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(editingMatchNumber))
+                                .setOpponentQualiRank(fullH2hInfo.headToHead.getExpectedOpponentRank(editingMatchNumber))
                     }
                 }
             }
@@ -142,8 +142,7 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
                     HeadToHeadAddMatchExtras(
                             matchNumber = 1,
                             heat = estimatedHeat(),
-                    )
-                            .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(1))
+                    ).setOpponentQualiRank(fullH2hInfo.headToHead.getExpectedOpponentRank(1))
                 }
             }
 
@@ -166,7 +165,7 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
                             matchNumber = newMatchNumber,
                             heat = latestMatch.match.heat?.minus(1)?.coerceAtLeast(0),
                     )
-                            .setOpponentQualiRank(fullH2hInfo.headToHead.getOpponentRank(newMatchNumber))
+                            .setOpponentQualiRank(fullH2hInfo.headToHead.getExpectedOpponentRank(newMatchNumber))
                             .setMaxRank(latestMatch)
                 }
             }

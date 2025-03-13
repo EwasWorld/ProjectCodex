@@ -19,6 +19,14 @@
     <!-- {1: roundName} - {2: date}\n{3: count} arrows shot
         e.g. Frostbite - 06/3/23\n36 arrows shot -->
     <string name="email_round_summary_count">%1$s - %2$s\n%3$s arrows shot</string>
+    <!-- {1: match number, opponent, opponent rank} - {2: result} {3: running totals}
+        e.g. Match 1: Jess Summers (rank 5) - Win 6-2 -->
+    <string name="email_head_to_head_match_summary">%1$s - %2$s</string>
+    <!-- {1: roundName} - {2: date} - {3: description}
+        e.g. H2H: WA18 - 06/3/23 - Individual, Standard Format, Rank 5 of 64 -->
+    <string name="email_head_to_head_summary">%1$s - %2$s - %3$s</string>
+    <string name="email_head_to_head_summary_no_matches">No matches</string>
+    <string name="email_head_to_head_summary_no_sets">No sets</string>
     <string name="email_scores__no_entries_dialog_title">Internal error</string>
     <string name="email_scores__no_entries_dialog_body">Could not find any selected entries to email. Please select at least one score and try again</string>
 

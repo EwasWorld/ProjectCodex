@@ -61,7 +61,7 @@ enum class HeadToHeadStatsMatchesColumn : CodexGridColumnMetadata<HeadToHeadStat
 
         override val mapping: (HeadToHeadStatsMatchesInfoDataRow) -> ResOrActual<String>
             get() = { row ->
-                row.match.match.heat?.let { it -> HeadToHeadUseCase.shortRoundName(it) }
+                row.match.match.heat?.let { it -> HeadToHeadUseCase.shortHeatName(it) }
                         ?: ResOrActual.Actual(row.match.match.matchNumber.toString())
             }
 

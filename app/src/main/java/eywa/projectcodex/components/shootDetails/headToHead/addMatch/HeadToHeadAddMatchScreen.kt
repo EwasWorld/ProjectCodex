@@ -213,7 +213,7 @@ private fun PreviousMatch(
                         stringResource(
                                 R.string.head_to_head_add_heat__match_header_with_heat,
                                 state.previousMatch.matchNumber,
-                                HeadToHeadUseCase.shortRoundName(state.previousMatch.heat).get(),
+                                HeadToHeadUseCase.shortHeatName(state.previousMatch.heat).get(),
                         )
                     }
                     else {
@@ -280,7 +280,7 @@ private fun MatchDetails(
             Column {
                 (0..HeadToHeadUseCase.MAX_HEAT).forEach { heat ->
                     Text(
-                            text = HeadToHeadUseCase.roundName(heat).get(),
+                            text = HeadToHeadUseCase.heatName(heat).get(),
                             style = CodexTypography.NORMAL,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
@@ -305,7 +305,7 @@ private fun MatchDetails(
         ) {
             DataRow(
                     title = stringResource(R.string.head_to_head_add_heat__heat, state.extras.matchNumber),
-                    text = state.extras.heat?.let { HeadToHeadUseCase.shortRoundName(it).get() }
+                    text = state.extras.heat?.let { HeadToHeadUseCase.shortHeatName(it).get() }
                             ?: stringResource(R.string.head_to_head_add_heat__heat_null),
                     onClick = { listener(HeatClicked) },
                     modifier = Modifier.testTag(HeadToHeadAddMatchTestTag.HEAT)

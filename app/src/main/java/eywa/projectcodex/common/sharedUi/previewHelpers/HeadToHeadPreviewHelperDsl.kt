@@ -25,16 +25,19 @@ class HeadToHeadPreviewHelperDsl(shootId: Int) {
     private var matches = listOf<FullHeadToHeadMatch>()
 
     fun addMatch(config: HeadToHeadMatchPreviewHelperDsl.() -> Unit) {
+        val heat =
+                if (matches.isEmpty()) 3
+                else matches.maxBy { it.match.matchNumber }.match.heat?.minus(1)?.coerceAtLeast(1)
         matches = matches + HeadToHeadMatchPreviewHelperDsl(
                 matchNumber = matches.size + 1,
                 shootId = headToHead.shootId,
                 teamSize = headToHead.teamSize,
                 isSetPoints = headToHead.isSetPoints,
                 endSize = headToHead.endSize,
-                heat = matches.mapNotNull { it.match.heat }.minOrNull()?.minus(1) ?: 3,
+                heat = heat,
         ).apply(config).asFull()
 
-        require(matches.distinctBy { it.match.heat }.size == matches.size) { "Duplicate heat" }
+        require(matches.mapNotNull { it.match.heat }.let { it.distinct().size == it.size }) { "Duplicate heat" }
     }
 
     fun asFull() = FullHeadToHead(headToHead = headToHead, matches = matches)
@@ -47,7 +50,7 @@ class HeadToHeadMatchPreviewHelperDsl(
         val teamSize: Int,
         val isSetPoints: Boolean,
         val endSize: Int?,
-        heat: Int = 3,
+        heat: Int? = 3,
 ) {
     var match = DatabaseHeadToHeadMatch(
             matchNumber = matchNumber,

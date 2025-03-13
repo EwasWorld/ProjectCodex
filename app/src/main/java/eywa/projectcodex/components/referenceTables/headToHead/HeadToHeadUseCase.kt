@@ -40,7 +40,7 @@ object HeadToHeadUseCase {
      *
      * 0 is the final, 1 is the semi-final, 2 is the quarter-final, etc.
      */
-    fun meetInRound(rankA: Int, rankB: Int): Int {
+    fun meetInHeat(rankA: Int, rankB: Int): Int {
         check(rankA > 0 && rankB > 0) { "Ranks must be greater than 0" }
         val max = max(rankA, rankB)
 
@@ -54,18 +54,18 @@ object HeadToHeadUseCase {
         return 0
     }
 
-    fun roundName(round: Int): ResOrActual<String> = when (round) {
+    fun heatName(heat: Int): ResOrActual<String> = when (heat) {
         0 -> StringResource(R.string.head_to_head_ref__final)
         1 -> StringResource(R.string.head_to_head_ref__semi_final)
         2 -> StringResource(R.string.head_to_head_ref__quarter_final)
-        else -> StringResource(R.string.head_to_head_ref__round_name, listOf(2.0.pow(round).roundToInt()))
+        else -> StringResource(R.string.head_to_head_ref__round_name, listOf(2.0.pow(heat).roundToInt()))
     }
 
-    fun shortRoundName(round: Int): ResOrActual<String> = when (round) {
+    fun shortHeatName(heat: Int): ResOrActual<String> = when (heat) {
         0 -> StringResource(R.string.head_to_head_ref__final_short)
         1 -> StringResource(R.string.head_to_head_ref__semi_final_short)
         2 -> StringResource(R.string.head_to_head_ref__round_name, listOf(4))
-        else -> roundName(round)
+        else -> heatName(heat)
     }
 
     fun shootOffSet(teamSize: Int) = if (teamSize > 1) 5 else 6
