@@ -1,12 +1,10 @@
 package eywa.projectcodex.components.shootDetails.headToHead.addEnd
 
 import eywa.projectcodex.R
-import eywa.projectcodex.common.sharedUi.previewHelpers.HeadToHeadMatchPreviewHelperDsl
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.components.shootDetails.commonUi.arrowInputs.ArrowInputsError
 import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData
-import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowDataPreviewHelper
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridState
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.rounds.Round
@@ -20,7 +18,7 @@ data class HeadToHeadAddEndState(
         val teamRunningTotal: Int? = null,
         val opponentRunningTotal: Int? = null,
         val isSetPoints: Boolean = true,
-        val match: DatabaseHeadToHeadMatch = HeadToHeadMatchPreviewHelperDsl.data,
+        val match: DatabaseHeadToHeadMatch,
         val editingSet: FullHeadToHeadSet? = null,
         val isInserting: Boolean = false,
 ) {
@@ -55,7 +53,6 @@ data class HeadToHeadRoundInfo(
         val distance: Int? = null,
         val isMetric: Boolean? = null,
         val sightMark: SightMark? = null,
-
         val round: Round? = null,
         val face: RoundFace? = null,
         val endSize: Int = 3,
@@ -69,7 +66,7 @@ data class HeadToHeadAddEndExtras(
         val openEditSightMark: Boolean = false,
         val openAllSightMarks: Boolean = false,
         val set: FullHeadToHeadSet = FullHeadToHeadSet(
-                data = HeadToHeadGridRowDataPreviewHelper.selfAndOpponent,
+                data = emptyList(),
                 teamSize = 1,
                 setNumber = 1,
                 isSetPoints = true,

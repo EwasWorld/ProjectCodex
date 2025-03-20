@@ -20,6 +20,7 @@ import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadAddEndIntent.*
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData
 import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridRowData.*
+import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
 import eywa.projectcodex.model.headToHead.FullHeadToHeadSet
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -164,7 +165,19 @@ class HeadToHeadAddEndViewModel @Inject constructor(
         // Invalid match
         if (match == null || (match.isComplete && !match.match.isBye)) {
             extraState.update { (it ?: HeadToHeadAddEndExtras()).copy(openAddMatchScreen = true) }
-            return HeadToHeadAddEndState(extras = extras ?: HeadToHeadAddEndExtras())
+            return HeadToHeadAddEndState(
+                    match = DatabaseHeadToHeadMatch(
+                            shootId = 1,
+                            matchNumber = 1,
+                            heat = null,
+                            maxPossibleRank = 1,
+                            opponent = null,
+                            opponentQualificationRank = null,
+                            sightersCount = 0,
+                            isBye = false,
+                    ),
+                    extras = extras ?: HeadToHeadAddEndExtras(),
+            )
         }
 
         val lastSet = match.sets.maxByOrNull { it.setNumber }
@@ -341,7 +354,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                             }
                         },
                         onSubmit = { throw NotImplementedError() },
-                        helpListener = { handle(HelpShowcaseAction(it)) }
+                        helpListener = { handle(HelpShowcaseAction(it)) },
                 )
             }
 
@@ -394,7 +407,7 @@ class HeadToHeadAddEndViewModel @Inject constructor(
                                         teamSize = s.set.teamSize,
                                         previous = previous,
                                 ),
-                        ).updateShootOffRow()
+                        ).updateShootOffRow(),
                 )
             }
 

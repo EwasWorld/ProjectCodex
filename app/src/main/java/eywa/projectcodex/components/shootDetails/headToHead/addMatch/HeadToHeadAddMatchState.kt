@@ -17,7 +17,7 @@ data class HeadToHeadAddMatchState(
          * Warn the user that changing a match with sets to a bye will delete the sets
          */
         val editingMatchWithSetsToBye: Boolean = false,
-        val extras: HeadToHeadAddMatchExtras = HeadToHeadAddMatchExtras(matchNumber = 1),
+        val extras: HeadToHeadAddMatchExtras = HeadToHeadAddMatchExtras(),
         val isInserting: Boolean = false,
 ) {
 
