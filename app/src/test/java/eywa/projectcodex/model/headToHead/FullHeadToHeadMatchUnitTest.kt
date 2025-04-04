@@ -44,7 +44,9 @@ class FullHeadToHeadMatchUnitTest {
                             if (teamSize == 1) {
                                 addSet { addRows(result = HeadToHeadResult.TIE) }
                             }
-                            addSet { addRows(result = HeadToHeadResult.LOSS, winnerScore = 10, loserScore = 1) }
+                            addSet(isShootOff = true) {
+                                addRows(result = HeadToHeadResult.LOSS, winnerScore = 10, loserScore = 1)
+                            }
                         } to listOfNotNull(
                                 Either.Left(2 to 0),
                                 Either.Left(2 to 2),
@@ -76,11 +78,11 @@ class FullHeadToHeadMatchUnitTest {
                         ),
                 )
 
-        getData(teamSize = 1).forEach { (heat, expected) ->
-            assertEquals(expected, heat.asFull().runningTotals)
+        getData(teamSize = 1).forEachIndexed { index, (heat, expected) ->
+            assertEquals("$index", expected, heat.asFull().runningTotals)
         }
-        getData(teamSize = 2).forEach { (heat, expected) ->
-            assertEquals(expected, heat.asFull().runningTotals)
+        getData(teamSize = 2).forEachIndexed { index, (heat, expected) ->
+            assertEquals("$index", expected, heat.asFull().runningTotals)
         }
     }
 
@@ -257,6 +259,85 @@ class FullHeadToHeadMatchUnitTest {
                     addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
                 }.asFull().result
             }
+        }
+    }
+
+    @Test
+    fun testIsComplete() {
+        fun dsl(
+                teamSize: Int = 1,
+                isSetPoints: Boolean = true,
+                isStandardFormat: Boolean = true,
+        ) = HeadToHeadMatchPreviewHelperDsl(
+                shootId = 1,
+                matchNumber = 1,
+                teamSize = teamSize,
+                isSetPoints = isSetPoints,
+                endSize = if (isStandardFormat) null else 3,
+        )
+
+        listOf(
+                // Non standard
+                dsl(isStandardFormat = false).apply {
+                    addSet { addRows(result = HeadToHeadResult.WIN) }
+                    addSet { addRows(result = HeadToHeadResult.WIN) }
+                    addSet { addRows(result = HeadToHeadResult.WIN) }
+                } to false,
+                // No sets
+                dsl() to false,
+                // Result win/loss
+                dsl().apply {
+                    addSet { addRows(result = HeadToHeadResult.WIN) }
+                    addSet { addRows(result = HeadToHeadResult.WIN) }
+                    addSet { addRows(result = HeadToHeadResult.WIN) }
+                } to true,
+                // Result tie
+                dsl().apply {
+                    addSet { addRows(result = HeadToHeadResult.WIN) }
+                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                    addSet { addRows(result = HeadToHeadResult.WIN) }
+                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                    addSet { addRows(result = HeadToHeadResult.TIE) }
+                } to false,
+                // Result unknown - with shoot off win/loss as last set
+                dsl().apply {
+                    addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
+                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                    addSet { addRows(result = HeadToHeadResult.WIN) }
+                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                    addSet { addRows(result = HeadToHeadResult.TIE) }
+                    addSet(isShootOff = true) {
+                        addRows(result = HeadToHeadResult.WIN, winnerScore = 10, loserScore = 1)
+                    }
+                } to true,
+                // Result unknown - with shoot off tie as last set
+                dsl().apply {
+                    addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
+                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                    addSet { addRows(result = HeadToHeadResult.WIN) }
+                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                    addSet { addRows(result = HeadToHeadResult.TIE) }
+                    addSet(isShootOff = true) {
+                        addRows(result = HeadToHeadResult.TIE, winnerScore = 10, loserScore = 1)
+                    }
+                } to false,
+                // Result unknown - non-shoot off last set
+                dsl().apply {
+                    addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
+                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                    addSet { addRows(result = HeadToHeadResult.WIN) }
+                    addSet { addRows(result = HeadToHeadResult.TIE) }
+                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                } to false,
+                // Total score (must go to 5 sets)
+                dsl(isSetPoints = false).apply {
+                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                    addSet { addRows(result = HeadToHeadResult.WIN) }
+                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                    addSet { addRows(result = HeadToHeadResult.LOSS) }
+                } to false,
+        ).forEachIndexed { i, (dsl, expected) ->
+            assertEquals("$i", expected, dsl.asFull().isComplete)
         }
     }
 }

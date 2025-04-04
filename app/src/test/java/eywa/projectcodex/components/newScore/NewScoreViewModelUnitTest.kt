@@ -10,6 +10,7 @@ import eywa.projectcodex.common.utils.updateDefaultRounds.UpdateDefaultRoundsTas
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.shootData.DatabaseFullShootInfo
 import eywa.projectcodex.database.shootData.DatabaseShoot
+import eywa.projectcodex.model.user.CodexUserPreviewHelper
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockSavedStateHandle
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
@@ -67,6 +68,7 @@ class NewScoreViewModelUnitTest {
                 updateDefaultRoundsTask = updateDefaultRoundsTask,
                 helpShowcase = helpShowcaseUseCase,
                 savedStateHandle = savedStateHandle.mock,
+                user = CodexUserPreviewHelper.allCapabilities,
         )
     }
 

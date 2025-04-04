@@ -19,8 +19,14 @@ class FullHeadToHeadSetUnitTest {
             isSetPoints: Boolean = true,
     ): FullHeadToHeadSet {
         val teamSize = if (isTeam) 2 else 1
-        var data: List<HeadToHeadGridRowData> = map { (type, total) -> HeadToHeadGridRowData.Total(type, 1, total) }
-        if (isShootOff) {
+        var data: List<HeadToHeadGridRowData> = map { (type, total) ->
+            when (type) {
+                RESULT -> total!!.let { HeadToHeadGridRowData.Result.fromDbValue(it) }
+                SHOOT_OFF -> total!!.let { HeadToHeadGridRowData.ShootOff.fromDbValue(it) }
+                else -> HeadToHeadGridRowData.Total(type, 1, total)
+            }
+        }
+        if (isShootOff && data.none { it is HeadToHeadGridRowData.ShootOff }) {
             data = data.plus(
                     HeadToHeadGridRowData.ShootOff(if (isShootOffWin) HeadToHeadResult.WIN else HeadToHeadResult.LOSS),
             )
@@ -30,7 +36,7 @@ class FullHeadToHeadSetUnitTest {
                 data = data,
                 teamSize = teamSize,
                 isSetPoints = isSetPoints,
-                endSize = if (isShootOff) 1 else 3,
+                endSize = if (isShootOff) 1 else if (isTeam) 2 else 3,
         )
     }
 
@@ -51,8 +57,8 @@ class FullHeadToHeadSetUnitTest {
                 // Team takes precedence
                 listOf(SELF to 3, TEAM_MATE to 7, TEAM to 15) to 15,
                 listOf(SELF to 3, TEAM_MATE to 7, TEAM to null) to null,
-        ).forEach { (data, expected) ->
-            assertEquals(expected, data.asData(isTeam = false).teamEndScore)
+        ).forEachIndexed { index, (data, expected) ->
+            assertEquals(index.toString(), expected, data.asData(isTeam = false).teamEndScore)
         }
 
         listOf(
@@ -61,8 +67,8 @@ class FullHeadToHeadSetUnitTest {
 
                 // Sum
                 listOf(SELF to 3, TEAM_MATE to 7) to 10,
-                listOf(SELF to 3, TEAM_MATE to null) to null,
-                listOf(SELF to null, TEAM_MATE to 7) to null,
+                listOf(SELF to 3, TEAM_MATE to null) to 3,
+                listOf(SELF to null, TEAM_MATE to 7) to 7,
 
                 // Missing field
                 listOf(SELF to 10) to null,
@@ -71,8 +77,8 @@ class FullHeadToHeadSetUnitTest {
                 // Team takes precedence
                 listOf(SELF to 3, TEAM_MATE to 7, TEAM to 15) to 15,
                 listOf(SELF to 3, TEAM_MATE to 7, TEAM to null) to null,
-        ).forEach { (data, expected) ->
-            assertEquals(expected, data.asData(isTeam = true).teamEndScore)
+        ).forEachIndexed { index, (data, expected) ->
+            assertEquals(index.toString(), expected, data.asData(isTeam = true).teamEndScore)
         }
     }
 
@@ -86,7 +92,6 @@ class FullHeadToHeadSetUnitTest {
                 listOf(RESULT to 2, TEAM to 10, OPPONENT to 1) to HeadToHeadResult.WIN,
                 listOf(RESULT to 1, TEAM to 10, OPPONENT to 1) to HeadToHeadResult.TIE,
                 listOf(RESULT to 0, TEAM to 10, OPPONENT to 1) to HeadToHeadResult.LOSS,
-                listOf(RESULT to null, TEAM to 10, OPPONENT to 1) to HeadToHeadResult.INCOMPLETE,
 
                 // Unknown
                 listOf(TEAM to 1) to HeadToHeadResult.UNKNOWN,
@@ -106,17 +111,17 @@ class FullHeadToHeadSetUnitTest {
         }
 
         listOf(
-                // Result takes precedence
-                (listOf(RESULT to 2, TEAM to 1, OPPONENT to 10) to false) to HeadToHeadResult.WIN,
+                // Result takes precedence over score
+                (listOf(RESULT to 2, TEAM to 1, OPPONENT to 10) to true) to HeadToHeadResult.WIN,
                 (listOf(RESULT to 0, TEAM to 10, OPPONENT to 1) to false) to HeadToHeadResult.LOSS,
 
-                // Score takes precedence
+                // Score takes precedence over isShootOffWin
                 (listOf(TEAM to 1, OPPONENT to 10) to true) to HeadToHeadResult.LOSS,
                 (listOf(TEAM to 1, OPPONENT to 10) to false) to HeadToHeadResult.LOSS,
                 (listOf(TEAM to 10, OPPONENT to 1) to false) to HeadToHeadResult.WIN,
                 (listOf(TEAM to 10, OPPONENT to 1) to true) to HeadToHeadResult.WIN,
 
-                // isWin respected if tied
+                // isWin respected if score is tied
                 (listOf(TEAM to 1, OPPONENT to 1) to true) to HeadToHeadResult.WIN,
                 (listOf(TEAM to 1, OPPONENT to 1) to false) to HeadToHeadResult.LOSS,
         ).forEach { (input, expected) ->
@@ -124,9 +129,14 @@ class FullHeadToHeadSetUnitTest {
             assertEquals(expected, data.asData(isTeam = false, isShootOff = true, isShootOffWin = isWin).result)
         }
 
-        // Incorrect result
+        // ResultsShouldAgree
         assertThrows(IllegalStateException::class.java) {
-            listOf(RESULT to 5, TEAM to 1, OPPONENT to 10).asData(isSetPoints = true).result
+            listOf(RESULT to 2, TEAM to 1, OPPONENT to 10)
+                    .asData(isSetPoints = true, isShootOff = true, isShootOffWin = false).result
+        }
+        assertThrows(IllegalStateException::class.java) {
+            listOf(RESULT to 0, TEAM to 10, OPPONENT to 1)
+                    .asData(isSetPoints = true, isShootOff = true, isShootOffWin = true).result
         }
         // Result tie on shoot off
         assertThrows(IllegalStateException::class.java) {
@@ -287,6 +297,61 @@ class FullHeadToHeadSetUnitTest {
                         isSetPoints = true,
                         endSize = 3,
                 ).asDatabaseDetails(3, 4),
+        )
+    }
+
+    @Test
+    fun testGetArrows() {
+        fun check(
+                typeToTotal: List<Pair<HeadToHeadArcherType, Int>>,
+                type: HeadToHeadArcherType,
+                expected: RowArrows?,
+                teamSize: Int = 1,
+        ) {
+            assertEquals(
+                    expected,
+                    typeToTotal.asData(isTeam = teamSize > 1).getArrows(type),
+            )
+        }
+
+        // Simple exists or not
+        check(
+                typeToTotal = listOf(SELF to 10, OPPONENT to 1),
+                type = SELF,
+                expected = RowArrows.Total(10, 3),
+        )
+        check(
+                typeToTotal = listOf(SELF to 10),
+                type = OPPONENT,
+                expected = null,
+        )
+
+        // Self/team interchangeable for team size 1
+        check(
+                typeToTotal = listOf(SELF to 10, OPPONENT to 1),
+                type = TEAM,
+                expected = RowArrows.Total(10, 3),
+        )
+        check(
+                typeToTotal = listOf(TEAM to 10, OPPONENT to 1),
+                type = SELF,
+                expected = RowArrows.Total(10, 3),
+        )
+
+        // Team size 2 cannot get self alone
+        check(
+                typeToTotal = listOf(TEAM to 10, OPPONENT to 1),
+                teamSize = 2,
+                type = SELF,
+                expected = null,
+        )
+
+        // Team size 2 can combine self and team mate for team
+        check(
+                typeToTotal = listOf(SELF to 5, TEAM_MATE to 10, OPPONENT to 1),
+                teamSize = 2,
+                type = TEAM,
+                expected = RowArrows.Total(15, 4),
         )
     }
 }

@@ -39,6 +39,7 @@ class TestUtils {
         @Suppress("UNCHECKED_CAST")
         private fun <T> castNull(): T = null as T
 
+        @Deprecated("Resources should be behind ResOrActual")
         fun createResourceMock(map: Map<Int, String>): Resources {
             val resources = Mockito.mock(Resources::class.java)
             Mockito.`when`(resources.getString(Mockito.anyInt())).thenAnswer { invocation ->

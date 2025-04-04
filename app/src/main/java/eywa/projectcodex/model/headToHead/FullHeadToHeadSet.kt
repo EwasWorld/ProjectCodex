@@ -70,11 +70,13 @@ data class FullHeadToHeadSet(
             else type.expectedArrowCount(endSize = endSize, teamSize = teamSize)
 
     fun getArrows(type: HeadToHeadArcherType): RowArrows? {
+        check(type != HeadToHeadArcherType.RESULT && type != HeadToHeadArcherType.SHOOT_OFF)
+
         fun HeadToHeadGridRowData.asRowArrows(): RowArrows? =
                 when {
                     !isComplete -> null
                     this is HeadToHeadGridRowData.Arrows -> RowArrows.Arrows(arrows)
-                    else -> RowArrows.Total(totalScore, type.expectedArrowCount(endSize, teamSize))
+                    else -> RowArrows.Total(totalScore, this.type.expectedArrowCount(endSize, teamSize))
                 }
 
         val row = data.find { it.type == type }?.asRowArrows()
@@ -161,8 +163,7 @@ data class FullHeadToHeadSet(
 
         val team = all.find { it.type == HeadToHeadArcherType.TEAM }
         if (team != null) {
-            return if (teamSize == 1) throw IllegalStateException()
-            else if (!team.isComplete) Either.Right(HeadToHeadNoResult.Incomplete)
+            return if (!team.isComplete) Either.Right(HeadToHeadNoResult.Incomplete)
             else Either.Left(team.totalScore)
         }
 

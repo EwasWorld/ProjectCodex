@@ -20,6 +20,7 @@ import eywa.projectcodex.datastore.DatastoreKey.UseBetaFeatures
 import eywa.projectcodex.model.Arrow
 import eywa.projectcodex.model.FullShootInfo
 import eywa.projectcodex.model.SightMark
+import eywa.projectcodex.model.user.CodexUserPreviewHelper
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockScoresRoomDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -58,6 +59,7 @@ class ShootDetailsRepoUnitTest {
             bow = DatabaseBowPreviewHelper.default,
             archerInfo = DatabaseArcherPreviewHelper.default,
             wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+            user = CodexUserPreviewHelper.allCapabilities,
     )
 
     private fun TestScope.getSut(
@@ -71,6 +73,7 @@ class ShootDetailsRepoUnitTest {
                 db = db.mock,
                 datastore = datastore.mock,
                 helpShowcase = helpShowcase,
+                user = CodexUserPreviewHelper.allCapabilities,
         )
 
         advanceTimeBy(1)
@@ -151,6 +154,7 @@ class ShootDetailsRepoUnitTest {
                         roundPbs = highest.map { it.asShort() },
                         pastRoundRecords = recent.map { it.asShort() },
                         sightMark = sightMark.first(),
+                        user = CodexUserPreviewHelper.allCapabilities,
                 ),
                 latestState
         )

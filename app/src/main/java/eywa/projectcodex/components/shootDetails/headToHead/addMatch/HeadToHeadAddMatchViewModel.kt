@@ -205,16 +205,14 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
     )
 
     private fun HeadToHeadAddMatchExtras.setMaxRank(previous: FullHeadToHeadMatch?): HeadToHeadAddMatchExtras {
-        fun HeadToHeadAddMatchExtras.set(rank: Int?) =
-                copy(maxPossibleRank = maxPossibleRank.copy(text = rank?.toString() ?: ""))
-
-        return set(
-                if (previous?.match?.maxPossibleRank == null) null
-                else if (previous.result == HeadToHeadResult.WIN) previous.match.maxPossibleRank
-                else if (previous.match.heat != null) previous.match.maxPossibleRank + 2.0.pow(previous.match.heat)
-                        .toInt()
-                else null
-        )
+        val previousMaxRank = previous?.match?.maxPossibleRank
+        val rank = when {
+            previousMaxRank == null -> null
+            previous.result == HeadToHeadResult.WIN -> previousMaxRank
+            previous.match.heat != null -> previousMaxRank + 2.0.pow(previous.match.heat).toInt()
+            else -> null
+        }
+        return copy(maxPossibleRank = maxPossibleRank.copy(text = rank?.toString() ?: ""))
     }
 
     private fun HeadToHeadAddMatchExtras.setOpponentQualiRank(opponentQualiRank: Opponent?) =

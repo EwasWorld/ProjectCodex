@@ -45,9 +45,9 @@ data class FullHeadToHeadMatch(
             }
 
     val isComplete
-        get() = isStandardFormat && sets.isNotEmpty() && (
-                (result.isComplete && result != HeadToHeadResult.TIE)
-                        // If result is UNKNOWN, check if last match is a shoot off with a known result
+        get() = isStandardFormat && sets.isNotEmpty() && result != HeadToHeadResult.TIE && (
+                result.isComplete
+                        // If result is not complete, check if last set is a completed shoot off with non-tie result
                         || sets.last().let { it.isShootOff && it.isComplete && it.result != HeadToHeadResult.TIE }
                 )
 

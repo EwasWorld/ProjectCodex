@@ -127,7 +127,7 @@ class HeadToHeadSetPreviewHelperDsl(
     fun addRows(
             result: HeadToHeadResult = HeadToHeadResult.WIN,
             typesToIsTotal: Map<HeadToHeadArcherType, Boolean> = mapOf(
-                    HeadToHeadArcherType.SELF to false,
+                    (if (teamSize == 1) HeadToHeadArcherType.SELF else HeadToHeadArcherType.TEAM) to false,
                     HeadToHeadArcherType.OPPONENT to true,
             ),
             isEditable: Boolean = false,
@@ -176,7 +176,7 @@ class HeadToHeadSetPreviewHelperDsl(
     }
 
     fun removeRow(type: HeadToHeadArcherType) {
-        data = data.filter { it.type == type }
+        data = data.filter { it.type != type }
     }
 
     fun asFull() =

@@ -23,6 +23,7 @@ import eywa.projectcodex.components.shootDetails.scorePad.ScorePadViewModel
 import eywa.projectcodex.database.ScoresRoomDatabase
 import eywa.projectcodex.database.arrows.ArrowScoresRepo
 import eywa.projectcodex.model.Arrow
+import eywa.projectcodex.model.user.CodexUserPreviewHelper
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.TestUtils
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -63,6 +64,7 @@ class ShootDetailsViewModelsUnitTest {
             shootId = 1,
             fullShootInfo = ShootPreviewHelperDsl.create { addIdenticalArrows(36, 7) },
             scorePadSelectedEnd = 1,
+            user = CodexUserPreviewHelper.allCapabilities,
     )
 
     @Suppress("UNCHECKED_CAST")

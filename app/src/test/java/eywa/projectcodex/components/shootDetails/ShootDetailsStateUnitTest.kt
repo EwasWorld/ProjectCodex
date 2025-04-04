@@ -2,6 +2,7 @@ package eywa.projectcodex.components.shootDetails
 
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
+import eywa.projectcodex.model.user.CodexUserPreviewHelper
 import org.junit.Assert
 import org.junit.Test
 
@@ -18,7 +19,8 @@ class ShootDetailsStateUnitTest {
                 fullShootInfo = ShootPreviewHelperDsl.create {
                     addIdenticalArrows(60, 7)
                     round = RoundPreviewHelper.outdoorImperialRoundData
-                }
+                },
+                user = CodexUserPreviewHelper.allCapabilities,
         )
 
         // No selected end

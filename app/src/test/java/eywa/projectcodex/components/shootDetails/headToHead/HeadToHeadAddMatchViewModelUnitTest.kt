@@ -13,6 +13,7 @@ import eywa.projectcodex.components.shootDetails.headToHead.addMatch.HeadToHeadA
 import eywa.projectcodex.components.shootDetails.headToHead.addMatch.HeadToHeadAddMatchViewModel
 import eywa.projectcodex.components.sightMarks.SightMarksPreviewHelper
 import eywa.projectcodex.model.SightMark
+import eywa.projectcodex.model.user.CodexUserPreviewHelper
 import eywa.projectcodex.testUtils.MainCoroutineRule
 import eywa.projectcodex.testUtils.MockDatastore
 import eywa.projectcodex.testUtils.MockSavedStateHandle
@@ -53,6 +54,7 @@ class HeadToHeadAddMatchViewModelUnitTest {
                 db = database.mock,
                 datastore = datastore.mock,
                 helpShowcase = helpShowcase,
+                user = CodexUserPreviewHelper.allCapabilities,
         )
 
         val sut = HeadToHeadAddMatchViewModel(
@@ -142,7 +144,7 @@ class HeadToHeadAddMatchViewModelUnitTest {
         assertEquals(
                 HeadToHeadAddMatchState(
                         roundInfo = HeadToHeadRoundInfo(),
-                        extras = HeadToHeadAddMatchExtras(heat = 2),
+                        extras = HeadToHeadAddMatchExtras(matchNumber = 2, heat = 2),
                         previousMatch = HeadToHeadAddMatchState.PreviousMatch(
                                 heat = 3,
                                 result = HeadToHeadResult.WIN,
@@ -169,7 +171,9 @@ class HeadToHeadAddMatchViewModelUnitTest {
                             addSet { addRows(result = HeadToHeadResult.LOSS) }
                             addSet { addRows(result = HeadToHeadResult.LOSS) }
                             addSet { addRows(result = HeadToHeadResult.TIE) }
-                            addSet { addRows(result = HeadToHeadResult.LOSS, winnerScore = 10, loserScore = 1) }
+                            addSet(isShootOff = true) {
+                                addRows(result = HeadToHeadResult.LOSS, winnerScore = 10, loserScore = 1)
+                            }
                         }
                     }.asFull()
                 }.asDatabaseFullShootInfo()
@@ -181,7 +185,8 @@ class HeadToHeadAddMatchViewModelUnitTest {
         assertEquals(
                 HeadToHeadAddMatchState(
                         roundInfo = HeadToHeadRoundInfo(),
-                        extras = HeadToHeadAddMatchExtras(heat = 2),
+                        extras = HeadToHeadAddMatchExtras(matchNumber = 2, heat = 2)
+                                .let { it.copy(maxPossibleRank = it.maxPossibleRank.copy(text = "9")) },
                         previousMatch = HeadToHeadAddMatchState.PreviousMatch(
                                 heat = 3,
                                 result = HeadToHeadResult.LOSS,
@@ -217,20 +222,6 @@ class HeadToHeadAddMatchViewModelUnitTest {
                 },
                 HeadToHeadPreviewHelperDsl(1).apply {
                     addMatch {
-                        addSet { addRows() }
-                        addSet { addRows() }
-                        addSet { addRows(result = HeadToHeadResult.INCOMPLETE) }
-                    }
-                },
-                HeadToHeadPreviewHelperDsl(1).apply {
-                    addMatch {
-                        addSet { addRows() }
-                        addSet { addRows() }
-                        addSet { addRows(result = HeadToHeadResult.UNKNOWN) }
-                    }
-                },
-                HeadToHeadPreviewHelperDsl(1).apply {
-                    addMatch {
                         match = match.copy(isBye = true)
                     }
                 },
@@ -248,7 +239,7 @@ class HeadToHeadAddMatchViewModelUnitTest {
 
             assertEquals(
                     "$index",
-                    true,
+                    -1,
                     currentState?.extras?.openAddEndScreenForMatch,
             )
         }

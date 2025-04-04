@@ -80,9 +80,7 @@ data class FullHeadToHead(
         get() = matches.sumOf { it.arrowsShot }
 
     val isComplete: Boolean
-        get() = matches.all { match ->
-            match.result.isComplete
-        }
+        get() = matches.all { it.result.isComplete }
 
     val arrowsToIsSelf =
             getArrows(HeadToHeadArcherType.SELF)?.let { it to true }
@@ -94,7 +92,7 @@ data class FullHeadToHead(
             }
 
     companion object {
-        fun List<DatabaseHeadToHeadDetail>.asRowData(
+        private fun List<DatabaseHeadToHeadDetail>.asRowData(
                 endSize: Int,
                 teamSize: Int,
                 isEditable: Boolean,

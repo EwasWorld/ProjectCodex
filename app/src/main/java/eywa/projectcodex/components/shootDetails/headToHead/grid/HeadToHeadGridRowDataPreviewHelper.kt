@@ -103,16 +103,16 @@ object HeadToHeadGridRowDataPreviewHelper {
             val expectedArrowCount = type.expectedArrowCount(endSize, teamSize)
             val indexes = dbIds?.getOrNull(i)
             if (type == HeadToHeadArcherType.RESULT) {
-                HeadToHeadGridRowData.Result(result)
+                HeadToHeadGridRowData.Result(result, indexes?.getOrNull(0))
             }
             else if (type == HeadToHeadArcherType.SHOOT_OFF) {
-                HeadToHeadGridRowData.ShootOff(result)
+                HeadToHeadGridRowData.ShootOff(result, indexes?.getOrNull(0))
             }
             else if (isTotal) {
                 val index = indexes?.getOrNull(0)
                 if (isEditable) {
                     HeadToHeadGridRowData.EditableTotal(type, expectedArrowCount, dbId = index).let {
-                        if (isIncomplete) it else it.copy(text = it.text.onTextChanged(total.toString()))
+                        if (isIncomplete) it else it.copy(text = it.text.copy(total.toString()))
                     }
                 }
                 else {

@@ -36,11 +36,18 @@ data class DatabaseHeadToHead(
     val isStandardFormat: Boolean
         get() = endSize == null
 
+    /**
+     * @return null if [qualificationRank] or [totalArchers] is null
+     * or if given [totalArchers], there will not be enough matches to reach [matchNumber]
+     * (e.g. if there are 4 total archers, there will only be a semi-final and a final, any [matchNumber] > 2 will
+     * return null in this case)
+     */
     fun getExpectedOpponentRank(matchNumber: Int): Opponent? {
         if (qualificationRank == null || totalArchers == null) return null
-        return HeadToHeadUseCase.getOpponents(rank = qualificationRank, totalArchers = totalArchers)
+        val opponents = HeadToHeadUseCase.getOpponents(rank = qualificationRank, totalArchers = totalArchers)
                 .reversed()
-                .getOrNull(matchNumber - 1)
+        if (opponents.size < matchNumber) return null
+        return opponents[matchNumber - 1]
                 ?.let { Opponent.Rank(it) }
                 ?: Opponent.Bye
     }
@@ -65,14 +72,17 @@ data class DatabaseHeadToHead(
                         )
                     }
                     else {
-                        ResOrActual.Blank
+                        ResOrActual.StringResource(
+                                R.string.head_to_head__info_quali_rank,
+                                listOf(qualificationRank),
+                        )
                     }
-            val format =
-                    if (isStandardFormat) ResOrActual.Blank
-                    else ResOrActual.StringResource(R.string.head_to_head__info_non_standard)
             val totalArchers =
                     if (totalArchers == null || qualificationRank != null) ResOrActual.Blank
                     else ResOrActual.StringResource(R.string.head_to_head__info_total_archers, listOf(totalArchers))
+            val format =
+                    if (isStandardFormat) ResOrActual.Blank
+                    else ResOrActual.StringResource(R.string.head_to_head__info_non_standard)
 
             return ResOrActual.JoinToStringResource(
                     listOf(

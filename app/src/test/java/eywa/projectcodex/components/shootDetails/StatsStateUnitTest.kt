@@ -12,6 +12,7 @@ import eywa.projectcodex.components.shootDetails.stats.StatsState
 import eywa.projectcodex.database.archer.DatabaseArcherPreviewHelper
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.bow.DatabaseBowPreviewHelper
+import eywa.projectcodex.model.user.CodexUserPreviewHelper
 import eywa.projectcodex.testUtils.RawResourcesHelper
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
@@ -28,6 +29,7 @@ class StatsStateUnitTest {
                     this.round = round
                     completeRound(arrowScore = 7)
                 },
+                user = CodexUserPreviewHelper.allCapabilities,
         )
         val state = StatsState(detailsState, StatsExtras(), classificationTablesUseCase)
 
@@ -99,6 +101,7 @@ class StatsStateUnitTest {
                 archerInfo = DatabaseArcherPreviewHelper.default,
                 bow = DatabaseBowPreviewHelper.default,
                 wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+                user = CodexUserPreviewHelper.allCapabilities,
         )
         val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
 
@@ -120,6 +123,7 @@ class StatsStateUnitTest {
                 archerInfo = DatabaseArcherPreviewHelper.default,
                 bow = DatabaseBowPreviewHelper.default,
                 wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+                user = CodexUserPreviewHelper.allCapabilities,
         )
         val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
 
@@ -140,6 +144,7 @@ class StatsStateUnitTest {
                 archerInfo = DatabaseArcherPreviewHelper.default,
                 bow = DatabaseBowPreviewHelper.default,
                 wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+                user = CodexUserPreviewHelper.allCapabilities,
         )
         val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
 
@@ -160,6 +165,7 @@ class StatsStateUnitTest {
                 archerInfo = DatabaseArcherPreviewHelper.default,
                 bow = DatabaseBowPreviewHelper.default,
                 wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+                user = CodexUserPreviewHelper.allCapabilities,
         )
         val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
 
@@ -181,6 +187,7 @@ class StatsStateUnitTest {
                 archerInfo = DatabaseArcherPreviewHelper.default,
                 bow = DatabaseBowPreviewHelper.default,
                 wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+                user = CodexUserPreviewHelper.allCapabilities,
         )
         val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
 
@@ -202,6 +209,7 @@ class StatsStateUnitTest {
                 archerInfo = DatabaseArcherPreviewHelper.default,
                 bow = DatabaseBowPreviewHelper.default,
                 wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+                user = CodexUserPreviewHelper.allCapabilities,
         )
         val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
 
@@ -223,6 +231,7 @@ class StatsStateUnitTest {
                 archerInfo = DatabaseArcherPreviewHelper.default,
                 bow = DatabaseBowPreviewHelper.default,
                 wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+                user = CodexUserPreviewHelper.allCapabilities,
         )
         val state = StatsState(detailsState, StatsExtras(), RawResourcesHelper.classificationTables)
 

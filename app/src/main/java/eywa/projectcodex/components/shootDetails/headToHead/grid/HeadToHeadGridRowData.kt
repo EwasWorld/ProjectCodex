@@ -53,6 +53,11 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
         init {
             standardRowChecks()
         }
+
+        fun asEditableTotal() =
+                EditableTotal(type, expectedArrowCount, dbId = dbId).let { field ->
+                    field.copy(text = field.text.copy(text = total?.toString() ?: ""))
+                }
     }
 
     data class EditableTotal(
@@ -123,9 +128,9 @@ sealed class HeadToHeadGridRowData : CodexGridRowMetadata {
 
         companion object {
             private val orderedMap = listOf(
-                    HeadToHeadResult.LOSS to 0,
-                    HeadToHeadResult.TIE to 1,
                     HeadToHeadResult.WIN to 2,
+                    HeadToHeadResult.TIE to 1,
+                    HeadToHeadResult.LOSS to 0,
             )
 
             fun fromDbValue(score: Int, dbId: Int? = null) =
