@@ -175,7 +175,7 @@ enum class RankingPointsColumn : CodexGridColumnMetadata<RankingPointsEntry, Uni
         get() = { entry, _ ->
             ResOrActual.StringResource(
                     R.string.ranking_points__content_description,
-                    listOf(mapping(entry), getPrimaryTitleNotNull(), entry.rank),
+                    listOf(mapping(entry)!!, getPrimaryTitleNotNull(), entry.rank),
             )
         }
 

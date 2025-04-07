@@ -39,11 +39,17 @@ internal fun MatchInfoTable(
                 HeadToHeadStatsMatchesColumn.RANK,
                 HeadToHeadStatsMatchesColumn.RESULT,
         )
+        val final = matches
+                .maxBy { it.match.matchNumber }
+                .finalRank
+                ?.let { listOf(HeadToHeadStatsMatchesInfoDataRow.FinalRank(it)) }
+                ?: emptyList()
 
         CodexGridWithHeaders(
                 data = matches
                         .sortedByDescending { it.match.heat }
-                        .map { HeadToHeadStatsMatchesInfoDataRow(it) },
+                        .map { HeadToHeadStatsMatchesInfoDataRow.Match(it) }
+                        .plus(final),
                 columnMetadata = columns,
                 extraData = Unit,
                 helpListener = helpListener,
@@ -52,7 +58,12 @@ internal fun MatchInfoTable(
     }
 }
 
-data class HeadToHeadStatsMatchesInfoDataRow(val match: FullHeadToHeadMatch) : CodexGridRowMetadata
+sealed class HeadToHeadStatsMatchesInfoDataRow : CodexGridRowMetadata {
+    data class Match(val match: FullHeadToHeadMatch) : HeadToHeadStatsMatchesInfoDataRow()
+    data class FinalRank(val rank: Int) : HeadToHeadStatsMatchesInfoDataRow() {
+        override fun isTotal(): Boolean = true
+    }
+}
 
 enum class HeadToHeadStatsMatchesColumn : CodexGridColumnMetadata<HeadToHeadStatsMatchesInfoDataRow, Unit> {
     MATCH {
@@ -61,21 +72,40 @@ enum class HeadToHeadStatsMatchesColumn : CodexGridColumnMetadata<HeadToHeadStat
 
         override val mapping: (HeadToHeadStatsMatchesInfoDataRow) -> ResOrActual<String>
             get() = { row ->
-                row.match.match.heat?.let { it -> HeadToHeadUseCase.shortHeatName(it) }
-                        ?: ResOrActual.Actual(row.match.match.matchNumber.toString())
+                when (row) {
+                    is HeadToHeadStatsMatchesInfoDataRow.Match -> {
+                        row.match.match.heat?.let { HeadToHeadUseCase.shortHeatName(it) }
+                                ?: ResOrActual.Actual(row.match.match.matchNumber.toString())
+                    }
+
+                    is HeadToHeadStatsMatchesInfoDataRow.FinalRank -> {
+                        ResOrActual.Actual("Final Rank: ${row.rank}")
+                    }
+                }
             }
 
         override val testTag: CodexTestTag
             get() = HeadToHeadStatsTestTag.MATCHES_TABLE_MATCH_CELL
+
+        override fun cellHorizontalSpan(row: HeadToHeadStatsMatchesInfoDataRow): Int {
+            return if (row is HeadToHeadStatsMatchesInfoDataRow.FinalRank) 4 else 1
+        }
+
     },
     OPPONENT {
         override val primaryTitle: ResOrActual<String>
             get() = ResOrActual.StringResource(R.string.head_to_head_stats__heats_grid_opponent_title)
 
-        override val mapping: (HeadToHeadStatsMatchesInfoDataRow) -> ResOrActual<String>
+        override val mapping: (HeadToHeadStatsMatchesInfoDataRow) -> ResOrActual<String>?
             get() = { data ->
-                data.match.match.opponent?.let { ResOrActual.Actual(it) }
-                        ?: ResOrActual.StringResource(R.string.head_to_head_stats__heats_grid_empty)
+                when (data) {
+                    is HeadToHeadStatsMatchesInfoDataRow.Match -> {
+                        data.match.match.opponent?.let { ResOrActual.Actual(it) }
+                                ?: ResOrActual.StringResource(R.string.head_to_head_stats__heats_grid_empty)
+                    }
+
+                    is HeadToHeadStatsMatchesInfoDataRow.FinalRank -> null
+                }
             }
 
         override val testTag: CodexTestTag
@@ -85,10 +115,16 @@ enum class HeadToHeadStatsMatchesColumn : CodexGridColumnMetadata<HeadToHeadStat
         override val primaryTitle: ResOrActual<String>
             get() = ResOrActual.StringResource(R.string.head_to_head_stats__heats_grid_rank_title)
 
-        override val mapping: (HeadToHeadStatsMatchesInfoDataRow) -> ResOrActual<String>
+        override val mapping: (HeadToHeadStatsMatchesInfoDataRow) -> ResOrActual<String>?
             get() = { data ->
-                data.match.match.opponentQualificationRank?.let { ResOrActual.Actual(it.toString()) }
-                        ?: ResOrActual.StringResource(R.string.head_to_head_stats__heats_grid_empty)
+                when (data) {
+                    is HeadToHeadStatsMatchesInfoDataRow.Match -> {
+                        data.match.match.opponentQualificationRank?.let { ResOrActual.Actual(it.toString()) }
+                                ?: ResOrActual.StringResource(R.string.head_to_head_stats__heats_grid_empty)
+                    }
+
+                    is HeadToHeadStatsMatchesInfoDataRow.FinalRank -> null
+                }
             }
 
         override val testTag: CodexTestTag
@@ -98,24 +134,30 @@ enum class HeadToHeadStatsMatchesColumn : CodexGridColumnMetadata<HeadToHeadStat
         override val primaryTitle: ResOrActual<String>
             get() = ResOrActual.StringResource(R.string.head_to_head_stats__heats_grid_result_title)
 
-        override val mapping: (HeadToHeadStatsMatchesInfoDataRow) -> ResOrActual<String>
+        override val mapping: (HeadToHeadStatsMatchesInfoDataRow) -> ResOrActual<String>?
             get() = { data ->
-                if (data.match.match.isBye) {
-                    ResOrActual.StringResource(R.string.head_to_head_score_pad__is_bye)
-                }
-                else {
-                    val running = data.match.runningTotals.lastOrNull()?.left
-                    val result = data.match.result.title
+                when (data) {
+                    is HeadToHeadStatsMatchesInfoDataRow.Match -> {
+                        if (data.match.match.isBye) {
+                            ResOrActual.StringResource(R.string.head_to_head_score_pad__is_bye)
+                        }
+                        else {
+                            val running = data.match.runningTotals.lastOrNull()?.left
+                            val result = data.match.result.title
 
-                    if (running != null) {
-                        ResOrActual.StringResource(
-                                R.string.head_to_head_stats__heats_grid_result,
-                                listOf(running.first, running.second, result),
-                        )
+                            if (running != null) {
+                                ResOrActual.StringResource(
+                                        R.string.head_to_head_stats__heats_grid_result,
+                                        listOf(running.first, running.second, result),
+                                )
+                            }
+                            else {
+                                result
+                            }
+                        }
                     }
-                    else {
-                        result
-                    }
+
+                    is HeadToHeadStatsMatchesInfoDataRow.FinalRank -> null
                 }
             }
 

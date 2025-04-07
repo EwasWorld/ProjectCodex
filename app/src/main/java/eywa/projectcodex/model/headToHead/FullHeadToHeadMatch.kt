@@ -7,6 +7,7 @@ import eywa.projectcodex.components.shootDetails.headToHead.grid.HeadToHeadGridS
 import eywa.projectcodex.components.shootDetails.headToHead.grid.SetDropdownMenuItem
 import eywa.projectcodex.database.shootData.headToHead.DatabaseHeadToHeadMatch
 import eywa.projectcodex.model.Either
+import kotlin.math.pow
 
 typealias HeadToHeadRunningTotal = Either<Pair<Int, Int>, HeadToHeadNoResult>
 
@@ -38,6 +39,14 @@ data class FullHeadToHeadMatch(
         get() = getArrows(HeadToHeadArcherType.SELF)?.arrowCount
                 ?: getArrows(HeadToHeadArcherType.TEAM)?.arrowCount?.div(teamSize)
                 ?: 0
+
+    val finalRank
+        get() = when {
+            match.maxPossibleRank == null || !result.isComplete -> null
+            result != HeadToHeadResult.LOSS -> match.maxPossibleRank
+            match.heat != null -> match.maxPossibleRank + 2.0.pow(match.heat).toInt()
+            else -> null
+        }
 
     fun getArrows(type: HeadToHeadArcherType) =
             sets.fold<FullHeadToHeadSet, RowArrows?>(null) { acc, set ->

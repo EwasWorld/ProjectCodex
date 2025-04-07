@@ -15,7 +15,6 @@ import eywa.projectcodex.components.shootDetails.ShootDetailsRepo
 import eywa.projectcodex.components.shootDetails.ShootDetailsResponse
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.getData
-import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.components.shootDetails.headToHead.addEnd.HeadToHeadRoundInfo
 import eywa.projectcodex.components.shootDetails.headToHead.addMatch.HeadToHeadAddMatchIntent.*
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -28,7 +27,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.pow
 
 @HiltViewModel
 class HeadToHeadAddMatchViewModel @Inject constructor(
@@ -204,16 +202,8 @@ class HeadToHeadAddMatchViewModel @Inject constructor(
             matchNumber = editing.matchNumber,
     )
 
-    private fun HeadToHeadAddMatchExtras.setMaxRank(previous: FullHeadToHeadMatch?): HeadToHeadAddMatchExtras {
-        val previousMaxRank = previous?.match?.maxPossibleRank
-        val rank = when {
-            previousMaxRank == null -> null
-            previous.result == HeadToHeadResult.WIN -> previousMaxRank
-            previous.match.heat != null -> previousMaxRank + 2.0.pow(previous.match.heat).toInt()
-            else -> null
-        }
-        return copy(maxPossibleRank = maxPossibleRank.copy(text = rank?.toString() ?: ""))
-    }
+    private fun HeadToHeadAddMatchExtras.setMaxRank(previous: FullHeadToHeadMatch?): HeadToHeadAddMatchExtras =
+            copy(maxPossibleRank = maxPossibleRank.copy(text = previous?.finalRank?.toString() ?: ""))
 
     private fun HeadToHeadAddMatchExtras.setOpponentQualiRank(opponentQualiRank: Opponent?) =
             when (opponentQualiRank) {

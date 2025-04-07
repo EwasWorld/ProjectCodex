@@ -254,7 +254,7 @@ private fun Cell(
             }
 
     Text(
-            text = scorePadColumn.mapping(rowData).get(),
+            text = scorePadColumn.mapping(rowData)!!.get(),
             style = CodexTypography.NORMAL,
             textAlign = TextAlign.Center,
             fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,

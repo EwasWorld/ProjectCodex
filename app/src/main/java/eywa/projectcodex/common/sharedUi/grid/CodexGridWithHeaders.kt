@@ -48,39 +48,43 @@ fun <RowData : CodexGridRowMetadata, ExtraData> CodexGridWithHeaders(
         data.forEach { row ->
             columnMetadata.forEach { column ->
                 val cellModifier = column.testTag?.let { Modifier.testTag(it) } ?: Modifier
-                val value = column.mapping(row).get(resource)
+                val value = column.mapping(row)?.get(resource)
 
-                item(
-                        backgroundColor = {
-                            if (row.useAccentColor() || column.useAccentColor()) {
-                                CodexTheme.colors.listAccentRowItemOnAppBackground
-                            }
-                            else {
-                                CodexTheme.colors.listItemOnAppBackground
-                            }
-                        },
-                        padding = column.padding(),
-                ) {
-                    val weight =
-                            if (row.useBoldText() || column.useBoldText()) FontWeight.Bold
-                            else FontWeight.Normal
+                if (value != null) {
+                    item(
+                            horizontalSpan = column.cellHorizontalSpan(row),
+                            verticalSpan = column.cellVerticalSpan(row),
+                            backgroundColor = {
+                                if (row.useAccentColor() || column.useAccentColor()) {
+                                    CodexTheme.colors.listAccentRowItemOnAppBackground
+                                }
+                                else {
+                                    CodexTheme.colors.listItemOnAppBackground
+                                }
+                            },
+                            padding = column.padding(),
+                    ) {
+                        val weight =
+                                if (row.useBoldText() || column.useBoldText()) FontWeight.Bold
+                                else FontWeight.Normal
 
-                    Text(
-                            text = value,
-                            fontWeight = weight,
-                            color = column.textColour(row) ?: CodexTheme.colors.onListItemAppOnBackground,
-                            textAlign = TextAlign.Center,
-                            modifier = cellModifier
-                                    .padding(horizontal = 8.dp, vertical = 3.dp)
-                                    .semantics {
-                                        column
-                                                .cellContentDescription(row, extraData)
-                                                ?.get(resource)
-                                                ?.let {
-                                                    contentDescription = it
-                                                }
-                                    }
-                    )
+                        Text(
+                                text = value,
+                                fontWeight = weight,
+                                color = column.textColour(row) ?: CodexTheme.colors.onListItemAppOnBackground,
+                                textAlign = TextAlign.Center,
+                                modifier = cellModifier
+                                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                                        .semantics {
+                                            column
+                                                    .cellContentDescription(row, extraData)
+                                                    ?.get(resource)
+                                                    ?.let {
+                                                        contentDescription = it
+                                                    }
+                                        }
+                        )
+                    }
                 }
             }
         }
@@ -202,8 +206,11 @@ interface CodexGridColumnMetadata<RowData, ExtraData> {
     val helpBody: ResOrActual<String>?
     val testTag: CodexTestTag?
 
-    val mapping: (RowData) -> ResOrActual<String>
+    val mapping: (RowData) -> ResOrActual<String>?
     val cellContentDescription: (RowData, ExtraData) -> ResOrActual<String>?
+
+    fun cellVerticalSpan(row: RowData): Int = 1
+    fun cellHorizontalSpan(row: RowData): Int = 1
 
     fun isTotal(): Boolean = false
     fun isAccentColor(): Boolean = false

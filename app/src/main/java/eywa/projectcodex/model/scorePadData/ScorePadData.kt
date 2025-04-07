@@ -211,7 +211,7 @@ class ScorePadData(
         }
         // Will later pad the start of each item to the max column width
         val maxWidths = internalColumns.associateWith { colHeader ->
-            outputData.maxOf { colHeader.mapping(it).get(resources).length }
+            outputData.maxOf { colHeader.mapping(it)!!.get(resources).length }
                     .coerceAtLeast(headers[colHeader]!!.length)
         }
 
@@ -220,7 +220,7 @@ class ScorePadData(
         }
         val details = outputData.joinToString("\n") { row ->
             internalColumns.joinToString(" ") { column ->
-                "%${maxWidths[column]}s".format(column.mapping(row).get(resources))
+                "%${maxWidths[column]}s".format(column.mapping(row)!!.get(resources))
             }
         }
         return ScorePadDetailsString(header, details)
@@ -243,7 +243,7 @@ class ScorePadData(
             outputData = outputData.filterNot { it is ScorePadRow.DistanceTotal || it is ScorePadRow.SurplusTotal }
         }
         val details = outputData.joinToString("\n") { row ->
-            internalColumns.joinToString(",") { column -> column.mapping(row).get(resources) }
+            internalColumns.joinToString(",") { column -> column.mapping(row)!!.get(resources) }
         }
         return ScorePadDetailsString(header, details)
     }
