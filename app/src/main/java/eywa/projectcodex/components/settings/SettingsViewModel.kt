@@ -14,6 +14,8 @@ import eywa.projectcodex.datastore.CodexDatastore
 import eywa.projectcodex.datastore.DatastoreKey.Use2023HandicapSystem
 import eywa.projectcodex.datastore.DatastoreKey.UseBetaFeatures
 import eywa.projectcodex.datastore.retrieve
+import eywa.projectcodex.model.user.Capability
+import eywa.projectcodex.model.user.CodexUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,8 +29,10 @@ class SettingsViewModel @Inject constructor(
         private val datastore: CodexDatastore,
         val database: ScoresRoomDatabase,
         private val helpShowcaseUseCase: HelpShowcaseUseCase,
+        user: CodexUser,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(SettingsState())
+    private val _state =
+            MutableStateFlow(SettingsState(dbFunctionsEnabled = user.hasCapability(Capability.DATABASE_BACKUP)))
     val state = _state.asStateFlow()
 
     init {

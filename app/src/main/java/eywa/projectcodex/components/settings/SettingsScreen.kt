@@ -232,7 +232,9 @@ fun SettingsScreen(
                 )
             }
 
-            DbFunctions(state, listener, onImportClicked)
+            if (state.dbFunctionsEnabled) {
+                DbFunctions(state, listener, onImportClicked)
+            }
         }
     }
 }

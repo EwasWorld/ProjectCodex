@@ -14,6 +14,7 @@ data class SettingsState(
         val importDbConfirmDialogIsOpen: Boolean = false,
         val clearDbConfirmDialogIsOpen: Boolean = false,
         val permissionRequest: PermissionRequest? = null,
+        val dbFunctionsEnabled: Boolean = false,
 ) {
     val dbOperationInProgress
         get() = backupDb || restoreDb || clearingDb
