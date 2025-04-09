@@ -6,6 +6,7 @@
     <string name="help_whats_new__title">What\'s new</string>
     <string name="help_whats_new__body">Information about the latest app updates. Icon is a flag when there are new updates to see and a tick when all updates have been viewed.</string>
 
+    <string name="whats_new__2_5_1_update">- New reference tables showing AGB awards and more\n- Indoor classifications added\n- Emails are now saved and can be reused</string>
     <string name="whats_new__2_5_0_update">- Track the number of sighters (or practice) arrows shot.\n- New look on the add end and stats screens.\n- More detailed breakdown on handicap tables screen.</string>
     <string name="whats_new__2_4_2_important_update">- Filters added to view scores screen.\n- Outdoor classification tables are now fully available and correct.\n- New archer info section: enter your category and current handicap to see classifications and allowance for round on the round stats screen.</string>
     <string name="whats_new__2_4_2_update">- Track the number of arrows shot without scoring by swapping the type from ‘Score’ to ‘Count’ on the new score screen.\n- Select round filters now work.\n- Round stats now have some extra information like viewing past scores.\n- Allowance for round added to handicap tables.</string>

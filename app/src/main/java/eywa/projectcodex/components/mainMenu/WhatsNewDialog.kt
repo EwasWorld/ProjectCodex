@@ -74,7 +74,7 @@ private fun WhatsNewButton(
                     imageVector = icon,
                     tint = CodexTheme.colors.onFilledButton,
             ),
-            captionStyle = CodexTypography.SMALL
+            captionStyle = CodexTypography.SMALL,
     )
 }
 
@@ -166,7 +166,7 @@ private fun WhatsNewInfo(info: WhatsNewInfo) {
                         .padding(horizontal = 5.dp, vertical = 7.dp)
                         .background(
                                 color = CodexTheme.colors.dialogBackgroundAccent,
-                                shape = RoundedCornerShape(10)
+                                shape = RoundedCornerShape(10),
                         )
                         // Between box and text
                         .padding(horizontal = 10.dp, vertical = 7.dp)
@@ -187,6 +187,11 @@ private enum class WhatsNewInfo(
         val importantUpdates: Int? = null,
         val updates: Int? = null,
 ) {
+    V2_5_1(
+            appVersion = AppVersion("2.5.1"),
+            releaseDate = DateTimeFormat.SHORT_DATE.parse("21/04/25"),
+            updates = R.string.whats_new__2_5_1_update,
+    ),
     V2_5_0(
             appVersion = AppVersion("2.5.0"),
             releaseDate = DateTimeFormat.SHORT_DATE.parse("09/09/24"),
@@ -215,13 +220,13 @@ private enum class WhatsNewInfo(
     companion object {
         init {
             check(
-                    entries.sortedByDescending { it.releaseDate } == entries.sortedByDescending { it.appVersion }
+                    entries.sortedByDescending { it.releaseDate } == entries.sortedByDescending { it.appVersion },
             ) { "Version/release date sorting discrepancy" }
             check(
-                    entries.distinctBy { it.releaseDate }.size == entries.size
+                    entries.distinctBy { it.releaseDate }.size == entries.size,
             ) { "Duplicate release dates" }
             check(
-                    entries.distinctBy { it.appVersion }.size == entries.size
+                    entries.distinctBy { it.appVersion }.size == entries.size,
             ) { "Duplicate version codes" }
         }
     }
