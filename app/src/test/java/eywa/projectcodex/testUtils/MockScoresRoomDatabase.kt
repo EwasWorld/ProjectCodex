@@ -94,6 +94,7 @@ class MockScoresRoomDatabase {
             on { fullRoundsInfo(any()) } doAnswer { getRoundsInfo() }
             on { fullRoundsInfo } doAnswer { getRoundsInfo() }
             on { wa1440FullRoundInfo } doAnswer { flow { emit(RoundPreviewHelper.wa1440RoundData) } }
+            on { wa18FullRoundInfo } doAnswer { flow { emit(RoundPreviewHelper.wa18RoundData) } }
         }
 
         private fun getRoundsInfo() = flow {

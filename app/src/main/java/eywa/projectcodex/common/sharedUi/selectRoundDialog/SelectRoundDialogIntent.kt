@@ -32,6 +32,7 @@ sealed class SelectRoundDialogIntent {
                         filters = state.filters,
                         defaultNullSubtype = state.defaultNullSubtype,
                 ) to SelectRoundFaceDialogIntent.SetNoRound
+
                 is RoundIntent -> handleRoundIntent(state)
                 is SubTypeIntent -> handleSubTypeIntent(state)
             }
@@ -57,15 +58,18 @@ sealed class SelectRoundDialogIntent {
                         state to null
                     }
                     else {
-                        val new = state.copy(isRoundDialogOpen = false, selectedRoundId = round.roundId)
-                        val subtype =
-                                if (state.defaultNullSubtype) null
-                                else new.furthestSubType?.subTypeId
-                        new.copy(selectedSubTypeId = subtype) to
-                                SelectRoundFaceDialogIntent.SetRound(
-                                        round = new.selectedRound!!.round,
-                                        distances = new.roundSubTypeDistances!!,
-                                )
+                        var new = state.copy(isRoundDialogOpen = false, selectedRoundId = round.roundId)
+                        new = new.copy(
+                                selectedSubTypeId = when {
+                                    round.roundId == state.selectedRoundId -> state.selectedSubTypeId
+                                    state.defaultNullSubtype -> null
+                                    else -> new.furthestSubType?.subTypeId
+                                },
+                        )
+                        new to SelectRoundFaceDialogIntent.SetRound(
+                                round = new.selectedRound!!.round,
+                                distances = new.roundSubTypeDistances!!,
+                        )
                     }
 
                 is RoundIntent.FilterClicked ->

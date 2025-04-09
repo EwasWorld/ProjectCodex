@@ -1,5 +1,6 @@
 package eywa.projectcodex.common
 
+import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTableEntry
 import eywa.projectcodex.common.utils.classificationTables.model.Classification
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationAge
@@ -7,6 +8,7 @@ import eywa.projectcodex.common.utils.classificationTables.model.ClassificationA
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow.*
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationRound
+import eywa.projectcodex.database.rounds.RoundRepo
 import eywa.projectcodex.model.Handicap
 import eywa.projectcodex.testUtils.RawResourcesHelper
 import kotlinx.coroutines.test.runTest
@@ -189,7 +191,6 @@ class ClassificationTablesUseCaseUnitTest {
     fun testHandicapsAreSameAs1440() = runTest {
         val classificationTables = RawResourcesHelper.classificationTables
         val rounds = RawResourcesHelper.getDefaultRounds().associateBy { it.round.defaultRoundId }
-        val gents1440 = rounds[8]!!
 
         ClassificationBow.entries.forEach { bow ->
             ClassificationAge.entries.forEach { age ->
@@ -216,7 +217,9 @@ class ClassificationTablesUseCaseUnitTest {
                                             isGent = isGent,
                                             age = age,
                                             bow = bow,
-                                            wa1440RoundInfo = gents1440,
+                                            wa1440RoundInfo = RoundPreviewHelper.wa1440RoundData,
+                                            wa18RoundInfo = RoundPreviewHelper.wa18RoundData,
+                                            isOutdoor = round.round.isOutdoor,
                                     )!!.sortedByDescending { it.handicap }
 
                             val actualHandicaps = actualEntries.map { it.handicap }
@@ -245,6 +248,44 @@ class ClassificationTablesUseCaseUnitTest {
                                 }
                                 fail()
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * All rounds except Combined WA should have
+     * all official classifications except [Classification.ELITE_MASTER_BOWMAN]
+     */
+    @Test
+    fun testAllClassificationsAreOfficialForIndoorRounds() = runTest {
+        val classificationTables = RawResourcesHelper.classificationTables
+        val rounds = RawResourcesHelper.getDefaultRounds()
+                .filter { !it.round.isOutdoor && it.round.defaultRoundId != RoundRepo.COMBINED_WA_DEFAULT_ROUND_ID }
+                .associateBy { it.round.defaultRoundId }
+
+        ClassificationBow.entries.forEach { bow ->
+            ClassificationAge.entries.forEach { age ->
+                listOf(true, false).forEach { isGent ->
+                    rounds.forEach { (_, round) ->
+                        (round.roundSubTypes?.map { it.subTypeId } ?: listOf(1)).forEach loop@{ subTypeId ->
+                            val actualEntries =
+                                    classificationTables.get(
+                                            isGent = isGent,
+                                            age = age,
+                                            bow = bow,
+                                            fullRoundInfo = round,
+                                            roundSubTypeId = subTypeId,
+                                            isTripleFace = false,
+                                    )!!
+                                            .map { it.classification }
+                                            .sortedBy { it.ordinal }
+                            assertEquals(
+                                    Classification.entries.minus(Classification.ELITE_MASTER_BOWMAN),
+                                    actualEntries,
+                            )
                         }
                     }
                 }

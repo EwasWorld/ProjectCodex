@@ -49,6 +49,8 @@ class HandicapTablesViewModelUnitTest {
             RoundPreviewHelper.singleSubtypeRoundData,
             RoundPreviewHelper.yorkRoundData,
             RoundPreviewHelper.wa25RoundData,
+            RoundPreviewHelper.wa1440RoundData,
+            RoundPreviewHelper.wa18RoundData,
     )
     private val initialState = HandicapTablesState(
             selectRoundDialogState = SelectRoundDialogState(allRounds = initialRounds),
@@ -307,6 +309,34 @@ class HandicapTablesViewModelUnitTest {
                 expectedState,
                 50,
         )
+    }
+
+    @Test
+    fun testChangingRoundWhenASubTypeIsSelected() = runTest {
+        db.archerRepo.handicaps = ArcherHandicapsPreviewHelper.handicaps
+
+        savedStateHandle.values[NavArgument.ROUND_ID.toArgName()] = RoundPreviewHelper.wa1440RoundData.round.roundId
+        savedStateHandle.values[NavArgument.ROUND_SUB_TYPE_ID.toArgName()] = 6
+        savedStateHandle.values[NavArgument.HANDICAP.toArgName()] = 50
+
+        val sut = getSut()
+        advanceUntilIdle()
+
+        val expectedState = initialState.copy(
+                input = PartialNumberFieldState("50"),
+                selectRoundDialogState = initialState.selectRoundDialogState.copy(
+                        selectedRoundId = RoundPreviewHelper.wa1440RoundData.round.roundId,
+                        selectedSubTypeId = 6,
+                ),
+        )
+
+        sut.checkInitialState(
+                expectedState,
+                50,
+        )
+
+        sut.handle(SelectRoundDialogAction(RoundIntent.OpenRoundDialog))
+        sut.handle(SelectRoundDialogAction(RoundIntent.RoundSelected(RoundPreviewHelper.yorkRoundData.round)))
     }
 
     private fun HandicapTablesViewModel.checkInitialState(

@@ -440,7 +440,7 @@ class ScorePadDataUnitTest {
                 ScorePadColumnType.RUNNING_TOTAL -> "65"
                 ScorePadColumnType.HEADER -> "1"
             }
-            assertEquals(column.name, expected, metadata.mapping(row).get(resources))
+            assertEquals(column.name, expected, metadata.mapping(row)!!.get(resources))
         }
     }
 
@@ -464,7 +464,7 @@ class ScorePadDataUnitTest {
                 ScorePadColumnType.RUNNING_TOTAL -> RUNNING_TOTAL_PLACEHOLDER
                 ScorePadColumnType.HEADER -> TOTAL_ROW_HEADER_STRING
             }
-            assertEquals(column.name, expected, metadata.mapping(row).get(resources))
+            assertEquals(column.name, expected, metadata.mapping(row)!!.get(resources))
         }
 
         verify(resources).getString(R.string.score_pad__distance_total, 100, YARDS_UNIT)
@@ -488,7 +488,7 @@ class ScorePadDataUnitTest {
                 ScorePadColumnType.RUNNING_TOTAL -> RUNNING_TOTAL_PLACEHOLDER
                 ScorePadColumnType.HEADER -> TOTAL_ROW_HEADER_STRING
             }
-            assertEquals(column.name, expected, metadata.mapping(row).get(resources))
+            assertEquals(column.name, expected, metadata.mapping(row)!!.get(resources))
         }
     }
 
@@ -510,7 +510,7 @@ class ScorePadDataUnitTest {
                 ScorePadColumnType.RUNNING_TOTAL -> RUNNING_TOTAL_PLACEHOLDER
                 ScorePadColumnType.HEADER -> GRAND_TOTAL_ROW_HEADER_STRING
             }
-            assertEquals(column.name, expected, metadata.mapping(row).get(resources))
+            assertEquals(column.name, expected, metadata.mapping(row)!!.get(resources))
         }
     }
 

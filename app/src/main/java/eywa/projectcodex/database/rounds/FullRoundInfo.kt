@@ -51,6 +51,17 @@ data class FullRoundInfo(
             return true
         }
 
+    val maxScore: Int
+        get() {
+            val arrowCount = roundArrowCounts.orEmpty().sumOf { it.arrowCount }
+            val maxArrowValue = when {
+                round.name.contains("WORCESTER", ignoreCase = true) -> 5
+                round.isMetric -> 10
+                else -> 9
+            }
+            return arrowCount * maxArrowValue
+        }
+
     fun maxDistanceOnlyWithMinArrowCount(arrowCount: Int, subTypeId: Int? = null): FullRoundInfo {
         val subType = subTypeId ?: roundSubTypes?.takeIf { it.size == 1 }?.first()?.subTypeId ?: 1
 

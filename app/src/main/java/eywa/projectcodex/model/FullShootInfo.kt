@@ -4,7 +4,6 @@ import eywa.projectcodex.R
 import eywa.projectcodex.common.utils.DateTimeFormat
 import eywa.projectcodex.common.utils.ResOrActual
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
-import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadArcherType.SELF
 import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.arrows.DatabaseArrowCounter
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
@@ -203,18 +202,8 @@ data class FullShootInfo(
                     faces = faces,
             )
         }
-        else if (h2h != null && h2h.arrowsShot > 0 && fullRoundInfo != null) {
-            val rowArrows = h2h.getArrows(SELF) ?: return@lazy null
-            val roundInfo = fullRoundInfo?.maxDistanceOnlyWithMinArrowCount(rowArrows.arrowCount)
-            Handicap.getHandicapForRound(
-                    round = roundInfo!!,
-                    subType = null,
-                    score = rowArrows.total,
-                    arrows = rowArrows.arrowCount,
-                    innerTenArcher = isInnerTenArcher,
-                    use2023Handicaps = use2023HandicapSystem,
-                    faces = faces?.take(1),
-            )
+        else if (h2h != null) {
+            h2hHandicapToIsSelf?.takeIf { it.second }?.first
         }
         else {
             null

@@ -19,6 +19,7 @@ class RoundRepo(
     val allRounds = roundDao.getAllRounds()
     override val fullRoundsInfo = roundDao.getAllRoundsFullInfo()
     val wa1440FullRoundInfo = roundDao.getFullRoundInfo(WA_1440_DEFAULT_ROUND_ID)
+    val wa18FullRoundInfo = roundDao.getFullRoundInfo(WA_18_DEFAULT_ROUND_ID)
 
     fun fullRoundsInfo(filters: SelectRoundEnabledFilters): Flow<List<FullRoundInfo>> =
             roundDao.getAllRoundsFullInfo(
@@ -66,7 +67,9 @@ class RoundRepo(
 
 
     companion object {
+        const val WA_18_DEFAULT_ROUND_ID = 24
         const val WA_1440_DEFAULT_ROUND_ID = 8
+        const val COMBINED_WA_DEFAULT_ROUND_ID = 26
         const val CLUB_252_DEFAULT_ROUND_ID = 28
         const val FROSTBITE_DEFAULT_ROUND_ID = 27
         const val VEGAS_DEFAULT_ROUND_ID = 23

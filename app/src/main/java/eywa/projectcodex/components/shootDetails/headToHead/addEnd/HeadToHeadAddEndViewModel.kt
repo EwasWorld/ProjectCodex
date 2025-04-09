@@ -38,18 +38,18 @@ class HeadToHeadAddEndViewModel @Inject constructor(
     private val screen = CodexNavRoute.HEAD_TO_HEAD_ADD_END
     private val extraState = MutableStateFlow<HeadToHeadAddEndExtras?>(null)
 
+    private val h2hRepo = repo.db.h2hRepo()
+    val shootId = savedStateHandle.get<Int>(NavArgument.SHOOT_ID)!!
+    private val editingMatchNumber = savedStateHandle.get<Int>(NavArgument.MATCH_NUMBER)
+    private val editingSetNumber = savedStateHandle.get<Int>(NavArgument.SET_NUMBER)
+    private val isInserting = savedStateHandle.get<Boolean>(NavArgument.IS_INSERT) ?: false
+
     val state = repo.getStateNullableExtra(extraState, ::stateConverter)
             .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(),
                     ShootDetailsResponse.Loading as ShootDetailsResponse<HeadToHeadAddEndState>,
             )
-
-    private val h2hRepo = repo.db.h2hRepo()
-    val shootId = savedStateHandle.get<Int>(NavArgument.SHOOT_ID)!!
-    private val editingMatchNumber = savedStateHandle.get<Int>(NavArgument.MATCH_NUMBER)
-    private val editingSetNumber = savedStateHandle.get<Int>(NavArgument.SET_NUMBER)
-    private val isInserting = savedStateHandle.get<Boolean>(NavArgument.IS_INSERT) ?: false
 
     init {
         check(editingMatchNumber == null || editingMatchNumber > 0)

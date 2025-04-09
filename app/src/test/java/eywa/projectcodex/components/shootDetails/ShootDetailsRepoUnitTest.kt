@@ -59,6 +59,7 @@ class ShootDetailsRepoUnitTest {
             bow = DatabaseBowPreviewHelper.default,
             archerInfo = DatabaseArcherPreviewHelper.default,
             wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+            wa18FullRoundInfo = RoundPreviewHelper.wa18RoundData,
             user = CodexUserPreviewHelper.allCapabilities,
     )
 
@@ -150,6 +151,7 @@ class ShootDetailsRepoUnitTest {
                         archerInfo = db.archerRepo.defaultArcher,
                         bow = db.bowRepo.defaultBow,
                         wa1440FullRoundInfo = RoundPreviewHelper.wa1440RoundData,
+                        wa18FullRoundInfo = RoundPreviewHelper.wa18RoundData,
                         classification = null,
                         roundPbs = highest.map { it.asShort() },
                         pastRoundRecords = recent.map { it.asShort() },

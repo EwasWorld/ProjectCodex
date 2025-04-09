@@ -85,7 +85,7 @@ class ClassificationTablesViewModel @Inject constructor(
                             it.copy(
                                     selectRoundDialogState = it.selectRoundDialogState
                                             .copy(selectedRoundId = argRoundId, selectedSubTypeId = argRoundSubTypeId)
-                                            .clearSelectedIfInvalid()
+                                            .clearSelectedIfInvalid(),
                             ).addScores()
                         }
                     }
@@ -120,21 +120,48 @@ class ClassificationTablesViewModel @Inject constructor(
 
     private fun ClassificationTablesState.addScores(): ClassificationTablesState {
         val selectedRound = selectRoundDialogState.selectedRound
-
-        val rough = wa1440RoundInfo?.let {
-            tables.getRoughHandicaps(isGent, age, bow, it, use2023Handicaps)
-        }?.map {
-            val score =
-                    if (selectedRound == null) null
-                    else Handicap.getScoreForRound(
+        val bestPossibleHandicap =
+                if (selectedRound?.maxScore != null) {
+                    Handicap.getHandicapForRound(
                             round = selectedRound,
+                            score = selectedRound.maxScore,
                             subType = selectRoundDialogState.selectedSubTypeId,
-                            handicap = it.handicap!!.toDouble(),
                             innerTenArcher = bow == ClassificationBow.COMPOUND,
                             use2023Handicaps = use2023Handicaps,
                     )
-            it.copy(score = score)
-        }.orEmpty()
+                }
+                else {
+                    null
+                }
+
+        val isOutdoor = selectRoundDialogState.selectedRound?.round?.isOutdoor ?: true
+        val rough = if (wa1440RoundInfo != null && wa18RoundInfo != null) {
+            tables.getRoughHandicaps(
+                    isGent = isGent,
+                    age = age,
+                    bow = bow,
+                    wa1440RoundInfo = wa1440RoundInfo,
+                    wa18RoundInfo = wa18RoundInfo,
+                    isOutdoor = isOutdoor,
+                    use2023Handicaps = use2023Handicaps,
+            )
+                    ?.map {
+                        val score =
+                                if (selectedRound == null) null
+                                // Classification is impossible if required handicap is better than
+                                // the highest possible for the round
+                                else if (bestPossibleHandicap != null && it.handicap!! < bestPossibleHandicap) null
+                                else Handicap.getScoreForRound(
+                                        round = selectedRound,
+                                        subType = selectRoundDialogState.selectedSubTypeId,
+                                        handicap = it.handicap!!.toDouble(),
+                                        innerTenArcher = bow == ClassificationBow.COMPOUND,
+                                        use2023Handicaps = use2023Handicaps,
+                                )
+                        it.copy(score = score)
+                    }.orEmpty()
+        }
+        else emptyList()
 
         fun ClassificationTablesState.clearScores() =
                 copy(officialClassifications = emptyList(), roughHandicaps = rough)

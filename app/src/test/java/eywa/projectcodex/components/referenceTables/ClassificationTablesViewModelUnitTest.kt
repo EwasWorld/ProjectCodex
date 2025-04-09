@@ -48,6 +48,7 @@ class ClassificationTablesViewModelUnitTest {
             RoundPreviewHelper.yorkRoundData,
             RoundPreviewHelper.wa25RoundData,
             RoundPreviewHelper.wa1440RoundData,
+            RoundPreviewHelper.wa18RoundData,
     )
 
     private val initialState = ClassificationTablesState(
@@ -56,6 +57,8 @@ class ClassificationTablesViewModelUnitTest {
                     age = ClassificationAge.SENIOR,
                     bow = ClassificationBow.RECURVE,
                     wa1440RoundInfo = RoundPreviewHelper.wa1440RoundData,
+                    wa18RoundInfo = RoundPreviewHelper.wa18RoundData,
+                    isOutdoor = true,
             )!!.map { it.copy(score = null) },
             selectRoundDialogState = SelectRoundDialogState(
                     allRounds = initialRounds,
@@ -107,6 +110,8 @@ class ClassificationTablesViewModelUnitTest {
                 age = ClassificationAge.SENIOR,
                 bow = ClassificationBow.RECURVE,
                 wa1440RoundInfo = RoundPreviewHelper.wa1440RoundData,
+                wa18RoundInfo = RoundPreviewHelper.wa18RoundData,
+                isOutdoor = true,
         )!!.map {
             it.copy(
                     score = Handicap.getScoreForRound(
@@ -308,6 +313,8 @@ class ClassificationTablesViewModelUnitTest {
                         age = age,
                         bow = bow,
                         wa1440RoundInfo = RoundPreviewHelper.wa1440RoundData,
+                        wa18RoundInfo = RoundPreviewHelper.wa18RoundData,
+                        isOutdoor = true,
                 )!!.map {
                     val score = selectRoundDialogState.selectedRound?.let { round ->
                         Handicap.getScoreForRound(

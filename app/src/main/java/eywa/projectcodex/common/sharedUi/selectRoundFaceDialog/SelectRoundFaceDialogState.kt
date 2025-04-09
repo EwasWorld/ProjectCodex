@@ -24,7 +24,7 @@ data class SelectRoundFaceDialogState(
                 (round == null && distances == null) || (round != null && !distances.isNullOrEmpty())
         ) { "If a round is given, distances must also be given, and vice versa" }
         check(
-                selectedFaces.orEmpty().size <= 1 || selectedFaces.orEmpty().size == distances.orEmpty().size
+                selectedFaces.orEmpty().size <= 1 || selectedFaces.orEmpty().size == distances.orEmpty().size,
         ) { "selectedFaces size must be 0, 1, or distances.size" }
     }
 

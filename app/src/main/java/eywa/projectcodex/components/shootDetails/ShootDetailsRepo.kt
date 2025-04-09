@@ -72,6 +72,11 @@ class ShootDetailsRepo @Inject constructor(
                     .collectLatest { info -> state.update { it.copy(wa1440FullRoundInfo = info) } }
         }
         shootScope.launch {
+            db.roundsRepo().wa18FullRoundInfo
+                    .distinctUntilChanged()
+                    .collectLatest { info -> state.update { it.copy(wa18FullRoundInfo = info) } }
+        }
+        shootScope.launch {
             datastore.get(
                     Use2023HandicapSystem,
                     UseBetaFeatures,

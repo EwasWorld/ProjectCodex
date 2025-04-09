@@ -47,7 +47,6 @@ class HeadToHeadStatsViewModel @Inject constructor(
             )
 
     init {
-        println("ECHDEBUG Has permission: $hasPermissionToSeeAdvanced")
         viewModelScope.launch {
             state
                     .map { s ->
@@ -75,6 +74,7 @@ class HeadToHeadStatsViewModel @Inject constructor(
                 archerInfo = main.archerInfo,
                 bow = main.bow,
                 wa1440FullRoundInfo = main.wa1440FullRoundInfo,
+                wa18FullRoundInfo = main.wa18FullRoundInfo,
                 useSimpleView = main.useSimpleView || !hasPermissionToSeeAdvanced,
                 hasPermissionToSeeAdvanced = hasPermissionToSeeAdvanced,
         )

@@ -20,7 +20,7 @@ data class ClassificationTablesState(
         val selectRoundDialogState: SelectRoundDialogState = SelectRoundDialogState(),
         val updateDefaultRoundsState: UpdateDefaultRoundsState = UpdateDefaultRoundsState.NotStarted,
 ) {
-    val scores = Classification.values().mapNotNull { classification ->
+    val scores = Classification.entries.mapNotNull { classification ->
         val roundScore = officialClassifications.find { it.classification == classification }
         if (roundScore != null) {
             return@mapNotNull roundScore to true
@@ -37,6 +37,9 @@ data class ClassificationTablesState(
     val wa1440RoundInfo
         get() = selectRoundDialogState.allRounds
                 ?.find { it.round.defaultRoundId == RoundRepo.WA_1440_DEFAULT_ROUND_ID }
+    val wa18RoundInfo
+        get() = selectRoundDialogState.allRounds
+                ?.find { it.round.defaultRoundId == RoundRepo.WA_18_DEFAULT_ROUND_ID }
 
     enum class Dropdown { AGE, BOW }
 }

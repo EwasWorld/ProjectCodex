@@ -30,6 +30,7 @@ data class ShootDetailsState(
         val archerInfo: DatabaseArcher? = null,
         val bow: DatabaseBow? = null,
         val wa1440FullRoundInfo: FullRoundInfo? = null,
+        val wa18FullRoundInfo: FullRoundInfo? = null,
         val classification: Classification? = null,
         val roundPbs: List<DatabaseShootShortRecord>? = null,
         val pastRoundRecords: List<DatabaseShootShortRecord>? = null,

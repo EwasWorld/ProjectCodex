@@ -1,11 +1,9 @@
 package eywa.projectcodex.components.shootDetails.stats
 
 import eywa.projectcodex.common.utils.classificationTables.ClassificationTablesUseCase
-import eywa.projectcodex.common.utils.classificationTables.model.Classification
 import eywa.projectcodex.common.utils.classificationTables.model.ClassificationBow
 import eywa.projectcodex.components.shootDetails.ShootDetailsState
 import eywa.projectcodex.components.shootDetails.stats.ui.StatsScreenPastRecordsTabs
-import eywa.projectcodex.database.RoundFace
 import eywa.projectcodex.database.arrows.DatabaseArrowScore
 import eywa.projectcodex.database.rounds.FullRoundInfo
 import eywa.projectcodex.database.rounds.RoundArrowCount
@@ -76,63 +74,26 @@ class StatsState(
             classificationTables = classificationTablesUseCase,
             use2023System = main.use2023System ?: true,
             wa1440FullRoundInfo = main.wa1440FullRoundInfo,
+            wa18FullRoundInfo = main.wa18FullRoundInfo,
     )
 
     /**
-     * @return classification of the current score TO isOfficialClassification
+     * @return classification of the current score to isOfficialClassification
      */
     private fun getClassification(
             classificationTables: ClassificationTablesUseCase,
             use2023System: Boolean,
             wa1440FullRoundInfo: FullRoundInfo?,
-    ): Pair<Classification, Boolean>? {
-        if (
-            archerInfo == null
-            || bow == null
-            || fullShootInfo.fullRoundInfo == null
-            || fullShootInfo.arrowCounter != null
-            || fullShootInfo.arrowsShot == 0
-        ) return null
+            wa18FullRoundInfo: FullRoundInfo?,
+    ) = classificationTables.getClassification(
+            archerInfo = archerInfo,
+            bow = bow,
+            fullShootInfo = fullShootInfo,
+            use2023System = use2023System,
+            wa1440FullRoundInfo = wa1440FullRoundInfo,
+            wa18FullRoundInfo = wa18FullRoundInfo,
+    )
 
-        val currentScore = (if (fullShootInfo.isRoundComplete) fullShootInfo.score else fullShootInfo.predictedScore)
-                ?: return null
-
-        val trueClassification = classificationTables.get(
-                isGent = archerInfo.isGent,
-                age = archerInfo.age,
-                bow = bow.type,
-                fullRoundInfo = fullShootInfo.fullRoundInfo!!,
-                roundSubTypeId = fullShootInfo.roundSubType?.subTypeId,
-                isTripleFace = fullShootInfo.faces == listOf(RoundFace.TRIPLE),
-                use2023Handicaps = use2023System,
-        )
-                ?.takeIf { it.isNotEmpty() }
-                ?.filter { it.score!! <= currentScore }
-                ?.maxByOrNull { it.score!! }
-                ?.classification
-                ?.to(true)
-        val roughClassification = wa1440FullRoundInfo?.let {
-            classificationTables.getRoughHandicaps(
-                    isGent = archerInfo.isGent,
-                    age = archerInfo.age,
-                    bow = bow.type,
-                    wa1440RoundInfo = wa1440FullRoundInfo,
-                    use2023Handicaps = use2023System,
-            )
-        }
-                ?.takeIf { it.isNotEmpty() }
-                ?.filter { (it.handicap ?: 0) >= (fullShootInfo.handicap ?: Handicap.maxHandicap(use2023System)) }
-                ?.maxByOrNull { it.score!! }
-                ?.classification
-                ?.to(false)
-
-        return when {
-            trueClassification == null && roughClassification == null -> null
-            trueClassification == null || roughClassification == null -> trueClassification ?: roughClassification
-            trueClassification.first.ordinal >= roughClassification.first.ordinal -> trueClassification
-            else -> roughClassification
-        }
-    }
 
     val numbersBreakdownRowStats: List<NumbersBreakdownRowStats>?
         get() {
