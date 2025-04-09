@@ -3,6 +3,7 @@
     <string name="head_to_head_ref__title">Head to Head Reference</string>
     <string name="head_to_head_ref__tab_switcher_title">H2H</string>
 
+    <string name="head_to_head_ref__info">See which archers will face each other during a standard head-to-head competition based on their qualifying ranks</string>
     <string name="head_to_head_ref__archer_a">Archer A rank</string>
     <string name="head_to_head_ref__archer_a_placeholder">6</string>
     <string name="head_to_head_ref__archer_b">Archer B rank</string>

@@ -67,6 +67,16 @@ fun HeadToHeadReferenceScreen(
                         .padding(vertical = CodexTheme.dimens.screenPadding)
                         .testTag(HeadToHeadReferenceTestTag.SCREEN)
         ) {
+            Text(
+                    text = stringResource(R.string.head_to_head_ref__info),
+                    style = CodexTypography.SMALL,
+                    color = CodexTheme.colors.onAppBackground,
+                    modifier = Modifier
+                            .padding(horizontal = CodexTheme.dimens.screenPadding)
+                            .padding(bottom = 10.dp)
+                            .align(Alignment.Start)
+            )
+
             CodexLabelledNumberFieldWithErrorMessage(
                     title = stringResource(R.string.head_to_head_ref__archer_a),
                     currentValue = state.archerRank.text,
@@ -107,10 +117,12 @@ fun HeadToHeadReferenceScreen(
                     onValueChanged = { listener(HeadToHeadReferenceIntent.TotalArchersChanged(it)) },
             )
 
-            Divider(
-                    color = CodexTheme.colors.onAppBackground,
-                    modifier = Modifier.padding(CodexTheme.dimens.screenPadding)
-            )
+            if (state.tableData != null) {
+                Divider(
+                        color = CodexTheme.colors.onAppBackground,
+                        modifier = Modifier.padding(CodexTheme.dimens.screenPadding)
+                )
+            }
 
             state.meetIn?.let {
                 val roundName = it.get()

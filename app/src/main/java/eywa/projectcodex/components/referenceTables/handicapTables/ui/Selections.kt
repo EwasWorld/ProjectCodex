@@ -105,21 +105,23 @@ internal fun Selections(
                 errorText = state.inputFull.error,
                 testTag = HandicapTablesTestTag.INPUT_ERROR,
         )
-        DataRow(
-                title = stringResource(R.string.handicap_tables__is_compound_title),
-                text = stringResource(
-                        if (state.isCompound) R.string.general_on
-                        else R.string.general_off,
-                ),
-                helpState = HelpShowcaseItem(
-                        helpTitle = stringResource(R.string.help_handicap_tables__is_compound_title),
-                        helpBody = stringResource(R.string.help_handicap_tables__is_compound_body),
-                ).asHelpState(helpListener),
-                onClick = { listener(HandicapTablesIntent.ToggleIsCompound) },
-                accessibilityRole = Role.Switch,
-                modifier = Modifier
-                        .testTag(HandicapTablesTestTag.COMPOUND_SELECTOR)
-                        .padding(vertical = 10.dp)
-        )
+        if (state.selectRoundDialogState.selectedRound?.round?.isOutdoor == false) {
+            DataRow(
+                    title = stringResource(R.string.handicap_tables__is_compound_title),
+                    text = stringResource(
+                            if (state.isCompound) R.string.general_on
+                            else R.string.general_off,
+                    ),
+                    helpState = HelpShowcaseItem(
+                            helpTitle = stringResource(R.string.help_handicap_tables__is_compound_title),
+                            helpBody = stringResource(R.string.help_handicap_tables__is_compound_body),
+                    ).asHelpState(helpListener),
+                    onClick = { listener(HandicapTablesIntent.ToggleIsCompound) },
+                    accessibilityRole = Role.Switch,
+                    modifier = Modifier
+                            .testTag(HandicapTablesTestTag.COMPOUND_SELECTOR)
+                            .padding(vertical = 10.dp)
+            )
+        }
     }
 }

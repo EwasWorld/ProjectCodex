@@ -9,10 +9,14 @@ import kotlin.math.max
 
 data class HeadToHeadReferenceState(
         val archerRank: NumberFieldState<Int> = NumberFieldState(
-                validators = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.AtLeast(1)),
+                TypeValidator.IntValidator,
+                NumberValidator.AtLeast(1),
+                NumberValidator.NotRequired,
         ),
         val opponentRank: NumberFieldState<Int> = NumberFieldState(
-                validators = NumberValidatorGroup(TypeValidator.IntValidator, NumberValidator.AtLeast(1)),
+                TypeValidator.IntValidator,
+                NumberValidator.AtLeast(1),
+                NumberValidator.NotRequired,
         ),
         val totalArchers: PartialNumberFieldState = PartialNumberFieldState(),
 ) {
@@ -26,7 +30,12 @@ data class HeadToHeadReferenceState(
             else NumberValidator.AtLeast(max(rank, opponent).coerceAtLeast(2))
 
             return totalArchers.asNumberFieldState(
-                    NumberValidatorGroup(TypeValidator.IntValidator, validator, NumberValidator.AtMost(10_000)),
+                    NumberValidatorGroup(
+                            TypeValidator.IntValidator,
+                            validator,
+                            NumberValidator.AtMost(10_000),
+                            NumberValidator.NotRequired,
+                    ),
             )
         }
 
