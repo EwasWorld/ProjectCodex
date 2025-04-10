@@ -3,6 +3,7 @@ package eywa.projectcodex.common.navigation
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavType
+import eywa.projectcodex.common.utils.DoNotObfuscate
 
 const val DEFAULT_INT_NAV_ARG = -1
 
@@ -26,6 +27,7 @@ fun <T> SavedStateHandle.get(argument: NavArgument): T? {
     return value
 }
 
+@DoNotObfuscate
 enum class NavArgument(val type: NavType<*>, val defaultValue: Any? = null) {
     SHOOT_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
     SIGHT_MARK_ID(type = NavType.IntType, defaultValue = DEFAULT_INT_NAV_ARG),
