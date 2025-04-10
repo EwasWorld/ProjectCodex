@@ -200,15 +200,6 @@ class ViewScoresRobot(
         clickDialogCancel(DELETE_ENTRY_DIALOG_TITLE)
     }
 
-    private fun waitForTextInRow(rowIndex: Int, text: String) {
-        performOnRowItem(
-                rowIndex,
-                CodexNodeInteraction.Assert(
-                        CodexNodeMatcher.HasAnyDescendant(CodexNodeMatcher.HasText(text, true))
-                ).waitFor()
-        )
-    }
-
     private fun waitForTextInRow(
             rowIndex: Int,
             testTag: CodexTestTag,
@@ -236,6 +227,15 @@ class ViewScoresRobot(
 
     fun waitForHsg(rowIndex: Int, hsg: String?) =
             waitForTextInRow(rowIndex, ViewScoresRowTestTag.HSG, hsg ?: "-/-/-")
+
+    fun waitForH2hMatches(rowIndex: Int, matchesCount: String?) =
+            waitForTextInRow(rowIndex, ViewScoresRowTestTag.H2H_MATCHES, matchesCount ?: "0 matches")
+
+    fun waitForH2hWinsAndLosses(rowIndex: Int, winsAndLosses: String) =
+            waitForTextInRow(rowIndex, ViewScoresRowTestTag.H2H_WINS_LOSSES, winsAndLosses)
+
+    fun waitForH2hOtherMatches(rowIndex: Int, otherMatchesCount: String) =
+            waitForTextInRow(rowIndex, ViewScoresRowTestTag.H2H_OTHER_MATCHES, otherMatchesCount)
 
     fun waitForDate(rowIndex: Int, date: String) = waitForTextInRow(rowIndex, ViewScoresRowTestTag.DATE, date)
     fun waitForHandicap(rowIndex: Int, handicap: Int?) =
@@ -270,23 +270,17 @@ class ViewScoresRobot(
         }
     }
 
-    /**
-     * @param items accepts [String]s (HSG) and [Int]s (arrow count). Order is the order they should appear
-     */
-    fun checkRows(items: List<Any>) {
+    private fun checkRows(items: List<Row>) {
         items.forEachIndexed { index, expected ->
-            when (expected) {
-                is String -> waitForHsg(index, expected)
-                is Int -> waitForArrowCount(index, expected)
-            }
+            expected.check(this, index)
         }
-//        waitForRowNotExist(items.size)
+        waitForRowNotExist(items.size)
     }
 
     /**
      * @see checkRows
      */
-    fun checkRows(vararg items: Any) = checkRows(items.toList())
+    fun checkRows(vararg items: Row) = checkRows(items.toList())
 
     fun clickStartMultiSelectMode() {
         clickElement(ViewScoresTestTag.MULTI_SELECT_START)
@@ -364,6 +358,28 @@ class ViewScoresRobot(
                 +CodexNodeInteraction.AssertTextEquals(count.toString())
             }
         }
+    }
+
+    sealed class Row {
+        data class Hsg(val hsg: String) : Row() {
+            override fun check(robot: ViewScoresRobot, index: Int) {
+                robot.waitForHsg(index, hsg)
+            }
+        }
+
+        data class ArrowCount(val count: Int) : Row() {
+            override fun check(robot: ViewScoresRobot, index: Int) {
+                robot.waitForArrowCount(index, count)
+            }
+        }
+
+        data class H2h(val matches: String) : Row() {
+            override fun check(robot: ViewScoresRobot, index: Int) {
+                robot.waitForH2hMatches(index, matches)
+            }
+        }
+
+        abstract fun check(robot: ViewScoresRobot, index: Int)
     }
 
     object CommonStrings {

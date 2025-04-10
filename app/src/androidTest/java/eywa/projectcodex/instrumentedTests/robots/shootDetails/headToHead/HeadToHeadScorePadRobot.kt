@@ -72,8 +72,8 @@ class HeadToHeadScorePadRobot(
         else {
             val opponentString =
                     if (opponentRank == null) "Opponent: $opponentName"
-                    else if (opponentName == null) "Opponent (rank $opponentRank)"
-                    else "Opponent (rank $opponentRank): $opponentName"
+                    else if (opponentName == null) "Opponent: (rank $opponentRank)"
+                    else "Opponent: (rank $opponentRank) $opponentName"
             checkElementText(
                     testTag = HeadToHeadScorePadMatchTestTag.OPPONENT_TEXT.getTestTag(match),
                     text = opponentString,

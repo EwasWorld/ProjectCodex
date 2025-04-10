@@ -96,11 +96,13 @@ data class ViewScoresEntryList(
                         displayName = entry.info.displayName,
                         strikethrough = allHaveRounds() && !allRoundFinished(),
                         identicalCount = entries.size,
+                        semanticDisplayName = entry.info.semanticDisplayName,
                 )
             }
             return ViewScoresRoundNameInfo(
                     displayName = entry.info.displayName,
                     strikethrough = entry.info.round != null && !entry.isRoundComplete(),
+                    semanticDisplayName = entry.info.semanticDisplayName,
             )
         }
 
@@ -112,6 +114,7 @@ data class ViewScoresEntryList(
                     displayName = entry.info.displayName,
                     strikethrough = entry.info.round != null && !entry.isRoundComplete(),
                     prefixWithAmpersand = true,
+                    semanticDisplayName = entry.info.semanticDisplayName,
             )
         }
 
@@ -126,8 +129,8 @@ data class ViewScoresEntryList(
 
     val nameSemantics
         get() = listOfNotNull(
-                firstDisplayName.takeIf { it.displayName != null }?.let { getDisplayName(it) },
-                secondDisplayName?.let { getDisplayName(it) },
+                firstDisplayName.takeIf { it.displayName != null }?.let { getDisplayName(it, useSemanticName = true) },
+                secondDisplayName?.let { getDisplayName(it, useSemanticName = true) },
                 totalUndisplayedNamesCount
                         ?.let { ResOrActual.StringResource(R.string.view_score__multiple_ellipses, listOf(it)) },
         )

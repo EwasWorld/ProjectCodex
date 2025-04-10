@@ -11,6 +11,7 @@ import eywa.projectcodex.common.TestUtils.parseDate
 import eywa.projectcodex.common.sharedUi.previewHelpers.RoundPreviewHelper
 import eywa.projectcodex.common.sharedUi.previewHelpers.ShootPreviewHelperDsl
 import eywa.projectcodex.common.utils.DateTimeFormat
+import eywa.projectcodex.components.shootDetails.headToHead.HeadToHeadResult
 import eywa.projectcodex.components.viewScores.actionBar.filters.ViewScoresFiltersTypes
 import eywa.projectcodex.core.mainActivity.MainActivity
 import eywa.projectcodex.database.ScoresRoomDatabase
@@ -25,6 +26,7 @@ import eywa.projectcodex.hiltModules.LocalDatabaseModule.Companion.add
 import eywa.projectcodex.hiltModules.LocalDatastoreModule
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresFiltersRobot
 import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot
+import eywa.projectcodex.instrumentedTests.robots.ViewScoresRobot.Row
 import eywa.projectcodex.instrumentedTests.robots.mainMenuRobot
 import eywa.projectcodex.instrumentedTests.robots.shootDetails.ShootDetailsStatsRobot
 import eywa.projectcodex.model.FullShootInfo
@@ -39,7 +41,7 @@ import java.util.Calendar
 @HiltAndroidTest
 class ViewScoresE2eTest {
     @get:Rule
-    val testTimeout: Timeout = Timeout.seconds(35)
+    val testTimeout: Timeout = Timeout.seconds(40)
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -154,13 +156,45 @@ class ViewScoresE2eTest {
                     shoot = shoot.copy(shootId = 7, dateShot = DateTimeFormat.SHORT_DATE.parse("07/07/2007"))
                     addArrowCounter(7)
                 },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 8, dateShot = DateTimeFormat.SHORT_DATE.parse("10/01/2006"))
+                    addH2h {}
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 9, dateShot = DateTimeFormat.SHORT_DATE.parse("09/01/2006"))
+                    round = rounds[0]
+                    addH2h {
+                        addMatch { }
+                    }
+                },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 10, dateShot = DateTimeFormat.SHORT_DATE.parse("08/01/2006"))
+                    addH2h {
+                        addMatch {
+                            addSet { addRows(result = HeadToHeadResult.LOSS) }
+                            addSet { addRows(result = HeadToHeadResult.LOSS) }
+                            addSet { addRows(result = HeadToHeadResult.LOSS) }
+                        }
+                        addMatch {
+                            addSet { addRows(result = HeadToHeadResult.LOSS) }
+                            addSet { addRows(result = HeadToHeadResult.LOSS) }
+                            addSet { addRows(result = HeadToHeadResult.LOSS) }
+                        }
+                        addMatch {
+                            addSet { addRows(result = HeadToHeadResult.WIN) }
+                            addSet { addRows(result = HeadToHeadResult.WIN) }
+                            addSet { addRows(result = HeadToHeadResult.WIN) }
+                        }
+                        addMatch { }
+                    }
+                },
         )
 
         populateDb()
 
         composeTestRule.mainMenuRobot {
             clickViewScores {
-                waitForRowCount(7)
+                waitForRowCount(10)
 
                 waitForHsg(0, "1/1/0")
                 waitForHandicap(0, null)
@@ -170,22 +204,22 @@ class ViewScoresE2eTest {
                 checkContentDescription(0, "1 Jan", "Score 1, 10s+ 0, Hits 1")
 
                 waitForHsg(1, "1/2/0")
-                waitForHandicap(1, 88)
+                waitForHandicap(1, 77)
                 waitForRoundName(1, "Metric Round")
                 waitForDate(1, "02/02/12 00:00")
-                checkContentDescription(1, "2 Feb 2012", "Metric Round", "Score 2, 10s+ 0, Hits 1", "Handicap 88")
+                checkContentDescription(1, "2 Feb 2012", "Metric Round", "Score 2, 10s+ 0, Hits 1", "Handicap 77")
 
                 waitForHsg(2, "1/3/0")
-                waitForHandicap(2, 83)
+                waitForHandicap(2, 76)
                 waitForRoundName(2, "Sub Type 1")
                 waitForDate(2, "03/03/11 00:00")
-                checkContentDescription(2, "3 Mar 2011", "Sub Type 1", "Score 3, Golds 0, Hits 1", "Handicap 83")
+                checkContentDescription(2, "3 Mar 2011", "Sub Type 1", "Score 3, Golds 0, Hits 1", "Handicap 76")
 
                 waitForHsg(3, "1/4/0")
-                waitForHandicap(3, 81)
+                waitForHandicap(3, 76)
                 waitForRoundName(3, "Sub Type 2")
                 waitForDate(3, "04/04/10 00:00")
-                checkContentDescription(3, "4 Apr 2010", "Sub Type 2", "Score 4, Golds 0, Hits 1", "Handicap 81")
+                checkContentDescription(3, "4 Apr 2010", "Sub Type 2", "Score 4, Golds 0, Hits 1", "Handicap 76")
 
                 waitForHsg(4, "1/5/0")
                 waitForHandicap(4, null)
@@ -203,11 +237,27 @@ class ViewScoresE2eTest {
                 waitForDate(6, "07/07/07 00:00")
                 checkContentDescription(6, "7 Jul 2007", "Count 7")
 
+                waitForH2hMatches(7, "0 matches")
+                waitForRoundName(7, "Head to head")
+                waitForDate(7, "10/01/06 00:00")
+                checkContentDescription(7, "10 Jan 2006", "Head to head", "0 matches")
+
+                waitForH2hMatches(8, "1 match")
+                waitForRoundName(8, "H2H: Metric Round")
+                waitForDate(8, "09/01/06 00:00")
+                checkContentDescription(8, "9 Jan 2006", "Head to head: Metric Round", "1 match")
+
+                waitForH2hWinsAndLosses(9, "1W-2L")
+                waitForH2hOtherMatches(9, "1 other match")
+                waitForRoundName(9, "Head to head")
+                waitForDate(9, "08/01/06 00:00")
+                checkContentDescription(9, "8 Jan 2006", "Head to head", "1 win, 2 losses, 1 other match")
+
                 LocalDatastoreModule.datastore.setValues(mapOf(DatastoreKey.Use2023HandicapSystem to false))
                 waitForHandicap(0, null)
-                waitForHandicap(1, 64)
-                waitForHandicap(2, 64)
-                waitForHandicap(3, 65)
+                waitForHandicap(1, 62)
+                waitForHandicap(2, 63)
+                waitForHandicap(3, 64)
                 waitForHandicap(4, null)
             }
         }
@@ -634,6 +684,10 @@ class ViewScoresE2eTest {
                     round = RoundPreviewHelper.wa1440RoundData
                     completeRoundWithFinalScore(12)
                 },
+                ShootPreviewHelperDsl.create {
+                    shoot = shoot.copy(shootId = 13, dateShot = "18/10/2020 10:00".parseDate())
+                    addH2h { addMatch { } }
+                },
         )
         rounds = listOf(RoundPreviewHelper.wa1440RoundData, RoundPreviewHelper.wa25RoundData)
         populateDb()
@@ -649,10 +703,11 @@ class ViewScoresE2eTest {
             clickViewScores {
                 checkFiltersCount(0)
                 checkRows(
-                        "1/1/0", "1/2/0", "1/3/0",
-                        144, "1/5/0", "1/6/0",
-                        "1/7/0", "1/8/0", "1/9/0",
-                        "1/10/1", "2/11/1", "2/12/1",
+                        Row.Hsg("1/1/0"), Row.Hsg("1/2/0"), Row.Hsg("1/3/0"),
+                        Row.ArrowCount(144), Row.Hsg("1/5/0"), Row.Hsg("1/6/0"),
+                        Row.Hsg("1/7/0"), Row.Hsg("1/8/0"), Row.Hsg("1/9/0"),
+                        Row.Hsg("1/10/1"), Row.Hsg("2/11/1"), Row.Hsg("2/12/1"),
+                        Row.H2h("1 match"),
                 )
 
                 setFilter {
@@ -661,10 +716,10 @@ class ViewScoresE2eTest {
                 checkFiltersCount(1)
                 waitForRowNotExist(11)
                 checkRows(
-                        "1/1/0", "1/2/0", "1/3/0",
-                        144, "1/5/0", "1/6/0",
-                        "1/7/0", "1/8/0", "1/9/0",
-                        "1/10/1", "2/11/1",
+                        Row.Hsg("1/1/0"), Row.Hsg("1/2/0"), Row.Hsg("1/3/0"),
+                        Row.ArrowCount(144), Row.Hsg("1/5/0"), Row.Hsg("1/6/0"),
+                        Row.Hsg("1/7/0"), Row.Hsg("1/8/0"), Row.Hsg("1/9/0"),
+                        Row.Hsg("1/10/1"), Row.Hsg("2/11/1"),
                 )
 
                 setFilter {
@@ -674,10 +729,10 @@ class ViewScoresE2eTest {
                 checkFiltersCount(1)
                 waitForRowNotExist(11)
                 checkRows(
-                        "1/1/0", "1/2/0", "1/3/0",
-                        144, "1/5/0", "1/6/0",
-                        "1/7/0", "1/8/0", "1/9/0",
-                        "1/10/1", "2/11/1",
+                        Row.Hsg("1/1/0"), Row.Hsg("1/2/0"), Row.Hsg("1/3/0"),
+                        Row.ArrowCount(144), Row.Hsg("1/5/0"), Row.Hsg("1/6/0"),
+                        Row.Hsg("1/7/0"), Row.Hsg("1/8/0"), Row.Hsg("1/9/0"),
+                        Row.Hsg("1/10/1"), Row.Hsg("2/11/1"),
                 )
 
                 setFilter {
@@ -687,37 +742,48 @@ class ViewScoresE2eTest {
                 waitForRowCount(10)
                 waitForRowNotExist(10)
                 checkRows(
-                        "1/2/0", "1/3/0",
-                        144, "1/5/0", "1/6/0",
-                        "1/7/0", "1/8/0", "1/9/0",
-                        "1/10/1", "2/11/1",
+                        Row.Hsg("1/2/0"), Row.Hsg("1/3/0"),
+                        Row.ArrowCount(144), Row.Hsg("1/5/0"), Row.Hsg("1/6/0"),
+                        Row.Hsg("1/7/0"), Row.Hsg("1/8/0"), Row.Hsg("1/9/0"),
+                        Row.Hsg("1/10/1"), Row.Hsg("2/11/1"),
                 )
 
                 setFilter {
+                    clearDateFilters()
                     checkTypeFilter(ViewScoresFiltersTypes.ALL)
                     clickTypeFilter()
                     checkTypeFilter(ViewScoresFiltersTypes.SCORE)
                     clickTypeFilter()
                     checkTypeFilter(ViewScoresFiltersTypes.COUNT)
                 }
-                checkFiltersCount(2)
+                checkFiltersCount(1)
                 waitForRowCount(1)
-                checkRows(144)
+                checkRows(Row.ArrowCount(144))
+
+                setFilter {
+                    clickTypeFilter()
+                    checkTypeFilter(ViewScoresFiltersTypes.HEAD_TO_HEAD)
+                }
+                checkFiltersCount(1)
+                waitForRowCount(1)
+                Row.H2h("1 match")
 
                 setFilter {
                     clickTypeFilter()
                     checkTypeFilter(ViewScoresFiltersTypes.ALL)
                     clickTypeFilter()
                     checkTypeFilter(ViewScoresFiltersTypes.SCORE)
+                    setFromDate(2020, 10, 20)
+                    setUntilDate(2020, 10, 29)
                 }
                 checkFiltersCount(2)
                 waitForRowCount(9)
                 waitForRowNotExist(9)
                 checkRows(
-                        "1/2/0", "1/3/0",
-                        "1/5/0", "1/6/0",
-                        "1/7/0", "1/8/0", "1/9/0",
-                        "1/10/1", "2/11/1",
+                        Row.Hsg("1/2/0"), Row.Hsg("1/3/0"),
+                        Row.Hsg("1/5/0"), Row.Hsg("1/6/0"),
+                        Row.Hsg("1/7/0"), Row.Hsg("1/8/0"), Row.Hsg("1/9/0"),
+                        Row.Hsg("1/10/1"), Row.Hsg("2/11/1"),
                 )
 
                 setFilter {
@@ -726,10 +792,10 @@ class ViewScoresE2eTest {
                 checkFiltersCount(3)
                 waitForRowCount(8)
                 checkRows(
-                        "1/3/0",
-                        "1/5/0", "1/6/0",
-                        "1/7/0", "1/8/0", "1/9/0",
-                        "1/10/1", "2/11/1",
+                        Row.Hsg("1/3/0"),
+                        Row.Hsg("1/5/0"), Row.Hsg("1/6/0"),
+                        Row.Hsg("1/7/0"), Row.Hsg("1/8/0"), Row.Hsg("1/9/0"),
+                        Row.Hsg("1/10/1"), Row.Hsg("2/11/1"),
                 )
 
                 setFilter {
@@ -739,10 +805,10 @@ class ViewScoresE2eTest {
                 checkFiltersCount(3)
                 waitForRowCount(8)
                 checkRows(
-                        "1/3/0",
-                        "1/5/0", "1/6/0",
-                        "1/7/0", "1/8/0", "1/9/0",
-                        "1/10/1", "2/11/1",
+                        Row.Hsg("1/3/0"),
+                        Row.Hsg("1/5/0"), Row.Hsg("1/6/0"),
+                        Row.Hsg("1/7/0"), Row.Hsg("1/8/0"), Row.Hsg("1/9/0"),
+                        Row.Hsg("1/10/1"), Row.Hsg("2/11/1"),
                 )
 
                 setFilter {
@@ -751,10 +817,10 @@ class ViewScoresE2eTest {
                 checkFiltersCount(3)
                 waitForRowCount(7)
                 checkRows(
-                        "1/3/0",
-                        "1/5/0", "1/6/0",
-                        "1/7/0", "1/8/0", "1/9/0",
-                        "1/10/1",
+                        Row.Hsg("1/3/0"),
+                        Row.Hsg("1/5/0"), Row.Hsg("1/6/0"),
+                        Row.Hsg("1/7/0"), Row.Hsg("1/8/0"), Row.Hsg("1/9/0"),
+                        Row.Hsg("1/10/1"),
                 )
 
                 setFilter {
@@ -763,9 +829,9 @@ class ViewScoresE2eTest {
                 checkFiltersCount(4)
                 waitForRowCount(6)
                 checkRows(
-                        "1/5/0", "1/6/0",
-                        "1/7/0", "1/8/0", "1/9/0",
-                        "1/10/1",
+                        Row.Hsg("1/5/0"), Row.Hsg("1/6/0"),
+                        Row.Hsg("1/7/0"), Row.Hsg("1/8/0"), Row.Hsg("1/9/0"),
+                        Row.Hsg("1/10/1"),
                 )
 
                 setFilter {
@@ -774,9 +840,9 @@ class ViewScoresE2eTest {
                 checkFiltersCount(5)
                 waitForRowCount(5)
                 checkRows(
-                        "1/6/0",
-                        "1/7/0", "1/8/0", "1/9/0",
-                        "1/10/1",
+                        Row.Hsg("1/6/0"),
+                        Row.Hsg("1/7/0"), Row.Hsg("1/8/0"), Row.Hsg("1/9/0"),
+                        Row.Hsg("1/10/1"),
                 )
 
                 setFilter {
@@ -788,7 +854,7 @@ class ViewScoresE2eTest {
                 }
                 checkFiltersCount(6)
                 waitForRowCount(2)
-                checkRows("1/7/0", "1/8/0")
+                checkRows(Row.Hsg("1/7/0"), Row.Hsg("1/8/0"))
 
                 setFilter {
                     with(selectRoundsRobot) {
@@ -799,7 +865,7 @@ class ViewScoresE2eTest {
                 }
                 checkFiltersCount(6)
                 waitForRowCount(3)
-                checkRows("1/6/0", "1/9/0", "1/10/1")
+                checkRows(Row.Hsg("1/6/0"), Row.Hsg("1/9/0"), Row.Hsg("1/10/1"))
 
                 setFilter {
                     with(selectRoundsRobot) {
@@ -810,7 +876,7 @@ class ViewScoresE2eTest {
                 }
                 checkFiltersCount(6)
                 waitForRowCount(2)
-                checkRows("1/9/0", "1/10/1")
+                checkRows(Row.Hsg("1/9/0"), Row.Hsg("1/10/1"))
 
                 setFilter {
                     clearRoundsFilter()
@@ -819,7 +885,7 @@ class ViewScoresE2eTest {
                 }
                 checkFiltersCount(6)
                 waitForRowCount(2)
-                checkRows("1/6/0", "1/8/0")
+                checkRows(Row.Hsg("1/6/0"), Row.Hsg("1/8/0"))
 
                 setFilter {
                     clearDateFilters()
@@ -827,7 +893,7 @@ class ViewScoresE2eTest {
                 }
                 checkFiltersCount(4)
                 waitForRowCount(3)
-                checkRows("1/6/0", "1/8/0", "2/12/1")
+                checkRows(Row.Hsg("1/6/0"), Row.Hsg("1/8/0"), Row.Hsg("2/12/1"))
             }
         }
     }

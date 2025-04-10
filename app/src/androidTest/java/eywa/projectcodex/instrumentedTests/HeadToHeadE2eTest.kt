@@ -494,7 +494,9 @@ class HeadToHeadE2eTest {
                                     isEditable = true
                             )
                             checkResultRow(1, HeadToHeadResult.LOSS)
+                            clickResultRow(1, HeadToHeadResult.WIN)
                             clickResultRow(1, HeadToHeadResult.TIE)
+                            clickResultRow(1, HeadToHeadResult.LOSS)
                             clickResultRow(1, HeadToHeadResult.WIN)
                             checkSetResult(3, HeadToHeadResult.WIN)
                             clickConfirmEdit()
@@ -1385,7 +1387,9 @@ class HeadToHeadE2eTest {
                                     isEditable = true
                             )
                             checkResultRow(1, HeadToHeadResult.LOSS)
+                            clickResultRow(1, HeadToHeadResult.WIN)
                             clickResultRow(1, HeadToHeadResult.TIE)
+                            clickResultRow(1, HeadToHeadResult.LOSS)
                             clickResultRow(1, HeadToHeadResult.WIN)
                             checkSetResult(3, HeadToHeadResult.WIN)
                             clickConfirmEdit()

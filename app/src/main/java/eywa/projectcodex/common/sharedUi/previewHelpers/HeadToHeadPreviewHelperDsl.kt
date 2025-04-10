@@ -27,7 +27,7 @@ class HeadToHeadPreviewHelperDsl(shootId: Int) {
     fun addMatch(config: HeadToHeadMatchPreviewHelperDsl.() -> Unit) {
         val heat =
                 if (matches.isEmpty()) 3
-                else matches.maxBy { it.match.matchNumber }.match.heat?.minus(1)?.coerceAtLeast(1)
+                else matches.maxBy { it.match.matchNumber }.match.heat?.minus(1)?.coerceAtLeast(0)
         matches = matches + HeadToHeadMatchPreviewHelperDsl(
                 matchNumber = matches.size + 1,
                 shootId = headToHead.shootId,

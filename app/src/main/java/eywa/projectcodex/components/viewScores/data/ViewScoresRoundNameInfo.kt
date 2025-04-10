@@ -14,4 +14,5 @@ data class ViewScoresRoundNameInfo(
          */
         val identicalCount: Int = 1,
         val prefixWithAmpersand: Boolean = false,
+        val semanticDisplayName: String?,
 )

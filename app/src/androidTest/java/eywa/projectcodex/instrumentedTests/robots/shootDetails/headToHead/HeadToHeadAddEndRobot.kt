@@ -288,8 +288,15 @@ class HeadToHeadAddEndRobot(
 
         val text = if (rank == null) "Opponent:\n$name"
         else if (name == null) "Opponent:\nrank $rank"
-        else "Opponent (rank $rank):\n$name"
+        else "Opponent: (rank $rank)\n$name"
         checkElementText(HeadToHeadAddEndTestTag.OPPONENT, text)
+
+//        perform {
+//            singleNode {
+//                +CodexNodeMatcher.HasTestTag(HeadToHeadAddEndTestTag.OPPONENT)
+//                +CodexNodeInteraction.AssertTextContains(text).waitFor()
+//            }
+//        }
     }
 
     fun checkShootOffWinChip(rowIndex: Int, result: Boolean?) {

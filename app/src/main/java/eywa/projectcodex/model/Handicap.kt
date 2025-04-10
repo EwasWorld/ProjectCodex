@@ -137,9 +137,9 @@ object Handicap {
             check(high.handicap > low.handicap) { "Binary search bounds gone bad" }
 
             val testHc = when {
-                high.score != archerScore - 1 || low.score != archerScore || high.handicap - low.handicap > 10.0.pow(
-                        accuracy
-                ) ->
+                high.score != archerScore - 1
+                        || low.score != archerScore
+                        || high.handicap - low.handicap > 10.0.pow(accuracy) ->
                     (high.handicap + low.handicap) / 2.0
 
                 floor(high.handicap) == floor(low.handicap) -> break

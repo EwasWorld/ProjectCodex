@@ -2,7 +2,7 @@
 <resources>
     <string name="head_to_head_add_end__title">Add Set</string>
     <string name="head_to_head_add_end__opponent_rank_and_name">(rank %1$d) %2$s</string> <!-- (rank 1) Jessica Summers -->
-    <string name="head_to_head_add_end__opponent_rank_and_name_multiline">(rank %1$d) \n%2$s</string> <!-- (rank 1) Jessica Summers -->
+    <string name="head_to_head_add_end__opponent_rank_and_name_multiline">(rank %1$d)\n%2$s</string> <!-- (rank 1) Jessica Summers -->
     <string name="head_to_head_add_end__opponent_rank">(rank %d)</string>  <!-- (rank 1) -->
     <string name="head_to_head_add_end__opponent_rank_multiline">\n(rank %d)</string>  <!-- (rank 1) -->
     <string name="head_to_head_add_end__opponent_name_multiline">\n%s</string> <!-- Jessica Summers -->
@@ -125,6 +125,6 @@
     <string name="head_to_head__info_individual">Individual</string>
     <string name="head_to_head__info_quali_rank">, Rank %d</string>
     <string name="head_to_head__info_quali_rank_total_archers">, Rank %d of %d</string>
-    <string name="head_to_head__info_non_standard">Non-standard format</string>
+    <string name="head_to_head__info_non_standard">\nNon-standard format</string>
     <string name="head_to_head__info_total_archers">, %d archers</string>
 </resources>

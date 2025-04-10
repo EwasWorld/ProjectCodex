@@ -60,6 +60,7 @@ class ClassificationTablesE2eTest {
                         RoundPreviewHelper.yorkRoundData,
                         RoundPreviewHelper.wa25RoundData,
                         RoundPreviewHelper.wa1440RoundData,
+                        RoundPreviewHelper.wa18RoundData,
                 ).forEach { db.add(it) }
                 shoots?.forEach { db.add(it) }
                 archerInfo?.let {

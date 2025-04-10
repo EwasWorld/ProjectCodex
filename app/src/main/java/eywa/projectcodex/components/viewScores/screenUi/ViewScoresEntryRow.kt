@@ -220,20 +220,26 @@ fun ColumnScope.OtherNamesColumn(
 fun DisplayName(
         nameInfo: ViewScoresRoundNameInfo,
         modifier: Modifier = Modifier,
-) =
-        Text(
-                text = getDisplayName(nameInfo).get(),
-                style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textDecoration = if (nameInfo.strikethrough) TextDecoration.LineThrough else TextDecoration.None,
-                modifier = modifier
-        )
+) {
+    val semanticName = getDisplayName(nameInfo, useSemanticName = true).get()
+    Text(
+            text = getDisplayName(nameInfo).get(),
+            style = CodexTypography.NORMAL.copy(color = CodexTheme.colors.onListItemAppOnBackground),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textDecoration = if (nameInfo.strikethrough) TextDecoration.LineThrough else TextDecoration.None,
+            modifier = modifier.semantics {
+                contentDescription = semanticName
+            }
+    )
+}
 
 fun getDisplayName(
         nameInfo: ViewScoresRoundNameInfo,
+        useSemanticName: Boolean = false,
 ): ResOrActual<String> {
-    var text = nameInfo.displayName?.let { ResOrActual.Actual(it) }
+    var text = (if (useSemanticName) nameInfo.semanticDisplayName else nameInfo.displayName)
+            ?.let { ResOrActual.Actual(it) }
             ?: ResOrActual.StringResource(R.string.create_round__no_round)
 
     if (nameInfo.identicalCount == 2) {
