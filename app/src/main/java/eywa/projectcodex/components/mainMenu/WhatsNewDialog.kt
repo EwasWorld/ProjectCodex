@@ -187,10 +187,10 @@ private enum class WhatsNewInfo(
         val importantUpdates: Int? = null,
         val updates: Int? = null,
 ) {
-    V2_5_1(
-            appVersion = AppVersion("2.5.1"),
+    V2_5_2(
+            appVersion = AppVersion("2.5.2"),
             releaseDate = DateTimeFormat.SHORT_DATE.parse("21/04/25"),
-            updates = R.string.whats_new__2_5_1_update,
+            updates = R.string.whats_new__2_5_2_update,
     ),
     V2_5_0(
             appVersion = AppVersion("2.5.0"),
